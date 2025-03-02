@@ -38,7 +38,7 @@ const SecondaryCTA = ({
             <Button
               asChild
               size="lg"
-              className={`${palette.primary} ${palette.primaryHover} ${palette.primaryForeground} px-8 py-6 h-auto text-lg font-semibold`}
+              className={`${palette.primary} ${palette.primaryHover} ${palette.primaryForeground} px-10 py-4 h-auto text-lg font-semibold`}
             >
               <Link to={primaryButtonLink}>{primaryButtonText}</Link>
             </Button>
@@ -47,7 +47,7 @@ const SecondaryCTA = ({
               asChild
               variant="outline"
               size="lg"
-              className={`${palette.border} ${palette.secondaryForeground} ${palette.secondaryHover} hover:text-gray-900 px-8 py-6 h-auto text-lg font-semibold`}
+              className={`${palette.border} ${palette.secondaryForeground} ${palette.secondaryHover} hover:text-gray-900 px-8 py-4 h-auto text-lg font-semibold`}
             >
               <Link to={secondaryButtonLink}>{secondaryButtonText}</Link>
             </Button>
