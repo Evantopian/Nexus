@@ -86,7 +86,7 @@ const HeroSection = ({
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
-              borderRadius: "10px", 
+              borderRadius: "15px", 
             }}
           ></div>
         </div>
