@@ -7,18 +7,18 @@ import BoyFoxCamp from "@/assets/pages/auth/BoyFoxCamping.png";
 
 const SignUp = () => {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen flex-col md:flex-row">
       {/* Left side */}
-      <div className="w-1/2 bg-gradient-to-br from-black to-[#312E68] p-10 flex flex-col justify-between">
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-black to-[#312E68] p-6 md:p-10 flex flex-col justify-between">
         <div>
           <div className="mb-16">
             <Link to="/" className="flex items-center">
-                <img
+              <img
                 src={NexusDragon}
                 alt="Nexus"
-                className="h-10 w-auto mr-2 filter invert" 
-                style={{ transform: 'scale(1.2)' }} 
-                />
+                className="h-10 w-auto mr-2 filter invert"
+                style={{ transform: "scale(1.2)" }}
+              />
             </Link>
           </div>
 
@@ -45,7 +45,7 @@ const SignUp = () => {
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative hidden md:block">
           <img
             src={BoyFoxCamp}
             alt="BoyFoxCamp"
@@ -55,9 +55,9 @@ const SignUp = () => {
       </div>
 
       {/* Right side */}
-      <div className="w-1/2 bg-white p-10 flex flex-col justify-center">
+      <div className="w-full md:w-1/2 bg-white p-6 md:p-10 flex flex-col justify-center">
         <div className="max-w-md mx-auto w-full">
-          <div className="text-right mb-10">
+          <div className="text-right mb-6 md:mb-10">
             <p className="text-gray-600">
               Already have an account?{" "}
               <Link to="/login" className="text-blue-600 hover:underline">
@@ -81,7 +81,7 @@ const SignUp = () => {
                   id="email"
                   type="email"
                   placeholder="Email"
-                  className="w-full p-3 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-md transition-all duration-300 focus:ring-2 focus:ring-black focus:border-transparent"
                 />
               </div>
 
@@ -96,7 +96,7 @@ const SignUp = () => {
                   id="password"
                   type="password"
                   placeholder="Password"
-                  className="w-full p-3 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-md transition-all duration-300 focus:ring-2 focus:ring-black focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Password should be at least 10 characters OR at least 8
@@ -115,7 +115,7 @@ const SignUp = () => {
                   id="username"
                   type="text"
                   placeholder="Username"
-                  className="w-full p-3 border border-gray-300 rounded-md"
+                  className="w-full p-3 border border-gray-300 rounded-md transition-all duration-300 focus:ring-2 focus:ring-black focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Username may only contain alphanumeric characters or single
@@ -125,7 +125,7 @@ const SignUp = () => {
             </div>
           </div>
 
-          <Button className="w-full bg-black text-white py-3 rounded-md flex items-center justify-center">
+          <Button className="w-full bg-black text-white py-3 rounded-md flex items-center justify-center transition-all duration-300 transform hover:scale-105">
             Continue{" "}
             <ArrowRightAltIcon className="ml-2" sx={{ fontSize: 16 }} />
           </Button>
