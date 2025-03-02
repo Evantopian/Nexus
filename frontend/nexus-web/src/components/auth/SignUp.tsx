@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import NexusDragon from "@/assets/Nexus_Dragon.svg";
-import BoyFoxCamp from "@/assets/pages/auth/BoyFoxCamping.png"
+import BoyFoxCamp from "@/assets/pages/auth/BoyFoxCamping.png";
 
 const SignUp = () => {
   return (

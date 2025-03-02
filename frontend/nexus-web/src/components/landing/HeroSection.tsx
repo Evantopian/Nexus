@@ -32,13 +32,13 @@ const HeroSection = ({
         <div className="w-3/5 relative z-10 px-10 md:px-16 lg:px-20 flex flex-col justify-center pt-0">
           {/* Animated badge */}
           <div
-            className={`inline-flex items-center rounded-full px-4 py-1 mb-6 ${palette.muted} backdrop-blur-sm ${palette.border} ${palette.background} w-fit`}
+            className={`border ${palette.border} inline-flex items-center rounded-full px-4 py-1 mb-6 ${palette.muted} backdrop-blur-sm ${palette.border} ${palette.background} w-fit`}
           >
             <span
               className={`animate-pulse mr-2 h-2 w-2 rounded-full ${palette.accent}`}
             ></span>
             <span className="text-sm font-medium">
-              Matchmaking Platform Now Live
+              Matchmaking Platform WIP
             </span>
           </div>
 
@@ -80,7 +80,7 @@ const HeroSection = ({
         {/* Right side - Image */}
         <div className="w-2/3 relative">
           <div
-            className="absolute inset-0"
+            className={`absolute inset-0 ${palette.border}`}
             style={{
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: "cover",
