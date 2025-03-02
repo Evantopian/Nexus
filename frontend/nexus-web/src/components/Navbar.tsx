@@ -11,14 +11,14 @@ const Navbar = ({ transparent = false }: NavbarProps) => {
     <nav
       className={`w-full py-4 px-6 ${transparent ? "bg-transparent" : "bg-white border-b border-gray-200"}`}
     >
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="flex justify-between items-center w-full">
         <div className="flex items-center">
         <Link to="/" className="flex items-center">
             <img
             src={NexusDragon}
             alt="Nexus"
-            className="h-10 w-auto mr-2" // Increase size here
-            style={{ transform: 'scale(1.2)' }} // Slightly scale up the image
+            className="h-10 w-auto mr-2" 
+            style={{ transform: 'scale(1.2)' }} 
             />
             <span
             className={`text-xl font-bold ${transparent ? "text-white" : "text-black"}`}

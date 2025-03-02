@@ -1,3 +1,4 @@
+import React from "react";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -5,6 +6,7 @@ import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { Button } from "../ui/button";
+import { activePalette, ColorPalette } from "@/lib/theme";
 
 interface FooterProps {
   companyName?: string;
@@ -12,6 +14,7 @@ interface FooterProps {
   resourceLinks?: Array<{ label: string; href: string }>;
   legalLinks?: Array<{ label: string; href: string }>;
   socialLinks?: Array<{ icon: React.ReactNode; href: string; label: string }>;
+  palette?: ColorPalette;
 }
 
 const Footer = ({
@@ -49,7 +52,7 @@ const Footer = ({
       href: "https://instagram.com",
       label: "Instagram",
     },
-    { // twitch icon, add by self
+    {
       icon: <SportsEsportsIcon sx={{ fontSize: 20 }} />,
       href: "https://twitch.tv",
       label: "Twitch",
@@ -63,17 +66,20 @@ const Footer = ({
       icon: <GitHubIcon sx={{ fontSize: 20 }} />,
       href: "https://github.com",
       label: "GitHub",
-    }, // add discord icon
+    },
   ],
+  palette = activePalette,
 }: FooterProps) => {
   return (
-    <footer className="w-full bg-gray-900 text-gray-200 py-12 px-4 md:px-8">
+    <footer
+      className={`w-full ${palette.background} ${palette.foreground} py-16 px-6 md:px-10`}
+    >
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Company Info */}
           <div>
             <h3 className="text-xl font-bold mb-4">{companyName}</h3>
-            <p className="mb-4 text-gray-400">
+            <p className={`mb-4 ${palette.mutedForeground}`}>
               Connect with fellow gamers, join tournaments, and level up your
               gaming experience.
             </p>
@@ -85,7 +91,7 @@ const Footer = ({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={link.label}
-                  className="hover:text-primary transition-colors duration-200"
+                  className={`${palette.mutedForeground} hover:${palette.primaryForeground} transition-colors duration-200`}
                 >
                   {link.icon}
                 </a>
@@ -101,7 +107,7 @@ const Footer = ({
                 <li key={index}>
                   <a
                     href={link.href}
-                    className="text-gray-400 hover:text-primary transition-colors duration-200"
+                    className={`${palette.mutedForeground} hover:${palette.primaryForeground} transition-colors duration-200`}
                   >
                     {link.label}
                   </a>
@@ -118,7 +124,7 @@ const Footer = ({
                 <li key={index}>
                   <a
                     href={link.href}
-                    className="text-gray-400 hover:text-primary transition-colors duration-200"
+                    className={`${palette.mutedForeground} hover:${palette.primaryForeground} transition-colors duration-200`}
                   >
                     {link.label}
                   </a>
@@ -130,16 +136,18 @@ const Footer = ({
           {/* Newsletter Signup */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Join Our Newsletter</h3>
-            <p className="text-gray-400 mb-4">
+            <p className={`${palette.mutedForeground} mb-4`}>
               Stay updated with the latest gaming news and events.
             </p>
             <div className="flex flex-col space-y-2">
               <input
                 type="email"
                 placeholder="Your email address"
-                className="px-4 py-2 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className={`px-4 py-2 ${palette.secondary} rounded-md focus:outline-none focus:ring-2 focus:ring-primary`}
               />
-              <Button className="bg-primary hover:bg-primary/90 text-white">
+              <Button
+                className={`${palette.primary} ${palette.primaryHover} ${palette.primaryForeground}`}
+              >
                 Subscribe
               </Button>
             </div>
@@ -147,8 +155,10 @@ const Footer = ({
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm mb-4 md:mb-0">
+        <div
+          className={`mt-12 pt-8 border-t ${palette.border} flex flex-col md:flex-row justify-between items-center`}
+        >
+          <p className={`${palette.mutedForeground} text-sm mb-4 md:mb-0`}>
             © {new Date().getFullYear()} {companyName}. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
@@ -156,7 +166,7 @@ const Footer = ({
               <a
                 key={index}
                 href={link.href}
-                className="text-gray-400 text-sm hover:text-primary transition-colors duration-200"
+                className={`${palette.mutedForeground} text-sm hover:${palette.primaryForeground} transition-colors duration-200`}
               >
                 {link.label}
               </a>

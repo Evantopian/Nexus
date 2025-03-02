@@ -33,7 +33,7 @@ export type ColorPalette = {
     foreground: "text-gray-800",
     muted: "bg-gray-100/80",
     mutedForeground: "text-gray-600",
-    border: "border-gray-200",
+    border: "border-gray-300",
     success: "bg-green-500",
     successForeground: "text-white",
     destructive: "bg-red-500",
