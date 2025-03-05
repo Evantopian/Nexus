@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 
+//*Temp Home Page
 export default function Home({navigation}){
   return (
     <View>
-      <Text>Welcome to Home</Text>
+      <Text>Welcome to Home</Text> 
     </View>
   );
 }
