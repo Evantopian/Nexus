@@ -4,7 +4,6 @@ import routes from "./routes";
 
 function App() {
   const element = useRoutes(routes);
-
   return <Suspense fallback={<p>Loading...</p>}>{element}</Suspense>;
 }
 
