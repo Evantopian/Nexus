@@ -11,12 +11,23 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/Evantopian/Nexus/graph"
+	"github.com/Evantopian/Nexus/internal/database/postgres"
+	"github.com/joho/godotenv"
 	"github.com/vektah/gqlparser/v2/ast"
 )
+
+func init() {
+	// Load environment variables from .env file
+	if err := godotenv.Load(); err != nil {
+		log.Println("Warning: No .env file found")
+	}
+}
 
 const defaultPort = "8080"
 
 func main() {
+	postgres.ConnectPostgres()
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
