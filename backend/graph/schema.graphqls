@@ -1,0 +1,39 @@
+# Custom UUID Scalar type
+scalar UUID
+
+# Define the User type
+type User {
+  uuid: UUID! # Unique identifier for the user (UUID)
+  email: String! # User's email address
+  username: String! # User's unique username
+  password: String! # User's password (stored securely, should be hashed)
+  profileImg: String # URL or path to the user's profile image
+  profileMessage: String # A short bio or status message for the user
+  status: String # e.g., "online", "offline", "busy"
+  rank: String # User's rank (optional)
+  friendsList: [UUID] # List of UUIDs representing the user's friends
+  friendsRequest: [UUID] # List of UUIDs for incoming friend requests
+  createdAt: String # Account creation time (formatted as a string)
+}
+
+# Root Query type (Protected Query)
+type Query {
+  profile: User
+}
+
+# Root Mutation type (Protected User Management)
+type Mutation {
+  updateUser(
+    username: String
+    email: String
+    password: String
+    profileImg: String
+    profileMessage: String
+    status: String
+    rank: String
+    friendsList: [UUID]
+    friendsRequest: [UUID]
+  ): User!
+
+  deleteUser: Boolean!
+}
