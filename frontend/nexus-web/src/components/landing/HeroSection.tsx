@@ -14,7 +14,7 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({
-  title = "Find Your Epic Quest Party",
+  title = "Try Nexus Today",
   description = "Connect with like-minded gamers, form the ultimate party, and conquer challenges together. Whether you're raiding dungeons or battling royale, find your perfect squad now.",
   ctaText = "Start Your Adventure",
   backgroundImage = BoyGirlBG,
@@ -25,12 +25,11 @@ const HeroSection = ({
     <div
       className={`relative h-[750px] w-full ${palette.secondary} overflow-hidden p-0 m-0`}
     >
-      {/* Split layout container */}
       {/* Desktop layout */}
       <div className="hidden md:flex h-full">
         {/* Left side - Content */}
         <div className="w-3/5 relative z-10 px-10 md:px-16 lg:px-20 flex flex-col justify-center pt-0">
-          {/* Animated badge */}
+          {/* Animated badge for the wip*/}
           <div
             className={`border ${palette.border} inline-flex items-center rounded-full px-4 py-1 mb-6 ${palette.muted} backdrop-blur-sm ${palette.border} ${palette.background} w-fit`}
           >
@@ -38,7 +37,7 @@ const HeroSection = ({
               className={`animate-pulse mr-2 h-2 w-2 rounded-full ${palette.accent}`}
             ></span>
             <span className="text-sm font-medium">
-              Matchmaking Platform WIP
+              Some Alpha/Beta Text
             </span>
           </div>
 

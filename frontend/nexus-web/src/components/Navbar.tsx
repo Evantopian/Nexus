@@ -18,7 +18,6 @@ const Navbar = ({ transparent = false }: NavbarProps) => {
             src={NexusDragon}
             alt="Nexus"
             className="h-10 w-auto mr-2" 
-            style={{ transform: 'scale(1.2)' }} 
             />
             <span
             className={`text-xl font-bold ${transparent ? "text-white" : "text-black"}`}
@@ -27,7 +26,6 @@ const Navbar = ({ transparent = false }: NavbarProps) => {
             </span>
         </Link>
         </div>
-
 
         <div className="hidden md:flex items-center space-x-8">
           <Link
