@@ -2,25 +2,26 @@
 
 package model
 
-type Mutation struct {
-}
+import (
+	"github.com/google/uuid"
+)
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type Mutation struct {
 }
 
 type Query struct {
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
-}
-
 type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	UUID           uuid.UUID    `json:"uuid"`
+	Email          string       `json:"email"`
+	Username       string       `json:"username"`
+	Password       string       `json:"password"`
+	ProfileImg     *string      `json:"profileImg,omitempty"`
+	ProfileMessage *string      `json:"profileMessage,omitempty"`
+	Status         *string      `json:"status,omitempty"`
+	Rank           *string      `json:"rank,omitempty"`
+	FriendsList    []*uuid.UUID `json:"friendsList,omitempty"`
+	FriendsRequest []*uuid.UUID `json:"friendsRequest,omitempty"`
+	CreatedAt      *string      `json:"createdAt,omitempty"`
 }
