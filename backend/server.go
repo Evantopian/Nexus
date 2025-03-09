@@ -5,6 +5,7 @@ import (
 
 	"github.com/Evantopian/Nexus/internal/database/postgres"
 	"github.com/Evantopian/Nexus/internal/handler"
+	"github.com/gin-contrib/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -20,6 +21,9 @@ func main() {
 
 	// Set up new gin router
 	r := handler.SetUpHandler()
+
+	// Allow all origins, for dev environment
+	r.Use(cors.Default())
 
 	port := "8080"
 	log.Printf("Server running at http://localhost:%s", port)
