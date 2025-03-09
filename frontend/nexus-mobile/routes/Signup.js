@@ -1,9 +1,16 @@
 import React from "react";
+import { LinearGradient } from 'expo-linear-gradient';
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from "react-native";
 
 export default function Signup({ navigation }) {
     return (
-      <View style={styles.container}>
+        <LinearGradient
+        colors={["#000000", "#121025", "#292649"]}
+        locations={[0.03, 0.49, 1]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.container}
+        >
             {/* Logo */}
             <Image source={require('../assets/logo.png')} style={styles.logo} />
     
@@ -50,7 +57,7 @@ export default function Signup({ navigation }) {
                 <Text style={styles.signInLink}>Sign In →</Text>
             </TouchableOpacity>
             </View>
-      </View>
+      </LinearGradient>
     );
 }
 
@@ -60,7 +67,6 @@ export const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         padding: 20,
-        backgroundColor: "#121025",
     },
       logo: {
         width: 50,
