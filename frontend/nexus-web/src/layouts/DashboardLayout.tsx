@@ -11,12 +11,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [sidebarWidth, setSidebarWidth] = useState("ml-56");
   const [topNavVisible, setTopNavVisible] = useState(false);
 
-  // debugging for routing
+  // Debug current route
   useEffect(() => {
     console.log("Current route:", location.pathname);
   }, [location]);
 
-  // observer sidebar for the dashboard items to be dyanamic accoriding to it.
   useEffect(() => {
     const sidebarObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -50,7 +49,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       });
     }
 
-    // top navbar observer and cleaner
+    // Observe the body for changes to detect when TopNavigation is added/removed
     const bodyElement = document.body;
     if (bodyElement) {
       topNavObserver.observe(bodyElement, {
@@ -59,6 +58,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       });
     }
 
+    // Check if TopNavigation is already visible on mount
     const topNav = document.querySelector(".fixed.top-0.left-0.right-0");
     setTopNavVisible(
       !!topNav && window.getComputedStyle(topNav).display !== "none",
@@ -70,20 +70,19 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     };
   }, []);
 
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
       <DashboardSidebar />
-      <main
-        className={`transition-all duration-300 ${sidebarWidth} w-[calc(100%-16rem)] mx-auto px-4 pb-8 ${topNavVisible ? "pt-24" : "pt-6"} overflow-x-hidden`}
+        <main
+        className={`transition-all duration-300 ${sidebarWidth} pb-8 ${topNavVisible ? "pt-24" : "pt-6"}`}
         style={{
-          width:
-            sidebarWidth === "ml-56"
-              ? "calc(100% - 14rem)"
-              : "calc(100% - 4rem)",
+          width: sidebarWidth === "ml-56" ? "calc(100% - 14rem)" : "calc(100% - 4rem)",
+          maxWidth: "100vw"
         }}
-      >
-        {children || <Outlet />}
-      </main>
+        >
+          <div className="w-full h-full px-4">{children || <Outlet />}</div>
+        </main>
     </div>
   );
 };
