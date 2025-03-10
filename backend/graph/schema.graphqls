@@ -16,12 +16,12 @@ type User {
   profileImg: String # URL or path to the user's profile image
   profileMessage: String # A short bio or status message for the user
   status: String # e.g., "online", "offline", "busy"
-  reputation: Int! #Player's reputation (starts at 0, can go negative)
+  reputation: Int! # Player's reputation (starts at 0, can go negative)
   rank: String # User's rank (optional)
-  friendsList: [UUID] # List of UUIDs representing the user's friends
-  friendsRequest: [UUID] # List of UUIDs for incoming friend requests
   createdAt: String # Account creation time (formatted as a string)
   preferences: Preferences # User's game preferences
+  friendsList: [Friend] # List of friends for this user
+  friendRequests: [FriendRequest] # List of friend requests associated with the user
 }
 
 # Define the Preferences type
@@ -30,9 +30,23 @@ type Preferences {
   playstyle: Playstyle! # User's playstyle (Competitive, Casual, etc.)
 }
 
+# Friend type
+type Friend {
+  user: User! # The user who is a friend
+  since: String! # Date when they became friends
+}
+
+# FriendRequest type
+type FriendRequest {
+  sender: User! # The user who sent the friend request
+  receiver: User! # The user who received the friend request
+  status: String! # 'pending', 'accepted', or 'rejected'
+  requestedAt: String! # The time the request was made
+}
+
 # Root Query type (Protected Query)
 type Query {
-  profile: User
+  profile: User! # Get the user's profile
 }
 
 # Root Mutation type (Protected User Management)
@@ -46,8 +60,14 @@ type Mutation {
     status: String
     rank: String
   ): User!
-  deleteUser: Boolean!
 
+  deleteUser: Boolean! # Delete the user and their related data (friends, friend requests)
   adjustRep(amount: Int!): Boolean!
+
+  updatePreference(region: String, playstyle: Playstyle): Preferences!
+
+  sendFriendRequest(receiverId: UUID!): FriendRequest! # Send a friend request
+  acceptFriendRequest(senderId: UUID!): Boolean! # Accept a friend request
+  rejectFriendRequest(senderId: UUID!): Boolean! # Reject a friend request
+  removeFriend(friendId: UUID!): Boolean! # Remove a friend
 }
-# deleteUser should also delete all traces of user example in friendlist/friendrequest

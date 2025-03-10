@@ -6,9 +6,11 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/Evantopian/Nexus/graph/resolver"
+	"github.com/google/uuid"
 )
 
 // UpdateUser is the resolver for the updateUser field.
@@ -24,6 +26,31 @@ func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
 // AdjustRep is the resolver for the adjustRep field.
 func (r *mutationResolver) AdjustRep(ctx context.Context, amount int32) (bool, error) {
 	return resolver.AdjustRep(ctx, int(amount))
+}
+
+// UpdatePreference is the resolver for the updatePreference field.
+func (r *mutationResolver) UpdatePreference(ctx context.Context, region *string, playstyle *model.Playstyle) (*model.Preferences, error) {
+	return resolver.UpdatePreference(ctx, region, playstyle)
+}
+
+// SendFriendRequest is the resolver for the sendFriendRequest field.
+func (r *mutationResolver) SendFriendRequest(ctx context.Context, receiverID uuid.UUID) (*model.FriendRequest, error) {
+	panic(fmt.Errorf("not implemented: SendFriendRequest - sendFriendRequest"))
+}
+
+// AcceptFriendRequest is the resolver for the acceptFriendRequest field.
+func (r *mutationResolver) AcceptFriendRequest(ctx context.Context, senderID uuid.UUID) (bool, error) {
+	panic(fmt.Errorf("not implemented: AcceptFriendRequest - acceptFriendRequest"))
+}
+
+// RejectFriendRequest is the resolver for the rejectFriendRequest field.
+func (r *mutationResolver) RejectFriendRequest(ctx context.Context, senderID uuid.UUID) (bool, error) {
+	panic(fmt.Errorf("not implemented: RejectFriendRequest - rejectFriendRequest"))
+}
+
+// RemoveFriend is the resolver for the removeFriend field.
+func (r *mutationResolver) RemoveFriend(ctx context.Context, friendID uuid.UUID) (bool, error) {
+	panic(fmt.Errorf("not implemented: RemoveFriend - removeFriend"))
 }
 
 // Profile is the resolver for the profile field.
