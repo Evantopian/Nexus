@@ -1,6 +1,12 @@
 # Custom UUID Scalar type
 scalar UUID
 
+# Enum for Playstyle
+enum Playstyle {
+  COMPETITIVE
+  CASUAL
+}
+
 # Define the User type
 type User {
   uuid: UUID! # Unique identifier for the user (UUID)
@@ -10,10 +16,18 @@ type User {
   profileImg: String # URL or path to the user's profile image
   profileMessage: String # A short bio or status message for the user
   status: String # e.g., "online", "offline", "busy"
+  reputation: Int! #Player's reputation (starts at 0, can go negative)
   rank: String # User's rank (optional)
   friendsList: [UUID] # List of UUIDs representing the user's friends
   friendsRequest: [UUID] # List of UUIDs for incoming friend requests
   createdAt: String # Account creation time (formatted as a string)
+  preferences: Preferences # User's game preferences
+}
+
+# Define the Preferences type
+type Preferences {
+  region: String! # User's preferred region (e.g., "NA", "EU")
+  playstyle: Playstyle! # User's playstyle (Competitive, Casual, etc.)
 }
 
 # Root Query type (Protected Query)
@@ -31,9 +45,9 @@ type Mutation {
     profileMessage: String
     status: String
     rank: String
-    friendsList: [UUID]
-    friendsRequest: [UUID]
   ): User!
-
   deleteUser: Boolean!
+
+  adjustRep(amount: Int!): Boolean!
 }
+# deleteUser should also delete all traces of user example in friendlist/friendrequest

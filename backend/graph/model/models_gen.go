@@ -3,10 +3,19 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+
 	"github.com/google/uuid"
 )
 
 type Mutation struct {
+}
+
+type Preferences struct {
+	Region    string    `json:"region"`
+	Playstyle Playstyle `json:"playstyle"`
 }
 
 type Query struct {
@@ -20,8 +29,51 @@ type User struct {
 	ProfileImg     *string      `json:"profileImg,omitempty"`
 	ProfileMessage *string      `json:"profileMessage,omitempty"`
 	Status         *string      `json:"status,omitempty"`
+	Reputation     int32        `json:"reputation"`
 	Rank           *string      `json:"rank,omitempty"`
 	FriendsList    []*uuid.UUID `json:"friendsList,omitempty"`
 	FriendsRequest []*uuid.UUID `json:"friendsRequest,omitempty"`
 	CreatedAt      *string      `json:"createdAt,omitempty"`
+	Preferences    *Preferences `json:"preferences,omitempty"`
+}
+
+type Playstyle string
+
+const (
+	PlaystyleCompetitive Playstyle = "COMPETITIVE"
+	PlaystyleCasual      Playstyle = "CASUAL"
+)
+
+var AllPlaystyle = []Playstyle{
+	PlaystyleCompetitive,
+	PlaystyleCasual,
+}
+
+func (e Playstyle) IsValid() bool {
+	switch e {
+	case PlaystyleCompetitive, PlaystyleCasual:
+		return true
+	}
+	return false
+}
+
+func (e Playstyle) String() string {
+	return string(e)
+}
+
+func (e *Playstyle) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Playstyle(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Playstyle", str)
+	}
+	return nil
+}
+
+func (e Playstyle) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
