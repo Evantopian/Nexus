@@ -9,6 +9,7 @@ import (
 	contextkey "github.com/Evantopian/Nexus/internal/services"
 )
 
+// AdjustRep adjusts the user's reputation and returns if it worked
 func AdjustRep(ctx context.Context, value int) (bool, error) {
 	uuid, exists := ctx.Value(contextkey.UserUUIDKey).(string)
 	if !exists || uuid == "" {

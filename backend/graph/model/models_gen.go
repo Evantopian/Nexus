@@ -10,6 +10,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type Friend struct {
+	User  *User  `json:"user"`
+	Since string `json:"since"`
+}
+
+type FriendRequest struct {
+	Sender      *User  `json:"sender"`
+	Receiver    *User  `json:"receiver"`
+	Status      string `json:"status"`
+	RequestedAt string `json:"requestedAt"`
+}
+
 type Mutation struct {
 }
 
@@ -22,19 +34,19 @@ type Query struct {
 }
 
 type User struct {
-	UUID           uuid.UUID    `json:"uuid"`
-	Email          string       `json:"email"`
-	Username       string       `json:"username"`
-	Password       string       `json:"password"`
-	ProfileImg     *string      `json:"profileImg,omitempty"`
-	ProfileMessage *string      `json:"profileMessage,omitempty"`
-	Status         *string      `json:"status,omitempty"`
-	Reputation     int32        `json:"reputation"`
-	Rank           *string      `json:"rank,omitempty"`
-	FriendsList    []*uuid.UUID `json:"friendsList,omitempty"`
-	FriendsRequest []*uuid.UUID `json:"friendsRequest,omitempty"`
-	CreatedAt      *string      `json:"createdAt,omitempty"`
-	Preferences    *Preferences `json:"preferences,omitempty"`
+	UUID           uuid.UUID        `json:"uuid"`
+	Email          string           `json:"email"`
+	Username       string           `json:"username"`
+	Password       string           `json:"password"`
+	ProfileImg     *string          `json:"profileImg,omitempty"`
+	ProfileMessage *string          `json:"profileMessage,omitempty"`
+	Status         *string          `json:"status,omitempty"`
+	Reputation     int32            `json:"reputation"`
+	Rank           *string          `json:"rank,omitempty"`
+	CreatedAt      *string          `json:"createdAt,omitempty"`
+	Preferences    *Preferences     `json:"preferences,omitempty"`
+	FriendsList    []*Friend        `json:"friendsList,omitempty"`
+	FriendRequests []*FriendRequest `json:"friendRequests,omitempty"`
 }
 
 type Playstyle string

@@ -11,7 +11,7 @@ import (
 	contextkey "github.com/Evantopian/Nexus/internal/services"
 )
 
-// UpdateUser performs the actual functionality of updating a user.
+// UpdateUser updates user with information and returns user
 func UpdateUser(ctx context.Context, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string) (*model.User, error) {
 	// Extract the user UUID from the context
 	uuid, exists := ctx.Value(contextkey.UserUUIDKey).(string)
@@ -41,12 +41,12 @@ func UpdateUser(ctx context.Context, username *string, email *string, password *
 								status = COALESCE($5, status), 
 								rank = COALESCE($6, rank) 
 						WHERE uuid = $7
-						RETURNING uuid, username, email, profile_img, profile_message, status, rank, friends_list, friends_request`
+						RETURNING uuid, username, email, profile_img, profile_message, status, rank`
 
 	// Execute the query and retrieve the updated user data
 	err = postgres.DB.QueryRow(ctx, query, username, email, profileImg, profileMessage, status, rank, uuid).Scan(
 		&user.UUID, &user.Username, &user.Email, &user.ProfileImg,
-		&user.ProfileMessage, &user.Status, &user.Rank, &user.FriendsList, &user.FriendsRequest,
+		&user.ProfileMessage, &user.Status, &user.Rank,
 	)
 
 	if err != nil {
@@ -59,7 +59,7 @@ func UpdateUser(ctx context.Context, username *string, email *string, password *
 	return &user, nil
 }
 
-// DeleteUser performs the actual functionality of deleting a user.
+// DeleteUser deletes the current user and returns if it worked
 func DeleteUser(ctx context.Context) (bool, error) {
 	uuid, exists := ctx.Value(contextkey.UserUUIDKey).(string)
 	if !exists || uuid == "" {
@@ -88,11 +88,22 @@ func DeleteUser(ctx context.Context) (bool, error) {
 	return true, nil
 }
 
-// Profile fetches the profile information of the user.
+// Profile fetches the profile information of the user and returns them.
 func Profile(ctx context.Context) (*model.User, error) {
 	uuid, exists := ctx.Value(contextkey.UserUUIDKey).(string)
 	if !exists || uuid == "" {
 		return nil, fmt.Errorf("authorization token missing or invalid from resolver")
+	}
+
+	// Check if user exists before fetching
+	var check bool
+	checkQuery := "SELECT EXISTS (SELECT 1 FROM users WHERE uuid=$1)"
+	err := postgres.DB.QueryRow(ctx, checkQuery, uuid).Scan(&check)
+	if err != nil {
+		return nil, fmt.Errorf("error checking user existence: %v", err)
+	}
+	if !check {
+		return nil, fmt.Errorf("user not found")
 	}
 
 	var user model.User
@@ -100,12 +111,12 @@ func Profile(ctx context.Context) (*model.User, error) {
 
 	// Query the user from the database using the UUID
 	query := `SELECT uuid, username, email, COALESCE(profile_img, ''), COALESCE(profile_message, ''), 
-							COALESCE(status, ''), reputation, COALESCE(rank, ''), friends_list, friends_request, created_at 
+							COALESCE(status, ''), COALESCE(rank, ''), friends_list, friends_request, created_at, preferences
 						FROM users WHERE uuid=$1;`
 
-	err := postgres.DB.QueryRow(ctx, query, uuid).Scan(
+	err = postgres.DB.QueryRow(ctx, query, uuid).Scan(
 		&user.UUID, &user.Username, &user.Email, &user.ProfileImg,
-		&user.ProfileMessage, &user.Status, &user.Reputation, &user.Rank, &user.FriendsList, &user.FriendsRequest, &createdAt,
+		&user.ProfileMessage, &user.Status, &user.Rank, &user.FriendsList, &user.FriendRequests, &createdAt, &user.Preferences,
 	)
 
 	if err != nil {
