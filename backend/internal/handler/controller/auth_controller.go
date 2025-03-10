@@ -17,18 +17,21 @@ import (
 var tokenExpiryMinutes = 30
 
 // User represents a user account.
+// User represents a user account.
 type User struct {
 	UUID           string    `json:"uuid" db:"uuid" bson:"uuid"`    // Unique identifier for the user.
 	Email          string    `json:"email" db:"email" bson:"email"` // User email.
 	Password       string    `json:"password,omitempty" db:"password" bson:"password"`
-	Username       string    `json:"username" db:"username" bson:"username"`                                 // Unique username.
-	ProfileImg     string    `json:"profile_img" db:"profile_img" bson:"profile_img"`                        // URL or path to profile image.
-	ProfileMessage string    `json:"profile_message" db:"profile_message" bson:"profile_message"`            // A short bio or status message.
-	Status         string    `json:"status" db:"status" bson:"status"`                                       // e.g., "online", "offline", "busy".
-	Rank           string    `json:"rank,omitempty" db:"rank" bson:"rank,omitempty"`                         // User rank (optional).
-	FriendsList    []string  `json:"friends_list,omitempty" db:"friends_list" bson:"friends_list,omitempty"` // List of friend UUIDs.
+	Username       string    `json:"username" db:"username" bson:"username"`                                          // Unique username.
+	ProfileImg     string    `json:"profile_img,omitempty" db:"profile_img" bson:"profile_img,omitempty"`             // URL or path to profile image.
+	ProfileMessage string    `json:"profile_message,omitempty" db:"profile_message" bson:"profile_message,omitempty"` // A short bio or status message.
+	Status         string    `json:"status,omitempty" db:"status" bson:"status,omitempty"`                            // e.g., "online", "offline", "busy".
+	Reputation     int       `json:"reputation" db:"reputation" bson:"reputation"`                                    // Player's reputation (-100 to 1000).
+	Rank           string    `json:"rank,omitempty" db:"rank" bson:"rank,omitempty"`                                  // User rank (optional).
+	FriendsList    []string  `json:"friends_list,omitempty" db:"friends_list" bson:"friends_list,omitempty"`          // List of friend UUIDs.
 	FriendsRequest []string  `json:"friends_request,omitempty" db:"friends_request" bson:"friends_request,omitempty"`
-	CreatedAt      time.Time `json:"created_at" db:"created_at" bson:"created_at"` // Account creation time.
+	CreatedAt      time.Time `json:"created_at" db:"created_at" bson:"created_at"`                        // Account creation time.
+	Preferences    string    `json:"preferences,omitempty" db:"preferences" bson:"preferences,omitempty"` // JSONB field for user preferences.
 }
 
 // SignupRequest - Struct for signup request
