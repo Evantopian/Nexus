@@ -66,10 +66,16 @@ http://localhost:8080/
 
 Use the /query endpoint for sending GraphQL requests.
 
-Example:
+Be sure to put this under Headers with the correct token:
 
 ```bash
-{
+"Authorization": "Bearer <token>"
+```
+
+Profile Query Example:
+
+```bash
+query {
   profile {
     uuid
     username
@@ -77,14 +83,75 @@ Example:
     profileImg
     profileMessage
     status
+    reputation
     rank
     createdAt
+    friendsList {
+      user {
+        username
+      }
+      since
+    }
+    friendRequests {
+      sender {
+        uuid
+        username
+        profileImg
+        status
+      }
+      receiver {
+        uuid
+        username
+        profileImg
+        status
+      }
+      status
+      requestedAt
+    }
+    preferences {
+      region
+      playstyle
+    }
   }
 }
 ```
 
-Under Headers:
+Profile Query Example (Showing you can choose what you need):
 
 ```bash
-"Authorization": "Bearer <token>"
+query {
+  profile {
+    uuid
+    username
+    email
+    profileImg
+    profileMessage
+    status
+    reputation
+    rank
+  }
+}
+```
+
+Update User Mutation Example:
+
+```bash
+mutation {
+  updateUser(
+    username: "NewUsername"
+    email: "newemail@example.com"
+    profileImg: "https://example.com/new-image.jpg"
+    profileMessage: "Hello, world!"
+    status: "online"
+    rank: "gold"
+  ) {
+    uuid
+    username
+    email
+    profileImg
+    profileMessage
+    status
+    rank
+  }
+}
 ```
