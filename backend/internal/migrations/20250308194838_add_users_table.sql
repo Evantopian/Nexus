@@ -12,9 +12,7 @@ CREATE TABLE users (
     status TEXT, -- e.g., "online", "offline", "busy"
     reputation INT NOT NULL DEFAULT 0 CHECK (reputation >= -100 AND reputation <= 1000), -- Reputation starts at 0 with floor -100 and 1000 as ceiling
     rank TEXT, -- User's rank (optional)
-    friends_list UUID[], -- List of UUIDs representing the user's friends
-    friends_request UUID[], -- List of UUIDs for incoming or outgoing friend requests
-    created_at TIMESTAMP DEFAULT NOW(), -- Account creation time
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Account creation time
     preferences JSONB -- User's game preferences (you can store preferences as a JSON object)
 );
 -- +goose StatementEnd

@@ -48,16 +48,16 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	Friend struct {
-		Since func(childComplexity int) int
-		User  func(childComplexity int) int
-	}
-
 	FriendRequest struct {
 		Receiver    func(childComplexity int) int
 		RequestedAt func(childComplexity int) int
 		Sender      func(childComplexity int) int
 		Status      func(childComplexity int) int
+	}
+
+	FriendRequestsList struct {
+		Received func(childComplexity int) int
+		Sent     func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -77,14 +77,14 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Profile func(childComplexity int) int
+		GetFriendRequests func(childComplexity int) int
+		GetFriends        func(childComplexity int) int
+		Profile           func(childComplexity int) int
 	}
 
 	User struct {
 		CreatedAt      func(childComplexity int) int
 		Email          func(childComplexity int) int
-		FriendRequests func(childComplexity int) int
-		FriendsList    func(childComplexity int) int
 		Password       func(childComplexity int) int
 		Preferences    func(childComplexity int) int
 		ProfileImg     func(childComplexity int) int
@@ -109,6 +109,8 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Profile(ctx context.Context) (*model.User, error)
+	GetFriends(ctx context.Context) ([]*model.User, error)
+	GetFriendRequests(ctx context.Context) (*model.FriendRequestsList, error)
 }
 
 type executableSchema struct {
@@ -129,20 +131,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "Friend.since":
-		if e.complexity.Friend.Since == nil {
-			break
-		}
-
-		return e.complexity.Friend.Since(childComplexity), true
-
-	case "Friend.user":
-		if e.complexity.Friend.User == nil {
-			break
-		}
-
-		return e.complexity.Friend.User(childComplexity), true
 
 	case "FriendRequest.receiver":
 		if e.complexity.FriendRequest.Receiver == nil {
@@ -171,6 +159,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.FriendRequest.Status(childComplexity), true
+
+	case "FriendRequestsList.received":
+		if e.complexity.FriendRequestsList.Received == nil {
+			break
+		}
+
+		return e.complexity.FriendRequestsList.Received(childComplexity), true
+
+	case "FriendRequestsList.sent":
+		if e.complexity.FriendRequestsList.Sent == nil {
+			break
+		}
+
+		return e.complexity.FriendRequestsList.Sent(childComplexity), true
 
 	case "Mutation.acceptFriendRequest":
 		if e.complexity.Mutation.AcceptFriendRequest == nil {
@@ -277,6 +279,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Preferences.Region(childComplexity), true
 
+	case "Query.getFriendRequests":
+		if e.complexity.Query.GetFriendRequests == nil {
+			break
+		}
+
+		return e.complexity.Query.GetFriendRequests(childComplexity), true
+
+	case "Query.getFriends":
+		if e.complexity.Query.GetFriends == nil {
+			break
+		}
+
+		return e.complexity.Query.GetFriends(childComplexity), true
+
 	case "Query.profile":
 		if e.complexity.Query.Profile == nil {
 			break
@@ -297,20 +313,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Email(childComplexity), true
-
-	case "User.friendRequests":
-		if e.complexity.User.FriendRequests == nil {
-			break
-		}
-
-		return e.complexity.User.FriendRequests(childComplexity), true
-
-	case "User.friendsList":
-		if e.complexity.User.FriendsList == nil {
-			break
-		}
-
-		return e.complexity.User.FriendsList(childComplexity), true
 
 	case "User.password":
 		if e.complexity.User.Password == nil {
@@ -908,122 +910,6 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Friend_user(ctx context.Context, field graphql.CollectedField, obj *model.Friend) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Friend_user(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.User)
-	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Friend_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Friend",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "uuid":
-				return ec.fieldContext_User_uuid(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
-			case "profileImg":
-				return ec.fieldContext_User_profileImg(ctx, field)
-			case "profileMessage":
-				return ec.fieldContext_User_profileMessage(ctx, field)
-			case "status":
-				return ec.fieldContext_User_status(ctx, field)
-			case "reputation":
-				return ec.fieldContext_User_reputation(ctx, field)
-			case "rank":
-				return ec.fieldContext_User_rank(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "preferences":
-				return ec.fieldContext_User_preferences(ctx, field)
-			case "friendsList":
-				return ec.fieldContext_User_friendsList(ctx, field)
-			case "friendRequests":
-				return ec.fieldContext_User_friendRequests(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Friend_since(ctx context.Context, field graphql.CollectedField, obj *model.Friend) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Friend_since(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Since, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Friend_since(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Friend",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _FriendRequest_sender(ctx context.Context, field graphql.CollectedField, obj *model.FriendRequest) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_FriendRequest_sender(ctx, field)
 	if err != nil {
@@ -1050,9 +936,9 @@ func (ec *executionContext) _FriendRequest_sender(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_FriendRequest_sender(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1062,35 +948,7 @@ func (ec *executionContext) fieldContext_FriendRequest_sender(_ context.Context,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "uuid":
-				return ec.fieldContext_User_uuid(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
-			case "profileImg":
-				return ec.fieldContext_User_profileImg(ctx, field)
-			case "profileMessage":
-				return ec.fieldContext_User_profileMessage(ctx, field)
-			case "status":
-				return ec.fieldContext_User_status(ctx, field)
-			case "reputation":
-				return ec.fieldContext_User_reputation(ctx, field)
-			case "rank":
-				return ec.fieldContext_User_rank(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "preferences":
-				return ec.fieldContext_User_preferences(ctx, field)
-			case "friendsList":
-				return ec.fieldContext_User_friendsList(ctx, field)
-			case "friendRequests":
-				return ec.fieldContext_User_friendRequests(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1122,9 +980,9 @@ func (ec *executionContext) _FriendRequest_receiver(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_FriendRequest_receiver(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1134,35 +992,7 @@ func (ec *executionContext) fieldContext_FriendRequest_receiver(_ context.Contex
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "uuid":
-				return ec.fieldContext_User_uuid(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
-			case "profileImg":
-				return ec.fieldContext_User_profileImg(ctx, field)
-			case "profileMessage":
-				return ec.fieldContext_User_profileMessage(ctx, field)
-			case "status":
-				return ec.fieldContext_User_status(ctx, field)
-			case "reputation":
-				return ec.fieldContext_User_reputation(ctx, field)
-			case "rank":
-				return ec.fieldContext_User_rank(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "preferences":
-				return ec.fieldContext_User_preferences(ctx, field)
-			case "friendsList":
-				return ec.fieldContext_User_friendsList(ctx, field)
-			case "friendRequests":
-				return ec.fieldContext_User_friendRequests(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1256,6 +1086,114 @@ func (ec *executionContext) fieldContext_FriendRequest_requestedAt(_ context.Con
 	return fc, nil
 }
 
+func (ec *executionContext) _FriendRequestsList_sent(ctx context.Context, field graphql.CollectedField, obj *model.FriendRequestsList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FriendRequestsList_sent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sent, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.FriendRequest)
+	fc.Result = res
+	return ec.marshalNFriendRequest2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequest(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FriendRequestsList_sent(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FriendRequestsList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sender":
+				return ec.fieldContext_FriendRequest_sender(ctx, field)
+			case "receiver":
+				return ec.fieldContext_FriendRequest_receiver(ctx, field)
+			case "status":
+				return ec.fieldContext_FriendRequest_status(ctx, field)
+			case "requestedAt":
+				return ec.fieldContext_FriendRequest_requestedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FriendRequest", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _FriendRequestsList_received(ctx context.Context, field graphql.CollectedField, obj *model.FriendRequestsList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_FriendRequestsList_received(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Received, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.FriendRequest)
+	fc.Result = res
+	return ec.marshalNFriendRequest2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequest(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_FriendRequestsList_received(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "FriendRequestsList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sender":
+				return ec.fieldContext_FriendRequest_sender(ctx, field)
+			case "receiver":
+				return ec.fieldContext_FriendRequest_receiver(ctx, field)
+			case "status":
+				return ec.fieldContext_FriendRequest_status(ctx, field)
+			case "requestedAt":
+				return ec.fieldContext_FriendRequest_requestedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FriendRequest", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_updateUser(ctx, field)
 	if err != nil {
@@ -1317,10 +1255,6 @@ func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "preferences":
 				return ec.fieldContext_User_preferences(ctx, field)
-			case "friendsList":
-				return ec.fieldContext_User_friendsList(ctx, field)
-			case "friendRequests":
-				return ec.fieldContext_User_friendRequests(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1878,12 +1812,126 @@ func (ec *executionContext) fieldContext_Query_profile(_ context.Context, field 
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "preferences":
 				return ec.fieldContext_User_preferences(ctx, field)
-			case "friendsList":
-				return ec.fieldContext_User_friendsList(ctx, field)
-			case "friendRequests":
-				return ec.fieldContext_User_friendRequests(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getFriends(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getFriends(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetFriends(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getFriends(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "uuid":
+				return ec.fieldContext_User_uuid(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "profileImg":
+				return ec.fieldContext_User_profileImg(ctx, field)
+			case "profileMessage":
+				return ec.fieldContext_User_profileMessage(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
+			case "reputation":
+				return ec.fieldContext_User_reputation(ctx, field)
+			case "rank":
+				return ec.fieldContext_User_rank(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "preferences":
+				return ec.fieldContext_User_preferences(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getFriendRequests(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getFriendRequests(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetFriendRequests(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.FriendRequestsList)
+	fc.Result = res
+	return ec.marshalNFriendRequestsList2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequestsList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getFriendRequests(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sent":
+				return ec.fieldContext_FriendRequestsList_sent(ctx, field)
+			case "received":
+				return ec.fieldContext_FriendRequestsList_received(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type FriendRequestsList", field.Name)
 		},
 	}
 	return fc, nil
@@ -2487,104 +2535,6 @@ func (ec *executionContext) fieldContext_User_preferences(_ context.Context, fie
 				return ec.fieldContext_Preferences_playstyle(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Preferences", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_friendsList(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_friendsList(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FriendsList, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Friend)
-	fc.Result = res
-	return ec.marshalOFriend2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriend(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_friendsList(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "user":
-				return ec.fieldContext_Friend_user(ctx, field)
-			case "since":
-				return ec.fieldContext_Friend_since(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Friend", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _User_friendRequests(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_friendRequests(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FriendRequests, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.FriendRequest)
-	fc.Result = res
-	return ec.marshalOFriendRequest2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequest(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_User_friendRequests(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "sender":
-				return ec.fieldContext_FriendRequest_sender(ctx, field)
-			case "receiver":
-				return ec.fieldContext_FriendRequest_receiver(ctx, field)
-			case "status":
-				return ec.fieldContext_FriendRequest_status(ctx, field)
-			case "requestedAt":
-				return ec.fieldContext_FriendRequest_requestedAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type FriendRequest", field.Name)
 		},
 	}
 	return fc, nil
@@ -4549,50 +4499,6 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** object.gotpl ****************************
 
-var friendImplementors = []string{"Friend"}
-
-func (ec *executionContext) _Friend(ctx context.Context, sel ast.SelectionSet, obj *model.Friend) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, friendImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Friend")
-		case "user":
-			out.Values[i] = ec._Friend_user(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "since":
-			out.Values[i] = ec._Friend_since(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var friendRequestImplementors = []string{"FriendRequest"}
 
 func (ec *executionContext) _FriendRequest(ctx context.Context, sel ast.SelectionSet, obj *model.FriendRequest) graphql.Marshaler {
@@ -4621,6 +4527,50 @@ func (ec *executionContext) _FriendRequest(ctx context.Context, sel ast.Selectio
 			}
 		case "requestedAt":
 			out.Values[i] = ec._FriendRequest_requestedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var friendRequestsListImplementors = []string{"FriendRequestsList"}
+
+func (ec *executionContext) _FriendRequestsList(ctx context.Context, sel ast.SelectionSet, obj *model.FriendRequestsList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, friendRequestsListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("FriendRequestsList")
+		case "sent":
+			out.Values[i] = ec._FriendRequestsList_sent(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "received":
+			out.Values[i] = ec._FriendRequestsList_received(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -4830,6 +4780,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getFriends":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getFriends(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getFriendRequests":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getFriendRequests(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -4909,10 +4903,6 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
 		case "preferences":
 			out.Values[i] = ec._User_preferences(ctx, field, obj)
-		case "friendsList":
-			out.Values[i] = ec._User_friendsList(ctx, field, obj)
-		case "friendRequests":
-			out.Values[i] = ec._User_friendRequests(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5290,6 +5280,44 @@ func (ec *executionContext) marshalNFriendRequest2githubᚗcomᚋEvantopianᚋNe
 	return ec._FriendRequest(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNFriendRequest2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequest(ctx context.Context, sel ast.SelectionSet, v []*model.FriendRequest) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOFriendRequest2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequest(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) marshalNFriendRequest2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequest(ctx context.Context, sel ast.SelectionSet, v *model.FriendRequest) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5298,6 +5326,20 @@ func (ec *executionContext) marshalNFriendRequest2ᚖgithubᚗcomᚋEvantopian�
 		return graphql.Null
 	}
 	return ec._FriendRequest(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNFriendRequestsList2githubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequestsList(ctx context.Context, sel ast.SelectionSet, v model.FriendRequestsList) graphql.Marshaler {
+	return ec._FriendRequestsList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFriendRequestsList2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequestsList(ctx context.Context, sel ast.SelectionSet, v *model.FriendRequestsList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._FriendRequestsList(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
@@ -5371,6 +5413,44 @@ func (ec *executionContext) marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
@@ -5662,95 +5742,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOFriend2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriend(ctx context.Context, sel ast.SelectionSet, v []*model.Friend) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOFriend2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriend(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
-func (ec *executionContext) marshalOFriend2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriend(ctx context.Context, sel ast.SelectionSet, v *model.Friend) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Friend(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOFriendRequest2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequest(ctx context.Context, sel ast.SelectionSet, v []*model.FriendRequest) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOFriendRequest2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequest(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
 func (ec *executionContext) marshalOFriendRequest2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐFriendRequest(ctx context.Context, sel ast.SelectionSet, v *model.FriendRequest) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -5795,6 +5786,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

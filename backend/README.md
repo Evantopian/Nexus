@@ -86,28 +86,6 @@ query {
     reputation
     rank
     createdAt
-    friendsList {
-      user {
-        username
-      }
-      since
-    }
-    friendRequests {
-      sender {
-        uuid
-        username
-        profileImg
-        status
-      }
-      receiver {
-        uuid
-        username
-        profileImg
-        status
-      }
-      status
-      requestedAt
-    }
     preferences {
       region
       playstyle
@@ -116,7 +94,7 @@ query {
 }
 ```
 
-Profile Query Example (Showing you can choose what you need):
+Another Profile Query Example (showing you can choose what you need):
 
 ```bash
 query {

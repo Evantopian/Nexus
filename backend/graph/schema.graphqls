@@ -20,8 +20,6 @@ type User {
   rank: String # User's rank (optional)
   createdAt: String # Account creation time (formatted as a string)
   preferences: Preferences # User's game preferences
-  friendsList: [Friend] # List of friends for this user
-  friendRequests: [FriendRequest] # List of friend requests associated with the user
 }
 
 # Define the Preferences type
@@ -30,23 +28,24 @@ type Preferences {
   playstyle: Playstyle! # User's playstyle (Competitive, Casual, etc.)
 }
 
-# Friend type
-type Friend {
-  user: User! # The user who is a friend
-  since: String! # Date when they became friends
-}
-
 # FriendRequest type
 type FriendRequest {
-  sender: User! # The user who sent the friend request
-  receiver: User! # The user who received the friend request
+  sender: UUID! # The user who sent the friend request
+  receiver: UUID! # The user who received the friend request
   status: String! # 'pending', 'accepted', or 'rejected'
   requestedAt: String! # The time the request was made
+}
+
+type FriendRequestsList {
+  sent: [FriendRequest]!
+  received: [FriendRequest]!
 }
 
 # Root Query type (Protected Query)
 type Query {
   profile: User! # Get the user's profile
+  getFriends: [User]!
+  getFriendRequests: FriendRequestsList!
 }
 
 # Root Mutation type (Protected User Management)
