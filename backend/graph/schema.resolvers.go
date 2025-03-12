@@ -6,10 +6,10 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/Evantopian/Nexus/graph/resolver"
-	"github.com/google/uuid"
 )
 
 // UpdateUser is the resolver for the updateUser field.
@@ -32,39 +32,14 @@ func (r *mutationResolver) UpdatePreference(ctx context.Context, region *string,
 	return resolver.UpdatePreference(ctx, region, playstyle)
 }
 
-// SendFriendRequest is the resolver for the sendFriendRequest field.
-func (r *mutationResolver) SendFriendRequest(ctx context.Context, receiverID uuid.UUID) (*model.FriendRequest, error) {
-	return resolver.SendFriendRequest(ctx, receiverID)
-}
-
-// AcceptFriendRequest is the resolver for the acceptFriendRequest field.
-func (r *mutationResolver) AcceptFriendRequest(ctx context.Context, senderID uuid.UUID) (bool, error) {
-	return resolver.AcceptFriendRequest(ctx, senderID)
-}
-
-// RejectFriendRequest is the resolver for the rejectFriendRequest field.
-func (r *mutationResolver) RejectFriendRequest(ctx context.Context, senderID uuid.UUID) (bool, error) {
-	return resolver.RejectFriendRequest(ctx, senderID)
-}
-
-// RemoveFriend is the resolver for the removeFriend field.
-func (r *mutationResolver) RemoveFriend(ctx context.Context, friendID uuid.UUID) (bool, error) {
-	return resolver.RemoveFriend(ctx, friendID)
-}
-
 // Profile is the resolver for the profile field.
 func (r *queryResolver) Profile(ctx context.Context) (*model.User, error) {
 	return resolver.Profile(ctx)
 }
 
-// GetFriends is the resolver for the getFriends field.
-func (r *queryResolver) GetFriends(ctx context.Context) ([]*model.User, error) {
-	return resolver.GetFriends(ctx)
-}
-
-// GetFriendRequests is the resolver for the getFriendRequests field.
-func (r *queryResolver) GetFriendRequests(ctx context.Context) (*model.FriendRequestsList, error) {
-	return resolver.GetFriendRequests(ctx)
+// GetGame is the resolver for the getGame field.
+func (r *queryResolver) GetGame(ctx context.Context, slug string) (*model.Game, error) {
+	panic(fmt.Errorf("not implemented: GetGame - getGame"))
 }
 
 // Mutation returns MutationResolver implementation.

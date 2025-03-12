@@ -22,6 +22,35 @@ type FriendRequestsList struct {
 	Received []*FriendRequest `json:"received"`
 }
 
+type Game struct {
+	ID               string   `json:"id"`
+	Slug             string   `json:"slug"`
+	Title            string   `json:"title"`
+	Description      *string  `json:"description,omitempty"`
+	ShortDescription *string  `json:"shortDescription,omitempty"`
+	Image            *string  `json:"image,omitempty"`
+	Banner           *string  `json:"banner,omitempty"`
+	Logo             *string  `json:"logo,omitempty"`
+	Players          *string  `json:"players,omitempty"`
+	ReleaseDate      *string  `json:"releaseDate,omitempty"`
+	Developer        *string  `json:"developer,omitempty"`
+	Publisher        *string  `json:"publisher,omitempty"`
+	Platforms        []string `json:"platforms,omitempty"`
+	Tags             []string `json:"tags,omitempty"`
+	Rating           *float64 `json:"rating,omitempty"`
+}
+
+type LFGPost struct {
+	ID           uuid.UUID `json:"id"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+	Author       *User     `json:"author"`
+	Requirements []string  `json:"requirements"`
+	Tags         []string  `json:"tags"`
+	CreatedAt    string    `json:"createdAt"`
+	ExpiresAt    *string   `json:"expiresAt,omitempty"`
+}
+
 type Mutation struct {
 }
 
@@ -31,6 +60,15 @@ type Preferences struct {
 }
 
 type Query struct {
+}
+
+type Server struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Members     []*User   `json:"members"`
+	Image       *string   `json:"image,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	CreatedAt   string    `json:"createdAt"`
 }
 
 type User struct {
