@@ -33,12 +33,12 @@ export default function Login({ navigation }) {
         />
 
         {/* Forgot Password */}
-        <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity onPress={() => navigation.navigate('Main Content')}>
             <Text style={styles.forgotPassword}>Forgot Password?</Text>
         </TouchableOpacity>
 
         {/* Continue Button */}
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Main Content')}>
             <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
     

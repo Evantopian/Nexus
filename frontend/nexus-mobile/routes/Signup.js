@@ -46,7 +46,7 @@ export default function Signup({ navigation }) {
             </Text>
     
             {/* Continue Button */}
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Home")}>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Main Content")}>
             <Text style={styles.buttonText}>Continue</Text>
             </TouchableOpacity>
     
