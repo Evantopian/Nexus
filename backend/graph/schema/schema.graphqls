@@ -28,32 +28,9 @@ type Preferences {
   playstyle: Playstyle! # User's playstyle (Competitive, Casual, etc.)
 }
 
-# Game Type
-type Game {
-  id: ID!
-  slug: String!
-  title: String!
-  description: String
-  shortDescription: String
-  image: String
-  banner: String
-  logo: String
-  players: String
-  releaseDate: String
-  developer: String
-  publisher: String
-  platforms: [String!]
-  tags: [String!]
-  rating: Float
-  # servers: [Servers]
-  # topPlayers: [Users]
-  # lfgPosts: [LFGPost]
-}
-
 # Root Query type (Protected Query)
 type Query {
   profile: User! # Get the user's profile
-  getGame(slug: String!): Game!
 }
 
 # Root Mutation type (Protected User Management)

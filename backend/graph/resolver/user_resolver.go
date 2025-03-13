@@ -12,7 +12,15 @@ import (
 )
 
 // UpdateUser updates user with information and returns user
-func UpdateUser(ctx context.Context, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string) (*model.User, error) {
+func UpdateUser(
+	ctx context.Context,
+	username *string,
+	email *string,
+	password *string,
+	profileImg *string,
+	profileMessage *string,
+	status *string,
+	rank *string) (*model.User, error) {
 	// Extract the user UUID from the context
 	uuid, exists := ctx.Value(contextkey.UserUUIDKey).(string)
 	if !exists || uuid == "" {

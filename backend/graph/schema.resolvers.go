@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/Evantopian/Nexus/graph/resolver"
@@ -35,11 +34,6 @@ func (r *mutationResolver) UpdatePreference(ctx context.Context, region *string,
 // Profile is the resolver for the profile field.
 func (r *queryResolver) Profile(ctx context.Context) (*model.User, error) {
 	return resolver.Profile(ctx)
-}
-
-// GetGame is the resolver for the getGame field.
-func (r *queryResolver) GetGame(ctx context.Context, slug string) (*model.Game, error) {
-	panic(fmt.Errorf("not implemented: GetGame - getGame"))
 }
 
 // Mutation returns MutationResolver implementation.

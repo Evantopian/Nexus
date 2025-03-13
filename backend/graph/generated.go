@@ -66,16 +66,19 @@ type ComplexityRoot struct {
 		Developer        func(childComplexity int) int
 		ID               func(childComplexity int) int
 		Image            func(childComplexity int) int
+		LfgPosts         func(childComplexity int) int
 		Logo             func(childComplexity int) int
 		Platforms        func(childComplexity int) int
 		Players          func(childComplexity int) int
 		Publisher        func(childComplexity int) int
 		Rating           func(childComplexity int) int
 		ReleaseDate      func(childComplexity int) int
+		Servers          func(childComplexity int) int
 		ShortDescription func(childComplexity int) int
 		Slug             func(childComplexity int) int
 		Tags             func(childComplexity int) int
 		Title            func(childComplexity int) int
+		TopPlayers       func(childComplexity int) int
 	}
 
 	LFGPost struct {
@@ -92,8 +95,10 @@ type ComplexityRoot struct {
 	Mutation struct {
 		AcceptFriendRequest func(childComplexity int, senderID uuid.UUID) int
 		AdjustRep           func(childComplexity int, amount int32) int
+		CreateGame          func(childComplexity int, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) int
 		CreateLFGPost       func(childComplexity int, gameID uuid.UUID, serverID *uuid.UUID, title string, description string, requirements []string, tags []string, expiresAt *string) int
 		CreateServer        func(childComplexity int, gameID *uuid.UUID, name string, image *string, description *string) int
+		DeleteGame          func(childComplexity int, slug string) int
 		DeleteLFGPost       func(childComplexity int, postID uuid.UUID) int
 		DeleteServer        func(childComplexity int, serverID uuid.UUID) int
 		DeleteUser          func(childComplexity int) int
@@ -102,6 +107,7 @@ type ComplexityRoot struct {
 		RejectFriendRequest func(childComplexity int, senderID uuid.UUID) int
 		RemoveFriend        func(childComplexity int, friendID uuid.UUID) int
 		SendFriendRequest   func(childComplexity int, receiverID uuid.UUID) int
+		UpdateGame          func(childComplexity int, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) int
 		UpdatePreference    func(childComplexity int, region *string, playstyle *model.Playstyle) int
 		UpdateUser          func(childComplexity int, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string) int
 	}
@@ -153,6 +159,9 @@ type MutationResolver interface {
 	AcceptFriendRequest(ctx context.Context, senderID uuid.UUID) (bool, error)
 	RejectFriendRequest(ctx context.Context, senderID uuid.UUID) (bool, error)
 	RemoveFriend(ctx context.Context, friendID uuid.UUID) (bool, error)
+	CreateGame(ctx context.Context, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) (*model.Game, error)
+	UpdateGame(ctx context.Context, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) (*model.Game, error)
+	DeleteGame(ctx context.Context, slug string) (bool, error)
 	CreateLFGPost(ctx context.Context, gameID uuid.UUID, serverID *uuid.UUID, title string, description string, requirements []string, tags []string, expiresAt *string) (*model.LFGPost, error)
 	DeleteLFGPost(ctx context.Context, postID uuid.UUID) (bool, error)
 	CreateServer(ctx context.Context, gameID *uuid.UUID, name string, image *string, description *string) (*model.Server, error)
@@ -162,9 +171,9 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Profile(ctx context.Context) (*model.User, error)
-	GetGame(ctx context.Context, slug string) (*model.Game, error)
 	GetFriends(ctx context.Context) ([]*model.User, error)
 	GetFriendRequests(ctx context.Context) (*model.FriendRequestsList, error)
+	GetGame(ctx context.Context, slug string) (*model.Game, error)
 	GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error)
 	GetServers(ctx context.Context, slug string) ([]*model.Server, error)
 }
@@ -265,6 +274,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Game.Image(childComplexity), true
 
+	case "Game.lfgPosts":
+		if e.complexity.Game.LfgPosts == nil {
+			break
+		}
+
+		return e.complexity.Game.LfgPosts(childComplexity), true
+
 	case "Game.logo":
 		if e.complexity.Game.Logo == nil {
 			break
@@ -307,6 +323,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Game.ReleaseDate(childComplexity), true
 
+	case "Game.servers":
+		if e.complexity.Game.Servers == nil {
+			break
+		}
+
+		return e.complexity.Game.Servers(childComplexity), true
+
 	case "Game.shortDescription":
 		if e.complexity.Game.ShortDescription == nil {
 			break
@@ -334,6 +357,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Game.Title(childComplexity), true
+
+	case "Game.topPlayers":
+		if e.complexity.Game.TopPlayers == nil {
+			break
+		}
+
+		return e.complexity.Game.TopPlayers(childComplexity), true
 
 	case "LFGPost.author":
 		if e.complexity.LFGPost.Author == nil {
@@ -415,6 +445,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AdjustRep(childComplexity, args["amount"].(int32)), true
 
+	case "Mutation.createGame":
+		if e.complexity.Mutation.CreateGame == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createGame_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateGame(childComplexity, args["slug"].(string), args["title"].(string), args["description"].(*string), args["shortDescription"].(*string), args["image"].(*string), args["banner"].(*string), args["logo"].(*string), args["players"].(*string), args["releaseDate"].(*string), args["developer"].(*string), args["publisher"].(*string), args["platforms"].([]string), args["tags"].([]string), args["rating"].(*float64)), true
+
 	case "Mutation.createLFGPost":
 		if e.complexity.Mutation.CreateLFGPost == nil {
 			break
@@ -438,6 +480,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateServer(childComplexity, args["gameId"].(*uuid.UUID), args["name"].(string), args["image"].(*string), args["description"].(*string)), true
+
+	case "Mutation.deleteGame":
+		if e.complexity.Mutation.DeleteGame == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteGame_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteGame(childComplexity, args["slug"].(string)), true
 
 	case "Mutation.deleteLFGPost":
 		if e.complexity.Mutation.DeleteLFGPost == nil {
@@ -529,6 +583,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SendFriendRequest(childComplexity, args["receiverId"].(uuid.UUID)), true
+
+	case "Mutation.updateGame":
+		if e.complexity.Mutation.UpdateGame == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateGame_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateGame(childComplexity, args["slug"].(string), args["title"].(string), args["description"].(*string), args["shortDescription"].(*string), args["image"].(*string), args["banner"].(*string), args["logo"].(*string), args["players"].(*string), args["releaseDate"].(*string), args["developer"].(*string), args["publisher"].(*string), args["platforms"].([]string), args["tags"].([]string), args["rating"].(*float64)), true
 
 	case "Mutation.updatePreference":
 		if e.complexity.Mutation.UpdatePreference == nil {
@@ -847,7 +913,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/friend.graphqls" "schema/lfg.graphqls" "schema/schema.graphqls" "schema/server.graphqls"
+//go:embed "schema/friend.graphqls" "schema/game.graphqls" "schema/lfg.graphqls" "schema/schema.graphqls" "schema/server.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -860,6 +926,7 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "schema/friend.graphqls", Input: sourceData("schema/friend.graphqls"), BuiltIn: false},
+	{Name: "schema/game.graphqls", Input: sourceData("schema/game.graphqls"), BuiltIn: false},
 	{Name: "schema/lfg.graphqls", Input: sourceData("schema/lfg.graphqls"), BuiltIn: false},
 	{Name: "schema/schema.graphqls", Input: sourceData("schema/schema.graphqls"), BuiltIn: false},
 	{Name: "schema/server.graphqls", Input: sourceData("schema/server.graphqls"), BuiltIn: false},
@@ -913,6 +980,263 @@ func (ec *executionContext) field_Mutation_adjustRep_argsAmount(
 	}
 
 	var zeroVal int32
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createGame_argsSlug(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["slug"] = arg0
+	arg1, err := ec.field_Mutation_createGame_argsTitle(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["title"] = arg1
+	arg2, err := ec.field_Mutation_createGame_argsDescription(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["description"] = arg2
+	arg3, err := ec.field_Mutation_createGame_argsShortDescription(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["shortDescription"] = arg3
+	arg4, err := ec.field_Mutation_createGame_argsImage(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["image"] = arg4
+	arg5, err := ec.field_Mutation_createGame_argsBanner(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["banner"] = arg5
+	arg6, err := ec.field_Mutation_createGame_argsLogo(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["logo"] = arg6
+	arg7, err := ec.field_Mutation_createGame_argsPlayers(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["players"] = arg7
+	arg8, err := ec.field_Mutation_createGame_argsReleaseDate(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["releaseDate"] = arg8
+	arg9, err := ec.field_Mutation_createGame_argsDeveloper(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["developer"] = arg9
+	arg10, err := ec.field_Mutation_createGame_argsPublisher(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["publisher"] = arg10
+	arg11, err := ec.field_Mutation_createGame_argsPlatforms(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["platforms"] = arg11
+	arg12, err := ec.field_Mutation_createGame_argsTags(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["tags"] = arg12
+	arg13, err := ec.field_Mutation_createGame_argsRating(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["rating"] = arg13
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createGame_argsSlug(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+	if tmp, ok := rawArgs["slug"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsTitle(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+	if tmp, ok := rawArgs["title"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsDescription(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+	if tmp, ok := rawArgs["description"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsShortDescription(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("shortDescription"))
+	if tmp, ok := rawArgs["shortDescription"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsImage(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
+	if tmp, ok := rawArgs["image"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsBanner(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("banner"))
+	if tmp, ok := rawArgs["banner"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsLogo(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("logo"))
+	if tmp, ok := rawArgs["logo"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsPlayers(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("players"))
+	if tmp, ok := rawArgs["players"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsReleaseDate(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("releaseDate"))
+	if tmp, ok := rawArgs["releaseDate"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsDeveloper(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("developer"))
+	if tmp, ok := rawArgs["developer"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsPublisher(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("publisher"))
+	if tmp, ok := rawArgs["publisher"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsPlatforms(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("platforms"))
+	if tmp, ok := rawArgs["platforms"]; ok {
+		return ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+	}
+
+	var zeroVal []string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsTags(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+	if tmp, ok := rawArgs["tags"]; ok {
+		return ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+	}
+
+	var zeroVal []string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_argsRating(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*float64, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("rating"))
+	if tmp, ok := rawArgs["rating"]; ok {
+		return ec.unmarshalOFloat2ᚖfloat64(ctx, tmp)
+	}
+
+	var zeroVal *float64
 	return zeroVal, nil
 }
 
@@ -1124,6 +1448,29 @@ func (ec *executionContext) field_Mutation_createServer_argsDescription(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteGame_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_deleteGame_argsSlug(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["slug"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_deleteGame_argsSlug(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+	if tmp, ok := rawArgs["slug"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_deleteLFGPost_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -1282,6 +1629,263 @@ func (ec *executionContext) field_Mutation_sendFriendRequest_argsReceiverID(
 	}
 
 	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_updateGame_argsSlug(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["slug"] = arg0
+	arg1, err := ec.field_Mutation_updateGame_argsTitle(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["title"] = arg1
+	arg2, err := ec.field_Mutation_updateGame_argsDescription(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["description"] = arg2
+	arg3, err := ec.field_Mutation_updateGame_argsShortDescription(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["shortDescription"] = arg3
+	arg4, err := ec.field_Mutation_updateGame_argsImage(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["image"] = arg4
+	arg5, err := ec.field_Mutation_updateGame_argsBanner(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["banner"] = arg5
+	arg6, err := ec.field_Mutation_updateGame_argsLogo(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["logo"] = arg6
+	arg7, err := ec.field_Mutation_updateGame_argsPlayers(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["players"] = arg7
+	arg8, err := ec.field_Mutation_updateGame_argsReleaseDate(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["releaseDate"] = arg8
+	arg9, err := ec.field_Mutation_updateGame_argsDeveloper(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["developer"] = arg9
+	arg10, err := ec.field_Mutation_updateGame_argsPublisher(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["publisher"] = arg10
+	arg11, err := ec.field_Mutation_updateGame_argsPlatforms(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["platforms"] = arg11
+	arg12, err := ec.field_Mutation_updateGame_argsTags(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["tags"] = arg12
+	arg13, err := ec.field_Mutation_updateGame_argsRating(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["rating"] = arg13
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateGame_argsSlug(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("slug"))
+	if tmp, ok := rawArgs["slug"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsTitle(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+	if tmp, ok := rawArgs["title"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsDescription(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+	if tmp, ok := rawArgs["description"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsShortDescription(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("shortDescription"))
+	if tmp, ok := rawArgs["shortDescription"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsImage(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
+	if tmp, ok := rawArgs["image"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsBanner(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("banner"))
+	if tmp, ok := rawArgs["banner"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsLogo(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("logo"))
+	if tmp, ok := rawArgs["logo"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsPlayers(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("players"))
+	if tmp, ok := rawArgs["players"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsReleaseDate(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("releaseDate"))
+	if tmp, ok := rawArgs["releaseDate"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsDeveloper(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("developer"))
+	if tmp, ok := rawArgs["developer"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsPublisher(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("publisher"))
+	if tmp, ok := rawArgs["publisher"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsPlatforms(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("platforms"))
+	if tmp, ok := rawArgs["platforms"]; ok {
+		return ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+	}
+
+	var zeroVal []string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsTags(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+	if tmp, ok := rawArgs["tags"]; ok {
+		return ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+	}
+
+	var zeroVal []string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGame_argsRating(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*float64, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("rating"))
+	if tmp, ok := rawArgs["rating"]; ok {
+		return ec.unmarshalOFloat2ᚖfloat64(ctx, tmp)
+	}
+
+	var zeroVal *float64
 	return zeroVal, nil
 }
 
@@ -2557,6 +3161,185 @@ func (ec *executionContext) fieldContext_Game_rating(_ context.Context, field gr
 	return fc, nil
 }
 
+func (ec *executionContext) _Game_servers(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_servers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Servers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Server)
+	fc.Result = res
+	return ec.marshalOServer2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐServer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_servers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Server_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Server_name(ctx, field)
+			case "members":
+				return ec.fieldContext_Server_members(ctx, field)
+			case "image":
+				return ec.fieldContext_Server_image(ctx, field)
+			case "description":
+				return ec.fieldContext_Server_description(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Server_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Server", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Game_topPlayers(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_topPlayers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TopPlayers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_topPlayers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "uuid":
+				return ec.fieldContext_User_uuid(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "profileImg":
+				return ec.fieldContext_User_profileImg(ctx, field)
+			case "profileMessage":
+				return ec.fieldContext_User_profileMessage(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
+			case "reputation":
+				return ec.fieldContext_User_reputation(ctx, field)
+			case "rank":
+				return ec.fieldContext_User_rank(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "preferences":
+				return ec.fieldContext_User_preferences(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Game_lfgPosts(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Game_lfgPosts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LfgPosts, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.LFGPost)
+	fc.Result = res
+	return ec.marshalOLFGPost2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Game_lfgPosts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Game",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_LFGPost_id(ctx, field)
+			case "title":
+				return ec.fieldContext_LFGPost_title(ctx, field)
+			case "description":
+				return ec.fieldContext_LFGPost_description(ctx, field)
+			case "author":
+				return ec.fieldContext_LFGPost_author(ctx, field)
+			case "requirements":
+				return ec.fieldContext_LFGPost_requirements(ctx, field)
+			case "tags":
+				return ec.fieldContext_LFGPost_tags(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_LFGPost_createdAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_LFGPost_expiresAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LFGPost", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LFGPost_id(ctx context.Context, field graphql.CollectedField, obj *model.LFGPost) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LFGPost_id(ctx, field)
 	if err != nil {
@@ -3399,6 +4182,247 @@ func (ec *executionContext) fieldContext_Mutation_removeFriend(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createGame(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createGame(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateGame(rctx, fc.Args["slug"].(string), fc.Args["title"].(string), fc.Args["description"].(*string), fc.Args["shortDescription"].(*string), fc.Args["image"].(*string), fc.Args["banner"].(*string), fc.Args["logo"].(*string), fc.Args["players"].(*string), fc.Args["releaseDate"].(*string), fc.Args["developer"].(*string), fc.Args["publisher"].(*string), fc.Args["platforms"].([]string), fc.Args["tags"].([]string), fc.Args["rating"].(*float64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Game)
+	fc.Result = res
+	return ec.marshalNGame2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐGame(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createGame(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Game_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Game_slug(ctx, field)
+			case "title":
+				return ec.fieldContext_Game_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Game_description(ctx, field)
+			case "shortDescription":
+				return ec.fieldContext_Game_shortDescription(ctx, field)
+			case "image":
+				return ec.fieldContext_Game_image(ctx, field)
+			case "banner":
+				return ec.fieldContext_Game_banner(ctx, field)
+			case "logo":
+				return ec.fieldContext_Game_logo(ctx, field)
+			case "players":
+				return ec.fieldContext_Game_players(ctx, field)
+			case "releaseDate":
+				return ec.fieldContext_Game_releaseDate(ctx, field)
+			case "developer":
+				return ec.fieldContext_Game_developer(ctx, field)
+			case "publisher":
+				return ec.fieldContext_Game_publisher(ctx, field)
+			case "platforms":
+				return ec.fieldContext_Game_platforms(ctx, field)
+			case "tags":
+				return ec.fieldContext_Game_tags(ctx, field)
+			case "rating":
+				return ec.fieldContext_Game_rating(ctx, field)
+			case "servers":
+				return ec.fieldContext_Game_servers(ctx, field)
+			case "topPlayers":
+				return ec.fieldContext_Game_topPlayers(ctx, field)
+			case "lfgPosts":
+				return ec.fieldContext_Game_lfgPosts(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createGame_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateGame(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateGame(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateGame(rctx, fc.Args["slug"].(string), fc.Args["title"].(string), fc.Args["description"].(*string), fc.Args["shortDescription"].(*string), fc.Args["image"].(*string), fc.Args["banner"].(*string), fc.Args["logo"].(*string), fc.Args["players"].(*string), fc.Args["releaseDate"].(*string), fc.Args["developer"].(*string), fc.Args["publisher"].(*string), fc.Args["platforms"].([]string), fc.Args["tags"].([]string), fc.Args["rating"].(*float64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Game)
+	fc.Result = res
+	return ec.marshalNGame2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐGame(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateGame(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Game_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Game_slug(ctx, field)
+			case "title":
+				return ec.fieldContext_Game_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Game_description(ctx, field)
+			case "shortDescription":
+				return ec.fieldContext_Game_shortDescription(ctx, field)
+			case "image":
+				return ec.fieldContext_Game_image(ctx, field)
+			case "banner":
+				return ec.fieldContext_Game_banner(ctx, field)
+			case "logo":
+				return ec.fieldContext_Game_logo(ctx, field)
+			case "players":
+				return ec.fieldContext_Game_players(ctx, field)
+			case "releaseDate":
+				return ec.fieldContext_Game_releaseDate(ctx, field)
+			case "developer":
+				return ec.fieldContext_Game_developer(ctx, field)
+			case "publisher":
+				return ec.fieldContext_Game_publisher(ctx, field)
+			case "platforms":
+				return ec.fieldContext_Game_platforms(ctx, field)
+			case "tags":
+				return ec.fieldContext_Game_tags(ctx, field)
+			case "rating":
+				return ec.fieldContext_Game_rating(ctx, field)
+			case "servers":
+				return ec.fieldContext_Game_servers(ctx, field)
+			case "topPlayers":
+				return ec.fieldContext_Game_topPlayers(ctx, field)
+			case "lfgPosts":
+				return ec.fieldContext_Game_lfgPosts(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateGame_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteGame(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteGame(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteGame(rctx, fc.Args["slug"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteGame(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteGame_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createLFGPost(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createLFGPost(ctx, field)
 	if err != nil {
@@ -3917,93 +4941,6 @@ func (ec *executionContext) fieldContext_Query_profile(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getGame(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getGame(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetGame(rctx, fc.Args["slug"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Game)
-	fc.Result = res
-	return ec.marshalNGame2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐGame(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_getGame(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Game_id(ctx, field)
-			case "slug":
-				return ec.fieldContext_Game_slug(ctx, field)
-			case "title":
-				return ec.fieldContext_Game_title(ctx, field)
-			case "description":
-				return ec.fieldContext_Game_description(ctx, field)
-			case "shortDescription":
-				return ec.fieldContext_Game_shortDescription(ctx, field)
-			case "image":
-				return ec.fieldContext_Game_image(ctx, field)
-			case "banner":
-				return ec.fieldContext_Game_banner(ctx, field)
-			case "logo":
-				return ec.fieldContext_Game_logo(ctx, field)
-			case "players":
-				return ec.fieldContext_Game_players(ctx, field)
-			case "releaseDate":
-				return ec.fieldContext_Game_releaseDate(ctx, field)
-			case "developer":
-				return ec.fieldContext_Game_developer(ctx, field)
-			case "publisher":
-				return ec.fieldContext_Game_publisher(ctx, field)
-			case "platforms":
-				return ec.fieldContext_Game_platforms(ctx, field)
-			case "tags":
-				return ec.fieldContext_Game_tags(ctx, field)
-			case "rating":
-				return ec.fieldContext_Game_rating(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getGame_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_getFriends(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getFriends(ctx, field)
 	if err != nil {
@@ -4118,6 +5055,99 @@ func (ec *executionContext) fieldContext_Query_getFriendRequests(_ context.Conte
 			}
 			return nil, fmt.Errorf("no field named %q was found under type FriendRequestsList", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getGame(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getGame(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetGame(rctx, fc.Args["slug"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Game)
+	fc.Result = res
+	return ec.marshalNGame2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐGame(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getGame(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Game_id(ctx, field)
+			case "slug":
+				return ec.fieldContext_Game_slug(ctx, field)
+			case "title":
+				return ec.fieldContext_Game_title(ctx, field)
+			case "description":
+				return ec.fieldContext_Game_description(ctx, field)
+			case "shortDescription":
+				return ec.fieldContext_Game_shortDescription(ctx, field)
+			case "image":
+				return ec.fieldContext_Game_image(ctx, field)
+			case "banner":
+				return ec.fieldContext_Game_banner(ctx, field)
+			case "logo":
+				return ec.fieldContext_Game_logo(ctx, field)
+			case "players":
+				return ec.fieldContext_Game_players(ctx, field)
+			case "releaseDate":
+				return ec.fieldContext_Game_releaseDate(ctx, field)
+			case "developer":
+				return ec.fieldContext_Game_developer(ctx, field)
+			case "publisher":
+				return ec.fieldContext_Game_publisher(ctx, field)
+			case "platforms":
+				return ec.fieldContext_Game_platforms(ctx, field)
+			case "tags":
+				return ec.fieldContext_Game_tags(ctx, field)
+			case "rating":
+				return ec.fieldContext_Game_rating(ctx, field)
+			case "servers":
+				return ec.fieldContext_Game_servers(ctx, field)
+			case "topPlayers":
+				return ec.fieldContext_Game_topPlayers(ctx, field)
+			case "lfgPosts":
+				return ec.fieldContext_Game_lfgPosts(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getGame_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -7256,6 +8286,12 @@ func (ec *executionContext) _Game(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Game_tags(ctx, field, obj)
 		case "rating":
 			out.Values[i] = ec._Game_rating(ctx, field, obj)
+		case "servers":
+			out.Values[i] = ec._Game_servers(ctx, field, obj)
+		case "topPlayers":
+			out.Values[i] = ec._Game_topPlayers(ctx, field, obj)
+		case "lfgPosts":
+			out.Values[i] = ec._Game_lfgPosts(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7425,6 +8461,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createGame":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createGame(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateGame":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateGame(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteGame":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteGame(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createLFGPost":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createLFGPost(ctx, field)
@@ -7575,28 +8632,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getGame":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_getGame(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getFriends":
 			field := field
 
@@ -7629,6 +8664,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getFriendRequests(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getGame":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getGame(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -8849,6 +9906,47 @@ func (ec *executionContext) marshalOFriendRequest2ᚖgithubᚗcomᚋEvantopian�
 	return ec._FriendRequest(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOLFGPost2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx context.Context, sel ast.SelectionSet, v []*model.LFGPost) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOLFGPost2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
 func (ec *executionContext) marshalOLFGPost2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx context.Context, sel ast.SelectionSet, v *model.LFGPost) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -8877,6 +9975,47 @@ func (ec *executionContext) marshalOPreferences2ᚖgithubᚗcomᚋEvantopianᚋN
 		return graphql.Null
 	}
 	return ec._Preferences(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOServer2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐServer(ctx context.Context, sel ast.SelectionSet, v []*model.Server) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOServer2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐServer(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalOServer2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐServer(ctx context.Context, sel ast.SelectionSet, v *model.Server) graphql.Marshaler {
@@ -8954,6 +10093,47 @@ func (ec *executionContext) marshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(
 	}
 	res := graphql.MarshalUUID(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

@@ -23,21 +23,24 @@ type FriendRequestsList struct {
 }
 
 type Game struct {
-	ID               string   `json:"id"`
-	Slug             string   `json:"slug"`
-	Title            string   `json:"title"`
-	Description      *string  `json:"description,omitempty"`
-	ShortDescription *string  `json:"shortDescription,omitempty"`
-	Image            *string  `json:"image,omitempty"`
-	Banner           *string  `json:"banner,omitempty"`
-	Logo             *string  `json:"logo,omitempty"`
-	Players          *string  `json:"players,omitempty"`
-	ReleaseDate      *string  `json:"releaseDate,omitempty"`
-	Developer        *string  `json:"developer,omitempty"`
-	Publisher        *string  `json:"publisher,omitempty"`
-	Platforms        []string `json:"platforms,omitempty"`
-	Tags             []string `json:"tags,omitempty"`
-	Rating           *float64 `json:"rating,omitempty"`
+	ID               string     `json:"id"`
+	Slug             string     `json:"slug"`
+	Title            string     `json:"title"`
+	Description      *string    `json:"description,omitempty"`
+	ShortDescription *string    `json:"shortDescription,omitempty"`
+	Image            *string    `json:"image,omitempty"`
+	Banner           *string    `json:"banner,omitempty"`
+	Logo             *string    `json:"logo,omitempty"`
+	Players          *string    `json:"players,omitempty"`
+	ReleaseDate      *string    `json:"releaseDate,omitempty"`
+	Developer        *string    `json:"developer,omitempty"`
+	Publisher        *string    `json:"publisher,omitempty"`
+	Platforms        []string   `json:"platforms,omitempty"`
+	Tags             []string   `json:"tags,omitempty"`
+	Rating           *float64   `json:"rating,omitempty"`
+	Servers          []*Server  `json:"servers,omitempty"`
+	TopPlayers       []*User    `json:"topPlayers,omitempty"`
+	LfgPosts         []*LFGPost `json:"lfgPosts,omitempty"`
 }
 
 type LFGPost struct {
