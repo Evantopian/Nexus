@@ -45,9 +45,10 @@ type Game struct {
 
 type LFGPost struct {
 	ID           uuid.UUID `json:"id"`
+	GameID       uuid.UUID `json:"gameId"`
 	Title        string    `json:"title"`
 	Description  string    `json:"description"`
-	Author       *User     `json:"author"`
+	AuthorID     uuid.UUID `json:"authorId"`
 	Requirements []string  `json:"requirements"`
 	Tags         []string  `json:"tags"`
 	CreatedAt    string    `json:"createdAt"`

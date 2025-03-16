@@ -82,10 +82,11 @@ type ComplexityRoot struct {
 	}
 
 	LFGPost struct {
-		Author       func(childComplexity int) int
+		AuthorID     func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
 		Description  func(childComplexity int) int
 		ExpiresAt    func(childComplexity int) int
+		GameID       func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Requirements func(childComplexity int) int
 		Tags         func(childComplexity int) int
@@ -96,7 +97,7 @@ type ComplexityRoot struct {
 		AcceptFriendRequest func(childComplexity int, senderID uuid.UUID) int
 		AdjustRep           func(childComplexity int, amount int32) int
 		CreateGame          func(childComplexity int, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) int
-		CreateLFGPost       func(childComplexity int, gameID uuid.UUID, serverID *uuid.UUID, title string, description string, requirements []string, tags []string, expiresAt *string) int
+		CreateLFGPost       func(childComplexity int, gameID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) int
 		CreateServer        func(childComplexity int, gameID *uuid.UUID, name string, image *string, description *string) int
 		DeleteGame          func(childComplexity int, slug string) int
 		DeleteLFGPost       func(childComplexity int, postID uuid.UUID) int
@@ -108,6 +109,7 @@ type ComplexityRoot struct {
 		RemoveFriend        func(childComplexity int, friendID uuid.UUID) int
 		SendFriendRequest   func(childComplexity int, receiverID uuid.UUID) int
 		UpdateGame          func(childComplexity int, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) int
+		UpdateLFGPost       func(childComplexity int, postID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) int
 		UpdatePreference    func(childComplexity int, region *string, playstyle *model.Playstyle) int
 		UpdateUser          func(childComplexity int, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string) int
 	}
@@ -162,7 +164,8 @@ type MutationResolver interface {
 	CreateGame(ctx context.Context, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) (*model.Game, error)
 	UpdateGame(ctx context.Context, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) (*model.Game, error)
 	DeleteGame(ctx context.Context, slug string) (bool, error)
-	CreateLFGPost(ctx context.Context, gameID uuid.UUID, serverID *uuid.UUID, title string, description string, requirements []string, tags []string, expiresAt *string) (*model.LFGPost, error)
+	CreateLFGPost(ctx context.Context, gameID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) (*model.LFGPost, error)
+	UpdateLFGPost(ctx context.Context, postID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) (*model.LFGPost, error)
 	DeleteLFGPost(ctx context.Context, postID uuid.UUID) (bool, error)
 	CreateServer(ctx context.Context, gameID *uuid.UUID, name string, image *string, description *string) (*model.Server, error)
 	JoinServer(ctx context.Context, serverID uuid.UUID) (bool, error)
@@ -365,12 +368,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Game.TopPlayers(childComplexity), true
 
-	case "LFGPost.author":
-		if e.complexity.LFGPost.Author == nil {
+	case "LFGPost.authorId":
+		if e.complexity.LFGPost.AuthorID == nil {
 			break
 		}
 
-		return e.complexity.LFGPost.Author(childComplexity), true
+		return e.complexity.LFGPost.AuthorID(childComplexity), true
 
 	case "LFGPost.createdAt":
 		if e.complexity.LFGPost.CreatedAt == nil {
@@ -392,6 +395,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.LFGPost.ExpiresAt(childComplexity), true
+
+	case "LFGPost.gameId":
+		if e.complexity.LFGPost.GameID == nil {
+			break
+		}
+
+		return e.complexity.LFGPost.GameID(childComplexity), true
 
 	case "LFGPost.id":
 		if e.complexity.LFGPost.ID == nil {
@@ -467,7 +477,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateLFGPost(childComplexity, args["gameId"].(uuid.UUID), args["serverId"].(*uuid.UUID), args["title"].(string), args["description"].(string), args["requirements"].([]string), args["tags"].([]string), args["expiresAt"].(*string)), true
+		return e.complexity.Mutation.CreateLFGPost(childComplexity, args["gameId"].(uuid.UUID), args["title"].(string), args["description"].(string), args["requirements"].([]string), args["tags"].([]string), args["expirationHour"].(*int32)), true
 
 	case "Mutation.createServer":
 		if e.complexity.Mutation.CreateServer == nil {
@@ -595,6 +605,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateGame(childComplexity, args["slug"].(string), args["title"].(string), args["description"].(*string), args["shortDescription"].(*string), args["image"].(*string), args["banner"].(*string), args["logo"].(*string), args["players"].(*string), args["releaseDate"].(*string), args["developer"].(*string), args["publisher"].(*string), args["platforms"].([]string), args["tags"].([]string), args["rating"].(*float64)), true
+
+	case "Mutation.updateLFGPost":
+		if e.complexity.Mutation.UpdateLFGPost == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateLFGPost_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateLFGPost(childComplexity, args["postId"].(uuid.UUID), args["title"].(string), args["description"].(string), args["requirements"].([]string), args["tags"].([]string), args["expirationHour"].(*int32)), true
 
 	case "Mutation.updatePreference":
 		if e.complexity.Mutation.UpdatePreference == nil {
@@ -1248,36 +1270,31 @@ func (ec *executionContext) field_Mutation_createLFGPost_args(ctx context.Contex
 		return nil, err
 	}
 	args["gameId"] = arg0
-	arg1, err := ec.field_Mutation_createLFGPost_argsServerID(ctx, rawArgs)
+	arg1, err := ec.field_Mutation_createLFGPost_argsTitle(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["serverId"] = arg1
-	arg2, err := ec.field_Mutation_createLFGPost_argsTitle(ctx, rawArgs)
+	args["title"] = arg1
+	arg2, err := ec.field_Mutation_createLFGPost_argsDescription(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["title"] = arg2
-	arg3, err := ec.field_Mutation_createLFGPost_argsDescription(ctx, rawArgs)
+	args["description"] = arg2
+	arg3, err := ec.field_Mutation_createLFGPost_argsRequirements(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["description"] = arg3
-	arg4, err := ec.field_Mutation_createLFGPost_argsRequirements(ctx, rawArgs)
+	args["requirements"] = arg3
+	arg4, err := ec.field_Mutation_createLFGPost_argsTags(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["requirements"] = arg4
-	arg5, err := ec.field_Mutation_createLFGPost_argsTags(ctx, rawArgs)
+	args["tags"] = arg4
+	arg5, err := ec.field_Mutation_createLFGPost_argsExpirationHour(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["tags"] = arg5
-	arg6, err := ec.field_Mutation_createLFGPost_argsExpiresAt(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["expiresAt"] = arg6
+	args["expirationHour"] = arg5
 	return args, nil
 }
 func (ec *executionContext) field_Mutation_createLFGPost_argsGameID(
@@ -1290,19 +1307,6 @@ func (ec *executionContext) field_Mutation_createLFGPost_argsGameID(
 	}
 
 	var zeroVal uuid.UUID
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_createLFGPost_argsServerID(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*uuid.UUID, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("serverId"))
-	if tmp, ok := rawArgs["serverId"]; ok {
-		return ec.unmarshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
-	}
-
-	var zeroVal *uuid.UUID
 	return zeroVal, nil
 }
 
@@ -1358,16 +1362,16 @@ func (ec *executionContext) field_Mutation_createLFGPost_argsTags(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_createLFGPost_argsExpiresAt(
+func (ec *executionContext) field_Mutation_createLFGPost_argsExpirationHour(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (*string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
-	if tmp, ok := rawArgs["expiresAt"]; ok {
-		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+) (*int32, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("expirationHour"))
+	if tmp, ok := rawArgs["expirationHour"]; ok {
+		return ec.unmarshalOInt2ᚖint32(ctx, tmp)
 	}
 
-	var zeroVal *string
+	var zeroVal *int32
 	return zeroVal, nil
 }
 
@@ -1886,6 +1890,119 @@ func (ec *executionContext) field_Mutation_updateGame_argsRating(
 	}
 
 	var zeroVal *float64
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateLFGPost_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_updateLFGPost_argsPostID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["postId"] = arg0
+	arg1, err := ec.field_Mutation_updateLFGPost_argsTitle(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["title"] = arg1
+	arg2, err := ec.field_Mutation_updateLFGPost_argsDescription(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["description"] = arg2
+	arg3, err := ec.field_Mutation_updateLFGPost_argsRequirements(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["requirements"] = arg3
+	arg4, err := ec.field_Mutation_updateLFGPost_argsTags(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["tags"] = arg4
+	arg5, err := ec.field_Mutation_updateLFGPost_argsExpirationHour(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["expirationHour"] = arg5
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateLFGPost_argsPostID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("postId"))
+	if tmp, ok := rawArgs["postId"]; ok {
+		return ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateLFGPost_argsTitle(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+	if tmp, ok := rawArgs["title"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateLFGPost_argsDescription(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
+	if tmp, ok := rawArgs["description"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateLFGPost_argsRequirements(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("requirements"))
+	if tmp, ok := rawArgs["requirements"]; ok {
+		return ec.unmarshalNString2ᚕstringᚄ(ctx, tmp)
+	}
+
+	var zeroVal []string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateLFGPost_argsTags(
+	ctx context.Context,
+	rawArgs map[string]any,
+) ([]string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+	if tmp, ok := rawArgs["tags"]; ok {
+		return ec.unmarshalNString2ᚕstringᚄ(ctx, tmp)
+	}
+
+	var zeroVal []string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateLFGPost_argsExpirationHour(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int32, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("expirationHour"))
+	if tmp, ok := rawArgs["expirationHour"]; ok {
+		return ec.unmarshalOInt2ᚖint32(ctx, tmp)
+	}
+
+	var zeroVal *int32
 	return zeroVal, nil
 }
 
@@ -3319,12 +3436,14 @@ func (ec *executionContext) fieldContext_Game_lfgPosts(_ context.Context, field 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_LFGPost_id(ctx, field)
+			case "gameId":
+				return ec.fieldContext_LFGPost_gameId(ctx, field)
 			case "title":
 				return ec.fieldContext_LFGPost_title(ctx, field)
 			case "description":
 				return ec.fieldContext_LFGPost_description(ctx, field)
-			case "author":
-				return ec.fieldContext_LFGPost_author(ctx, field)
+			case "authorId":
+				return ec.fieldContext_LFGPost_authorId(ctx, field)
 			case "requirements":
 				return ec.fieldContext_LFGPost_requirements(ctx, field)
 			case "tags":
@@ -3372,6 +3491,50 @@ func (ec *executionContext) _LFGPost_id(ctx context.Context, field graphql.Colle
 }
 
 func (ec *executionContext) fieldContext_LFGPost_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LFGPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LFGPost_gameId(ctx context.Context, field graphql.CollectedField, obj *model.LFGPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LFGPost_gameId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GameID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LFGPost_gameId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LFGPost",
 		Field:      field,
@@ -3472,8 +3635,8 @@ func (ec *executionContext) fieldContext_LFGPost_description(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _LFGPost_author(ctx context.Context, field graphql.CollectedField, obj *model.LFGPost) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_LFGPost_author(ctx, field)
+func (ec *executionContext) _LFGPost_authorId(ctx context.Context, field graphql.CollectedField, obj *model.LFGPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LFGPost_authorId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3486,7 +3649,7 @@ func (ec *executionContext) _LFGPost_author(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Author, nil
+		return obj.AuthorID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3498,43 +3661,19 @@ func (ec *executionContext) _LFGPost_author(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(uuid.UUID)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_LFGPost_author(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_LFGPost_authorId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "LFGPost",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "uuid":
-				return ec.fieldContext_User_uuid(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
-			case "profileImg":
-				return ec.fieldContext_User_profileImg(ctx, field)
-			case "profileMessage":
-				return ec.fieldContext_User_profileMessage(ctx, field)
-			case "status":
-				return ec.fieldContext_User_status(ctx, field)
-			case "reputation":
-				return ec.fieldContext_User_reputation(ctx, field)
-			case "rank":
-				return ec.fieldContext_User_rank(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "preferences":
-				return ec.fieldContext_User_preferences(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, errors.New("field of type UUID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4437,7 +4576,7 @@ func (ec *executionContext) _Mutation_createLFGPost(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateLFGPost(rctx, fc.Args["gameId"].(uuid.UUID), fc.Args["serverId"].(*uuid.UUID), fc.Args["title"].(string), fc.Args["description"].(string), fc.Args["requirements"].([]string), fc.Args["tags"].([]string), fc.Args["expiresAt"].(*string))
+		return ec.resolvers.Mutation().CreateLFGPost(rctx, fc.Args["gameId"].(uuid.UUID), fc.Args["title"].(string), fc.Args["description"].(string), fc.Args["requirements"].([]string), fc.Args["tags"].([]string), fc.Args["expirationHour"].(*int32))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4464,12 +4603,14 @@ func (ec *executionContext) fieldContext_Mutation_createLFGPost(ctx context.Cont
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_LFGPost_id(ctx, field)
+			case "gameId":
+				return ec.fieldContext_LFGPost_gameId(ctx, field)
 			case "title":
 				return ec.fieldContext_LFGPost_title(ctx, field)
 			case "description":
 				return ec.fieldContext_LFGPost_description(ctx, field)
-			case "author":
-				return ec.fieldContext_LFGPost_author(ctx, field)
+			case "authorId":
+				return ec.fieldContext_LFGPost_authorId(ctx, field)
 			case "requirements":
 				return ec.fieldContext_LFGPost_requirements(ctx, field)
 			case "tags":
@@ -4490,6 +4631,81 @@ func (ec *executionContext) fieldContext_Mutation_createLFGPost(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createLFGPost_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateLFGPost(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateLFGPost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateLFGPost(rctx, fc.Args["postId"].(uuid.UUID), fc.Args["title"].(string), fc.Args["description"].(string), fc.Args["requirements"].([]string), fc.Args["tags"].([]string), fc.Args["expirationHour"].(*int32))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.LFGPost)
+	fc.Result = res
+	return ec.marshalNLFGPost2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateLFGPost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_LFGPost_id(ctx, field)
+			case "gameId":
+				return ec.fieldContext_LFGPost_gameId(ctx, field)
+			case "title":
+				return ec.fieldContext_LFGPost_title(ctx, field)
+			case "description":
+				return ec.fieldContext_LFGPost_description(ctx, field)
+			case "authorId":
+				return ec.fieldContext_LFGPost_authorId(ctx, field)
+			case "requirements":
+				return ec.fieldContext_LFGPost_requirements(ctx, field)
+			case "tags":
+				return ec.fieldContext_LFGPost_tags(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_LFGPost_createdAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_LFGPost_expiresAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LFGPost", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateLFGPost_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5193,12 +5409,14 @@ func (ec *executionContext) fieldContext_Query_getLFGPosts(ctx context.Context, 
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_LFGPost_id(ctx, field)
+			case "gameId":
+				return ec.fieldContext_LFGPost_gameId(ctx, field)
 			case "title":
 				return ec.fieldContext_LFGPost_title(ctx, field)
 			case "description":
 				return ec.fieldContext_LFGPost_description(ctx, field)
-			case "author":
-				return ec.fieldContext_LFGPost_author(ctx, field)
+			case "authorId":
+				return ec.fieldContext_LFGPost_authorId(ctx, field)
 			case "requirements":
 				return ec.fieldContext_LFGPost_requirements(ctx, field)
 			case "tags":
@@ -8331,6 +8549,11 @@ func (ec *executionContext) _LFGPost(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "gameId":
+			out.Values[i] = ec._LFGPost_gameId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "title":
 			out.Values[i] = ec._LFGPost_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -8341,8 +8564,8 @@ func (ec *executionContext) _LFGPost(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "author":
-			out.Values[i] = ec._LFGPost_author(ctx, field, obj)
+		case "authorId":
+			out.Values[i] = ec._LFGPost_authorId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -8485,6 +8708,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createLFGPost":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createLFGPost(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateLFGPost":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateLFGPost(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -9904,6 +10134,22 @@ func (ec *executionContext) marshalOFriendRequest2ᚖgithubᚗcomᚋEvantopian�
 		return graphql.Null
 	}
 	return ec._FriendRequest(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint32(ctx context.Context, v any) (*int32, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt32(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint32(ctx context.Context, sel ast.SelectionSet, v *int32) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt32(*v)
+	return res
 }
 
 func (ec *executionContext) marshalOLFGPost2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx context.Context, sel ast.SelectionSet, v []*model.LFGPost) graphql.Marshaler {

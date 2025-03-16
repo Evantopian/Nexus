@@ -1,9 +1,10 @@
 # Define the LFGPost type
 type LFGPost {
   id: UUID!
+  gameId: UUID!
   title: String!
   description: String!
-  author: User! # Changed from inline object to reference User type
+  authorId: UUID!
   requirements: [String!]!
   tags: [String!]!
   createdAt: String!
@@ -17,12 +18,21 @@ extend type Query {
 extend type Mutation {
   createLFGPost(
     gameId: UUID!
-    serverId: UUID
     title: String!
     description: String!
     requirements: [String!]!
     tags: [String!]!
-    expiresAt: String
+    expirationHour: Int
   ): LFGPost!
+
+  updateLFGPost(
+    postId: UUID!
+    title: String!
+    description: String!
+    requirements: [String!]!
+    tags: [String!]!
+    expirationHour: Int
+  ): LFGPost!
+
   deleteLFGPost(postId: UUID!): Boolean!
 }

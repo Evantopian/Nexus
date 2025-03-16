@@ -6,23 +6,42 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Evantopian/Nexus/graph/model"
+	"github.com/Evantopian/Nexus/graph/resolver"
 	"github.com/google/uuid"
 )
 
 // CreateLFGPost is the resolver for the createLFGPost field.
-func (r *mutationResolver) CreateLFGPost(ctx context.Context, gameID uuid.UUID, serverID *uuid.UUID, title string, description string, requirements []string, tags []string, expiresAt *string) (*model.LFGPost, error) {
-	panic(fmt.Errorf("not implemented: CreateLFGPost - createLFGPost"))
+func (r *mutationResolver) CreateLFGPost(ctx context.Context, gameID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) (*model.LFGPost, error) {
+	var expire int
+	if expirationHour != nil {
+		expire = int(*expirationHour)
+	} else {
+		expire = 12 // Set a default value (e.g., 24 hours)
+	}
+
+	return resolver.CreateLFGPost(ctx, gameID, title, description, requirements, tags, expire)
+}
+
+// UpdateLFGPost is the resolver for the updateLFGPost field.
+func (r *mutationResolver) UpdateLFGPost(ctx context.Context, postID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) (*model.LFGPost, error) {
+	var expire int
+	if expirationHour != nil {
+		expire = int(*expirationHour)
+	} else {
+		expire = 12 // Set a default value (e.g., 24 hours)
+	}
+
+	return resolver.UpdateLFGPost(ctx, postID, title, description, requirements, tags, expire)
 }
 
 // DeleteLFGPost is the resolver for the deleteLFGPost field.
 func (r *mutationResolver) DeleteLFGPost(ctx context.Context, postID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteLFGPost - deleteLFGPost"))
+	return resolver.DeleteLFGPost(ctx, postID)
 }
 
 // GetLFGPosts is the resolver for the getLFGPosts field.
 func (r *queryResolver) GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error) {
-	panic(fmt.Errorf("not implemented: GetLFGPosts - getLFGPosts"))
+	return resolver.GetLFGPosts(ctx, slug)
 }
