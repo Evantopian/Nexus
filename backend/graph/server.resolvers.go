@@ -6,33 +6,33 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Evantopian/Nexus/graph/model"
+	"github.com/Evantopian/Nexus/graph/resolver"
 	"github.com/google/uuid"
 )
 
 // CreateServer is the resolver for the createServer field.
 func (r *mutationResolver) CreateServer(ctx context.Context, gameID *uuid.UUID, name string, image *string, description *string) (*model.Server, error) {
-	panic(fmt.Errorf("not implemented: CreateServer - createServer"))
+	return resolver.CreateServer(ctx, gameID, name, image, description)
 }
 
 // JoinServer is the resolver for the joinServer field.
 func (r *mutationResolver) JoinServer(ctx context.Context, serverID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: JoinServer - joinServer"))
+	return resolver.JoinServer(ctx, serverID)
 }
 
 // LeaveServer is the resolver for the leaveServer field.
 func (r *mutationResolver) LeaveServer(ctx context.Context, serverID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: LeaveServer - leaveServer"))
+	return resolver.LeaveServer(ctx, serverID)
 }
 
 // DeleteServer is the resolver for the deleteServer field.
 func (r *mutationResolver) DeleteServer(ctx context.Context, serverID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteServer - deleteServer"))
+	return resolver.DeleteServer(ctx, serverID)
 }
 
 // GetServers is the resolver for the getServers field.
 func (r *queryResolver) GetServers(ctx context.Context, slug string) ([]*model.Server, error) {
-	panic(fmt.Errorf("not implemented: GetServers - getServers"))
+	return resolver.GetServers(ctx, slug)
 }
