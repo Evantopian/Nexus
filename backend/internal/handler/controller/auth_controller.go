@@ -14,9 +14,8 @@ import (
 )
 
 // Token expiration (can be configured via env variables)
-var tokenExpiryMinutes = 30
+var tokenExpiryMinutes = 60
 
-// User represents a user account.
 // User represents a user account.
 type User struct {
 	UUID           string    `json:"uuid" db:"uuid" bson:"uuid"`    // Unique identifier for the user.

@@ -11,7 +11,6 @@ import (
 // Secret key for signing JWT tokens (loaded from environment variables)
 var jwtSecret []byte
 
-// init function loads the JWT secret from the .env file when the package is initialized
 func init() {
 	// Load the JWT secret key from the environment variable
 	jwtSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
