@@ -1,14 +1,14 @@
-import React from "react";
+import React from 'react';
 import { View, Text, StyleSheet} from "react-native";
 
-const Profile = () => {
+export default function Chat({}){
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Profile Screen</Text>
-      <Text style={styles.text}>Welcome to your profile!</Text>
+      <Text style={styles.title}>Chat Screen</Text>
+      <Text style={styles.text}>Chat with your teammates.</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -20,5 +20,3 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
-
-export default Profile;

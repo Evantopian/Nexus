@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet} from "react-native";
 
-const Settings = () => {
+const Profile = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Settings Screen</Text>
-      <Text style={styles.text}>Manage your preferences here.</Text>
+      <Text style={styles.title}>Search Screen</Text>
+      <Text style={styles.text}>Search for a game/party for you!</Text>
     </View>
   );
 };
@@ -21,4 +21,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Settings;
+export default Profile;
