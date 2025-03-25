@@ -1,63 +1,81 @@
-import React from "react";
-import { LinearGradient } from 'expo-linear-gradient';
-import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import React, { useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, Alert } from "react-native";
+import { validateEmail, validatePassword, validateUsername } from "../utils/validator"; // Import validation functions
 
 export default function Signup({ navigation }) {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [username, setUsername] = useState("");
+
+    const handleSignup = () => {
+        const emailError = validateEmail(email);
+        const passwordError = validatePassword(password);
+        const usernameError = validateUsername(username);
+
+        if (emailError || passwordError || usernameError) {
+            Alert.alert("Invalid Input", emailError || passwordError || usernameError);
+            return;
+        }
+
+        //Temp placeholder
+        console.log("Signup successful with:", { email, password, username });
+        navigation.navigate("Main Content");
+    };
+
     return (
         <LinearGradient
-        colors={["#000000", "#121025", "#292649"]}
-        locations={[0.03, 0.49, 1]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.container}
+            colors={["#000000", "#121025", "#292649"]}
+            locations={[0.03, 0.49, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.container}
         >
-            {/* Logo */}
-            <Image source={require('../assets/logo.png')} style={styles.logo} />
-    
-            {/* Sign-Up Header */}
+            <Image source={require("../assets/logo.png")} style={styles.logo} />
             <Text style={styles.headerText}>Sign Up to Nexus</Text>
-    
-            {/* Email Input */}
+
             <TextInput
-            placeholder="Email"
-            placeholderTextColor="#ccc"
-            style={styles.input}
+                placeholder="Email"
+                placeholderTextColor="#ccc"
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
             />
-    
-            {/* Password Input */}
+
             <TextInput
-            placeholder="Password"
-            placeholderTextColor="#ccc"
-            secureTextEntry
-            style={styles.input}
-            />
-            <Text style={styles.passwordHint}>
-            Should be at least 15 characters OR at least 8 characters including a number and a lowercase letter.
-            </Text>
-    
-            {/* Username Input */}
-            <TextInput
-            placeholder="Username"
-            placeholderTextColor="#ccc"
-            style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#ccc"
+                secureTextEntry
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
             />
             <Text style={styles.passwordHint}>
-            Can only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen.
+                Should be at least 15 characters OR at least 8 characters including a number and a lowercase letter.
             </Text>
-    
-            {/* Continue Button */}
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Main Content")}>
-            <Text style={styles.buttonText}>Continue</Text>
+
+            <TextInput
+                placeholder="Username"
+                placeholderTextColor="#ccc"
+                style={styles.input}
+                value={username}
+                onChangeText={setUsername}
+            />
+            <Text style={styles.passwordHint}>
+                Can only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen.
+            </Text>
+
+            <TouchableOpacity style={styles.button} onPress={handleSignup}>
+                <Text style={styles.buttonText}>Continue</Text>
             </TouchableOpacity>
-    
-            {/* Sign In Link */}
+
             <View style={styles.signInContainer}>
-            <Text style={styles.signInText}>Already have an account?</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.signInLink}>Sign In →</Text>
-            </TouchableOpacity>
+                <Text style={styles.signInText}>Already have an account?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                    <Text style={styles.signInLink}>Sign In →</Text>
+                </TouchableOpacity>
             </View>
-      </LinearGradient>
+        </LinearGradient>
     );
 }
 

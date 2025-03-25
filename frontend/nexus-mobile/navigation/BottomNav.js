@@ -44,7 +44,7 @@ const BottomNav = () => {
       }}
     >
       <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Search" component={Search} />
+      <Tab.Screen name="Search" component={Search } />
       <Tab.Screen name="Chat" component={Chat} />
       <Tab.Screen name="ProfileSettings" component={ProfileSettings} />
     </Tab.Navigator>
