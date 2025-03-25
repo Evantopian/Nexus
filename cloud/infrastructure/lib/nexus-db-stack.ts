@@ -8,8 +8,12 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 
 /* 
   Tasks completed on AWS Console (website, manually):
-    1. created AWS Systems manager string parameters for DB Credentials
-
+    1. Tested Lambda func to query MongoDB
+    2. created AWS Systems manager string parameters for DB Credentials
+    3. Added Inbound rules for db VPC 
+    4. Added IAM permission to lambda func, main.js (AmazonSSMReadOnlyAccess)
+    5. Created budget tracker for {EC2, VPC}
+    6. Created VPC to connect Lambda function to db
 */
 
 export class NexusDbStack extends cdk.Stack {
@@ -18,11 +22,10 @@ export class NexusDbStack extends cdk.Stack {
 
     // Create VPC for Lambda and rds
     const vpc = new ec2.Vpc(this, "NexusVpc", {
-      maxAzs: 2,
+      maxAzs: 1,
       natGateways: 1
     });
 
-    const dbHost = ssm.StringParameter.valueForStringParameter(this, "/nexus/db/host");
     const dbUsername = ssm.StringParameter.valueForStringParameter(this, "/nexus/db/username");
     const dbPassword = ssm.StringParameter.valueForSecureStringParameter(this, "/nexus/db/password", 1);
 
@@ -37,8 +40,15 @@ export class NexusDbStack extends cdk.Stack {
       ), //Free-tier
       credentials: rds.Credentials.fromPassword(dbUsername, cdk.SecretValue.unsafePlainText(dbPassword)),
       databaseName: "nexusdb",
-      publiclyAccessible: true,
+      publiclyAccessible: false,
+    });
 
+    //get db endpoint
+    const dbHost = dbInstance.dbInstanceEndpointAddress;
+    //save it to ssm, just in case needed
+    new ssm.StringParameter(this, "DBHostParameter", {
+      parameterName: "/nexus/db/host",
+      stringValue: dbHost,
     });
 
     new cdk.CfnOutput(this, "DBend", {
@@ -48,8 +58,8 @@ export class NexusDbStack extends cdk.Stack {
     const apiLambda = new lambda.Function(this, "ApiNexusDb", {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset("services"),
-      handler: "main.handler",
       vpc,
+      handler: "main.handler",
       environment: {
         DB_HOST: dbHost,
         DB_USER: dbUsername,
