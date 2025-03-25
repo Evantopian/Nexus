@@ -2,8 +2,10 @@ package handler
 
 import (
 	"context"
+	"time"
 
 	"github.com/Evantopian/Nexus/graph"
+	"github.com/gin-contrib/cors"
 
 	"github.com/Evantopian/Nexus/internal/handler/controller"
 	"github.com/Evantopian/Nexus/internal/middleware"
@@ -19,6 +21,16 @@ import (
 // SetUpHandler sets up the REST API routes along with the GraphQL server and playground
 func SetUpHandler() *gin.Engine {
 	r := gin.Default()
+
+	// Configure CORS settings
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"}, // Allow frontend URL
+		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"}, // Allow Authorization header
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour, // Cache CORS response for 12 hours
+	}))
 
 	// Set up the GraphQL schema with resolvers
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))

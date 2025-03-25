@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/Evantopian/Nexus/internal/database/postgres"
 	"github.com/Evantopian/Nexus/internal/handler"
@@ -21,7 +22,7 @@ func main() {
 	// Set up new gin router
 	r := handler.SetUpHandler()
 
-	port := "8080"
+	port := os.Getenv("PORT")
 	log.Printf("Server running at http://localhost:%s", port)
 	log.Fatal(r.Run(":" + port))
 }

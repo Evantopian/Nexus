@@ -3,13 +3,76 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+
 	"github.com/google/uuid"
 )
+
+type FriendRequest struct {
+	Sender      uuid.UUID `json:"sender"`
+	Receiver    uuid.UUID `json:"receiver"`
+	Status      string    `json:"status"`
+	RequestedAt string    `json:"requestedAt"`
+}
+
+type FriendRequestsList struct {
+	Sent     []*FriendRequest `json:"sent"`
+	Received []*FriendRequest `json:"received"`
+}
+
+type Game struct {
+	ID               string     `json:"id"`
+	Slug             string     `json:"slug"`
+	Title            string     `json:"title"`
+	Description      *string    `json:"description,omitempty"`
+	ShortDescription *string    `json:"shortDescription,omitempty"`
+	Image            *string    `json:"image,omitempty"`
+	Banner           *string    `json:"banner,omitempty"`
+	Logo             *string    `json:"logo,omitempty"`
+	Players          *string    `json:"players,omitempty"`
+	ReleaseDate      *string    `json:"releaseDate,omitempty"`
+	Developer        *string    `json:"developer,omitempty"`
+	Publisher        *string    `json:"publisher,omitempty"`
+	Platforms        []string   `json:"platforms,omitempty"`
+	Tags             []string   `json:"tags,omitempty"`
+	Rating           *float64   `json:"rating,omitempty"`
+	Servers          []*Server  `json:"servers,omitempty"`
+	TopPlayers       []*User    `json:"topPlayers,omitempty"`
+	LfgPosts         []*LFGPost `json:"lfgPosts,omitempty"`
+}
+
+type LFGPost struct {
+	ID           uuid.UUID `json:"id"`
+	GameID       uuid.UUID `json:"gameId"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+	AuthorID     uuid.UUID `json:"authorId"`
+	Requirements []string  `json:"requirements"`
+	Tags         []string  `json:"tags"`
+	CreatedAt    string    `json:"createdAt"`
+	ExpiresAt    *string   `json:"expiresAt,omitempty"`
+}
 
 type Mutation struct {
 }
 
+type Preferences struct {
+	Region    string    `json:"region"`
+	Playstyle Playstyle `json:"playstyle"`
+}
+
 type Query struct {
+}
+
+type Server struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Members     []*User   `json:"members"`
+	Image       *string   `json:"image,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	CreatedAt   string    `json:"createdAt"`
 }
 
 type User struct {
@@ -20,8 +83,49 @@ type User struct {
 	ProfileImg     *string      `json:"profileImg,omitempty"`
 	ProfileMessage *string      `json:"profileMessage,omitempty"`
 	Status         *string      `json:"status,omitempty"`
+	Reputation     int32        `json:"reputation"`
 	Rank           *string      `json:"rank,omitempty"`
-	FriendsList    []*uuid.UUID `json:"friendsList,omitempty"`
-	FriendsRequest []*uuid.UUID `json:"friendsRequest,omitempty"`
 	CreatedAt      *string      `json:"createdAt,omitempty"`
+	Preferences    *Preferences `json:"preferences,omitempty"`
+}
+
+type Playstyle string
+
+const (
+	PlaystyleCompetitive Playstyle = "COMPETITIVE"
+	PlaystyleCasual      Playstyle = "CASUAL"
+)
+
+var AllPlaystyle = []Playstyle{
+	PlaystyleCompetitive,
+	PlaystyleCasual,
+}
+
+func (e Playstyle) IsValid() bool {
+	switch e {
+	case PlaystyleCompetitive, PlaystyleCasual:
+		return true
+	}
+	return false
+}
+
+func (e Playstyle) String() string {
+	return string(e)
+}
+
+func (e *Playstyle) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Playstyle(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Playstyle", str)
+	}
+	return nil
+}
+
+func (e Playstyle) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
