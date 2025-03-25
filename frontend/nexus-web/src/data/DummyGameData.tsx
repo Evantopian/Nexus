@@ -3,6 +3,13 @@
   dummy data for now since we still need to route the backend apis
   however, this is generally how the frotn end will expect data models to look like
 */
+
+// temporary stuff until dev panel is made:
+import RivalsBanner from "@/assets/pages/games/MarvelRivals/MarvelRivalsBanner.jpg"
+import RivalsIcon from "@/assets/pages/games/MarvelRivals/MarvelRivalsIcon.jpg"
+import SpidermanRivals from "@/assets/dummydata/Spiderman.jpg"
+import JeffLeShark from "@/assets/dummydata/Jeffery.jpg"
+
 export interface GameTag {
     id: string;
     name: string;
@@ -162,8 +169,8 @@ export interface GameTag {
       image:
         "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80",
       banner:
-        "https://images.unsplash.com/photo-1556707752-481d500a2c58?w=1200&q=80",
-      logo: "https://api.dicebear.com/7.x/identicon/svg?seed=MarvelRivals",
+        RivalsBanner,
+      logo: RivalsIcon,
       players: "1.7k",
       releaseDate: "2023-06-15",
       developer: "NetEase Games",
@@ -174,11 +181,11 @@ export interface GameTag {
       servers: [
         {
           id: 1,
-          name: "Avengers Assemble",
+          name: "Jeffery's Jail Cell",
           members: 128,
-          image: "https://api.dicebear.com/7.x/identicon/svg?seed=server1marvel",
+          image: JeffLeShark,
           description:
-            "The official server for competitive play and tournaments.",
+            "We play Jeff the Land Shark on here...",
         },
         {
           id: 2,
@@ -186,7 +193,7 @@ export interface GameTag {
           members: 95,
           image: "https://api.dicebear.com/7.x/identicon/svg?seed=server2marvel",
           description:
-            "For new players learning the ropes. Friendly community with guides and tips.",
+            "For new players learning the ropes. Friendly...",
         },
         {
           id: 3,
@@ -206,8 +213,8 @@ export interface GameTag {
       topPlayers: [
         {
           id: 1,
-          name: "IronFanatic",
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player1marvel",
+          name: "Totoro",
+          avatar: SpidermanRivals,
           role: "verified",
           level: 78,
           status: "online",
