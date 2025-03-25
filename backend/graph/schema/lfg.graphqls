@@ -1,0 +1,38 @@
+# Define the LFGPost type
+type LFGPost {
+  id: UUID!
+  gameId: UUID!
+  title: String!
+  description: String!
+  authorId: UUID!
+  requirements: [String!]!
+  tags: [String!]!
+  createdAt: String!
+  expiresAt: String
+}
+
+extend type Query {
+  getLFGPosts(slug: String!): [LFGPost]!
+}
+
+extend type Mutation {
+  createLFGPost(
+    gameId: UUID!
+    title: String!
+    description: String!
+    requirements: [String!]!
+    tags: [String!]!
+    expirationHour: Int
+  ): LFGPost!
+
+  updateLFGPost(
+    postId: UUID!
+    title: String!
+    description: String!
+    requirements: [String!]!
+    tags: [String!]!
+    expirationHour: Int
+  ): LFGPost!
+
+  deleteLFGPost(postId: UUID!): Boolean!
+}
