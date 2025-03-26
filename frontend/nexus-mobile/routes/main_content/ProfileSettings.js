@@ -53,7 +53,7 @@ const ProfileSettings = () => {
           <Text style={styles.menuText}>Help & Support</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.menuItem, styles.logout]} onPress={() => navigation.navigate("Logout")}>
+        <TouchableOpacity style={[styles.menuItem, styles.logout]} onPress={() => navigation.navigate("Login")}>
           <LogOut size={20} color="#E53E3E" />
           <Text style={[styles.menuText, { color: "#E53E3E" }]}>Logout</Text>
         </TouchableOpacity>
