@@ -10,10 +10,9 @@ export default function ForgotPassword({ navigation }) {
             Alert.alert("Invalid Email", "Please enter a valid email address.");
             return;
         }
-        
-        // Simulate API request for password reset
+
         Alert.alert("Check Your Email", "A password reset link has been sent to your email.");
-        navigation.navigate("Login"); // Navigate back to Login page
+        navigation.navigate("Login");
     };
 
     return (

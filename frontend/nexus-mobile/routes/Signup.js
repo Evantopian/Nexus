@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, Alert } from "react-native";
-import { validateEmail, validatePassword, validateUsername } from "../utils/validator"; // Import validation functions
+import { validateEmail, validatePassword, validateUsername } from "../utils/validator";
 
 export default function Signup({ navigation }) {
     const [email, setEmail] = useState("");
