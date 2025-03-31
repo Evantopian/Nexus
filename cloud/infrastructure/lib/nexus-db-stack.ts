@@ -4,6 +4,7 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as iam from "aws-cdk-lib/aws-iam";
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 /* 
@@ -22,7 +23,7 @@ export class NexusDbStack extends cdk.Stack {
 
     // Create VPC for Lambda and rds
     const vpc = new ec2.Vpc(this, "NexusVpc", {
-      maxAzs: 1,
+      maxAzs: 2,
       natGateways: 1
     });
 
@@ -40,8 +41,16 @@ export class NexusDbStack extends cdk.Stack {
       ), //Free-tier
       credentials: rds.Credentials.fromPassword(dbUsername, cdk.SecretValue.unsafePlainText(dbPassword)),
       databaseName: "nexusdb",
-      publiclyAccessible: false,
+      publiclyAccessible: true,
     });
+
+    //get db port
+    const dbPort = dbInstance.dbInstanceEndpointPort;
+    //save it to ssm, just in case needed
+    new ssm.StringParameter(this, "DBPort", {
+      parameterName: "/nexus/db/port",
+      stringValue: dbInstance.dbInstanceEndpointPort,
+    })
 
     //get db endpoint
     const dbHost = dbInstance.dbInstanceEndpointAddress;
@@ -59,13 +68,35 @@ export class NexusDbStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset("services"),
       vpc,
-      handler: "main.handler",
+      handler: "init.handler",
       environment: {
         DB_HOST: dbHost,
         DB_USER: dbUsername,
+        DB_PORT: dbPort,
         DB_PASS_PARAM: "/nexus/db/password"
       },
     });
+
+    const queryLambda = new lambda.Function(this, "QueryLambda", {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      code: lambda.Code.fromAsset("services"),
+      vpc,
+      handler: "query.handler",
+      environment: {
+        DB_HOST: dbHost,
+        DB_USER: dbUsername,
+        DB_PORT: dbPort,
+        DB_PASS_PARAM: "/nexus/db/password"
+      },
+    });
+
+    apiLambda.role?.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMReadOnlyAccess")
+    );
+    
+    queryLambda.role?.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMReadOnlyAccess")
+    );
 
   }
 }

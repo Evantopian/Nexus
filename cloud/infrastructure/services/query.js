@@ -1,11 +1,7 @@
-const { Pool, Query } = require("pg");
+const { Pool } = require("pg");
 const AWS = require("aws-sdk");
 
 const ssm = new AWS.SSM();
-
-const fs = require("fs");
-const util = require("util");
-const readFile = util.promisify(fs.readFile);
 
 const getPass = async () => {
   try {
@@ -23,33 +19,37 @@ const getPass = async () => {
 };
 
 exports.handler = async (event) => {
+  const dbpass = await getPass();
+
+  if (!dbpass) {
+    throw new Error("Failed to retrieve password from SSM.");
+  }
+
   try {
-    const q = await readFile("query.sql", "utf-8");
-
-    if (!q) {
-      throw new Error("Query file is empty or not found.");
-    }
-
-    const dbpass = await getPass();
-
-    if (!dbpass) {
-      throw new Error("Failed to retrieve password from SSM.");
-    }
-
     const pool = new Pool({
       user: process.env.DB_USER,
       host: process.env.DB_HOST,
       database: "nexusdb",
       password: dbpass,
-      port: 5432,
+      port: process.env.DB_PORT,
       ssl: {
         rejectUnauthorized: false,
       },
     });
 
-    const result = await pool.query(q);
+    // Get query from input
+    const { sql, params } = JSON.parse(event.body || "{}");
 
-    await pool.end();
+    if (!sql) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "SQL query is required" }),
+      };
+    }
+
+    console.log("Executing query:", sql, "with params:", params);
+
+    const result = await pool.query(sql, params || []);
 
     const response = {
       statusCode: 200,
