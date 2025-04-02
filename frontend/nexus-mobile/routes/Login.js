@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import { validateLogin } from "../utils/validator";
 
 export default function Login({ navigation }) {
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
   return (
     <LinearGradient
       colors={["#000000", "#121025", "#292649"]}
@@ -22,6 +27,8 @@ export default function Login({ navigation }) {
             placeholder="Username"
             placeholderTextColor="#ccc"
             style={styles.input}
+            value={username}
+            onChangeText={setUsername}
         />
 
         {/* Password Input */}
@@ -30,6 +37,8 @@ export default function Login({ navigation }) {
             placeholderTextColor="#ccc"
             secureTextEntry
             style={styles.input}
+            value={password}
+            onChangeText={setPassword}
         />
 
         {/* Forgot Password */}
@@ -38,7 +47,7 @@ export default function Login({ navigation }) {
         </TouchableOpacity>
 
         {/* Continue Button */}
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Main Content')}>
+        <TouchableOpacity style={styles.button} onPress={() => validateLogin(username, password, navigation)}>
             <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
     

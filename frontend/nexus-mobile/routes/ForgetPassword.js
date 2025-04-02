@@ -1,19 +1,10 @@
 import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { handleResetPassword } from "../utils/validator";
 
 export default function ForgotPassword({ navigation }) {
     const [email, setEmail] = useState("");
-
-    const handleResetPassword = () => {
-        if (!email.includes("@")) {
-            Alert.alert("Invalid Email", "Please enter a valid email address.");
-            return;
-        }
-
-        Alert.alert("Check Your Email", "A password reset link has been sent to your email.");
-        navigation.navigate("Login");
-    };
 
     return (
         <LinearGradient
@@ -34,7 +25,7 @@ export default function ForgotPassword({ navigation }) {
                 onChangeText={setEmail}
             />
 
-            <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
+            <TouchableOpacity style={styles.button} onPress={() => handleResetPassword(email, navigation)}>
                 <Text style={styles.buttonText}>Reset Password</Text>
             </TouchableOpacity>
 
