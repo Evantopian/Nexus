@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet} from "react-native";
 
-export default function Chat({}){
+export default function Chat({topPadding }){
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: topPadding }]}>
       <Text style={styles.title}>Chat Screen</Text>
       <Text style={styles.text}>Chat with your teammates.</Text>
     </View>

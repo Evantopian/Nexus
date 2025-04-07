@@ -1,12 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { SafeAreaView, View, Text, StyleSheet } from "react-native";
 import { Searchbar } from 'react-native-paper';
 
-const Search = () => {
+export default function Search({topPadding} ){
   const [searchQuery, setSearchQuery] = React.useState('');
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <View style={styles.searchContainer}>
         <Searchbar
           placeholder="Search"
@@ -18,7 +18,7 @@ const Search = () => {
         <Text style={styles.title}>Search Screen</Text>
         <Text style={styles.text}>Search for a game/party for you!</Text>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   searchContainer: {
-    padding: 10,  // Add padding around the Searchbar
+    padding: 10,
   },
   body: {
     flex: 1,
@@ -38,5 +38,3 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
-
-export default Search;

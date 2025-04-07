@@ -5,15 +5,18 @@ import Search from "../routes/main_content/Search";
 import ProfileSettings from "../routes/main_content/ProfileSettings";
 import Chat from "../routes/main_content/Chat";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "react-native";
+import { Image, Platform, StatusBar } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
 const BottomNav = () => {
+  const topPadding = Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => ({
+        headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === "Home") {
@@ -43,10 +46,10 @@ const BottomNav = () => {
         style: { padding: 10, height: 70 },
       }}
     >
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Search" component={Search } />
-      <Tab.Screen name="Chat" component={Chat} />
-      <Tab.Screen name="ProfileSettings" component={ProfileSettings} />
+      <Tab.Screen name="Home">{() => <Home topPadding={topPadding} />}</Tab.Screen>
+      <Tab.Screen name="Search">{() => <Search topPadding={topPadding} />}</Tab.Screen>
+      <Tab.Screen name="Chat">{() => <Chat topPadding={topPadding} />}</Tab.Screen>
+      <Tab.Screen name="ProfileSettings">{() => <ProfileSettings topPadding={topPadding} />}</Tab.Screen>
     </Tab.Navigator>
   );
 };

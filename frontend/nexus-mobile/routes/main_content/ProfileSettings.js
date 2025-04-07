@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  SafeAreaView,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, SafeAreaView, } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
   User,
@@ -17,12 +10,11 @@ import {
 } from "lucide-react-native";
 import cinnamoroll from "../../assets/cinnamoroll.jpg";
 
-const ProfileSettings = () => {
+export default function ProfileSettings ({topPadding}){
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
+    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <View style={styles.header}>
         <Image source={cinnamoroll} style={styles.avatar} />
         <View>
@@ -31,7 +23,6 @@ const ProfileSettings = () => {
         </View>
       </View>
 
-      {/* Menu Items */}
       <View style={styles.menu}>
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Profile")}>
           <User size={20} color="#888" />
@@ -109,5 +100,3 @@ const styles = StyleSheet.create({
     borderTopColor: "#ddd",
   },
 });
-
-export default ProfileSettings;
