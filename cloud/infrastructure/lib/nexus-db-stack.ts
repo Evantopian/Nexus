@@ -8,13 +8,19 @@ import * as iam from "aws-cdk-lib/aws-iam";
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 /* 
-  Tasks completed on AWS Console (website, manually):
+  Some Tasks completed on AWS Console (website, manually):
     1. Tested Lambda func to query MongoDB
     2. created AWS Systems manager string parameters for DB Credentials
     3. Added Inbound rules for db VPC 
     4. Added IAM permission to lambda func, main.js (AmazonSSMReadOnlyAccess)
     5. Created budget tracker for {EC2, VPC}
     6. Created VPC to connect Lambda function to db
+    7. Changed Subnet/route settings to allow pgadmin db access
+    8. Used API Gateway to expose lambda funcs to internet
+    9. Configured backend Go code to deploy graphql api
+    10. Troubleshooting API Gateway issues
+    11. Used CloudWatch logs to troubleshoot issues
+    12. Deployed api on API Gateway
 */
 
 export class NexusDbStack extends cdk.Stack {
@@ -73,7 +79,7 @@ export class NexusDbStack extends cdk.Stack {
         DB_HOST: dbHost,
         DB_USER: dbUsername,
         DB_PORT: dbPort,
-        DB_PASS_PARAM: "/nexus/db/password"
+        DB_PASS: ""
       },
     });
 
@@ -86,16 +92,16 @@ export class NexusDbStack extends cdk.Stack {
         DB_HOST: dbHost,
         DB_USER: dbUsername,
         DB_PORT: dbPort,
-        DB_PASS_PARAM: "/nexus/db/password"
+        DB_PASS: ""
       },
     });
 
     apiLambda.role?.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMReadOnlyAccess")
+      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMFullAccess")
     );
     
     queryLambda.role?.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMReadOnlyAccess")
+      iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonSSMFullAccess")
     );
 
   }

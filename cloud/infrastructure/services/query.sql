@@ -81,3 +81,51 @@ CREATE TABLE lfg_posts (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP
 );
+
+-- Dummy data for testing:
+
+INSERT INTO users (
+    email,
+    password,
+    username,
+    profile_img,
+    profile_message,
+    status,
+    reputation,
+    rank,
+    preferences
+)
+VALUES (
+    'testuser@example.com',
+    '$2a$12$CpQct0NpAvDJv2LneH7SoOArAZSwnZ/oQbQi86gXLKXTQ0Xg.3nnG', -- password123 in bscrypt (12)
+    'testuser',
+    'https://example.com/avatar.jpg',
+    'Let’s game!',
+    'online',
+    50,
+    'silver',
+    '{"region": "NA", "playstyle": "COMPETITIVE"}'
+);
+
+INSERT INTO users (
+    email,
+    password,
+    username,
+    profile_img,
+    profile_message,
+    status,
+    reputation,
+    rank,
+    preferences
+)
+VALUES (
+    'testuser2@example.com',
+    '$2a$12$cnklf7YybVVNGYByqLk96OB6pvQYnyvXFOJTN2D6hrDhMTPFFuLMm', -- password11a in byscrypt
+    'testuser2',
+    'https://example.com/avatar2.jpg',
+    'Let’s game!',
+    'online',
+    50,
+    'silver',
+    '{"region": "NA", "playstyle": "COMPETITIVE"}'
+);

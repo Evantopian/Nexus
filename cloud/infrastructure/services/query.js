@@ -2,9 +2,10 @@ const { Pool } = require("pg");
 const AWS = require("aws-sdk");
 
 const ssm = new AWS.SSM();
-
+/*
 const getPass = async () => {
   try {
+    console.log("Currently getting pass");
     const param = await ssm
       .getParameter({
         Name: process.env.DB_PASS_PARAM,
@@ -17,9 +18,11 @@ const getPass = async () => {
     throw new Error("Failed retrieving password from SSM.");
   }
 };
+*/
 
 exports.handler = async (event) => {
-  const dbpass = await getPass();
+  console.log("GOT EVENT.");
+  const dbpass = process.env.DB_PASS;
 
   if (!dbpass) {
     throw new Error("Failed to retrieve password from SSM.");
@@ -36,7 +39,7 @@ exports.handler = async (event) => {
         rejectUnauthorized: false,
       },
     });
-
+    console.log("CONNECTED TO DB.");
     // Get query from input
     const { sql, params } = JSON.parse(event.body || "{}");
 
