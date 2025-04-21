@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Home from "../routes/main_content/Home";
+import HomeStack from "./HomeStack";
 import Search from "../routes/main_content/Search";
 import ProfileSettings from "../routes/main_content/ProfileSettings";
 import Chat from "../routes/main_content/Chat";
@@ -25,17 +25,19 @@ const BottomNav = () => {
             iconName = focused ? "search" : "search-outline";
           } else if (route.name === "Chat") {
             iconName = focused ? "chatbubble" : "chatbubble-outline";
-          }else if (route.name === "ProfileSettings") {
-            return <Image
-              source={require("../assets/cinnamoroll.jpg")}
-              style={{
-                width: size,
-                height: size,
-                borderRadius: size / 2,
-                borderWidth: focused ? 2 : 1,
-                borderColor: color,
-              }}
-            />
+          } else if (route.name === "ProfileSettings") {
+            return (
+              <Image
+                source={require("../assets/cinnamoroll.jpg")}
+                style={{
+                  width: size,
+                  height: size,
+                  borderRadius: size / 2,
+                  borderWidth: focused ? 2 : 1,
+                  borderColor: color,
+                }}
+              />
+            );
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -46,10 +48,14 @@ const BottomNav = () => {
         style: { padding: 10, height: 70 },
       }}
     >
-      <Tab.Screen name="Home">{() => <Home topPadding={topPadding} />}</Tab.Screen>
+      <Tab.Screen name="Home">
+        {() => <HomeStack topPadding={topPadding} />}
+      </Tab.Screen>
       <Tab.Screen name="Search">{() => <Search topPadding={topPadding} />}</Tab.Screen>
       <Tab.Screen name="Chat">{() => <Chat topPadding={topPadding} />}</Tab.Screen>
-      <Tab.Screen name="ProfileSettings">{() => <ProfileSettings topPadding={topPadding} />}</Tab.Screen>
+      <Tab.Screen name="ProfileSettings">
+        {() => <ProfileSettings topPadding={topPadding} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };

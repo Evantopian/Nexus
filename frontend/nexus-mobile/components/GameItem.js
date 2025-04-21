@@ -1,12 +1,18 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import SvgUri from 'react-native-svg-uri';
+import { useNavigation } from '@react-navigation/native';
 
 const GameItem = ({ title, logo, shortDescription }) => {
+  const navigation = useNavigation();
   const isSvg = logo.endsWith('.svg') || logo.includes('svg');
 
+  const handlePress = () => {
+    navigation.navigate('Dashboard', { gameTitle: title });
+  };
+
   return (
-    <View style={styles.wrapper}>
+    <TouchableOpacity onPress={handlePress} style={styles.wrapper}>
       <View style={styles.gameItem}>
         {isSvg ? (
           <SvgUri source={{ uri: logo }} style={styles.gameIcon} />
@@ -23,7 +29,7 @@ const GameItem = ({ title, logo, shortDescription }) => {
       </View>
 
       <View style={styles.divider} />
-    </View>
+    </TouchableOpacity>
   );
 };
 

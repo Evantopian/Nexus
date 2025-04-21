@@ -6,18 +6,20 @@ import Signup from "./routes/Signup";
 import Login from "./routes/Login";
 import ForgotPassword from "./routes/ForgetPassword";
 import BottomNav from "./navigation/BottomNav";
+import Dashboard from './components/Dashboard';
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Main Content" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Landing" component={Landing} />
         <Stack.Screen name="Signup" component={Signup} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="Main Content" component={BottomNav} />
+        <Stack.Screen name="Dashboard" component={Dashboard} />
       </Stack.Navigator>
     </NavigationContainer>
   );
