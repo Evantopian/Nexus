@@ -1,11 +1,37 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import NexusDragon from "@/assets/Nexus_Dragon.svg";
 import BoyFoxCamp from "@/assets/pages/auth/BoyFoxCamping.png";
+import { useAuth } from "@/contexts/useAuth";
 
 const SignUp = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
+  const { user, signup } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    try {
+      await signup(username, email, password);
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Invalid email or password.");
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       {/* Left side */}
@@ -56,7 +82,7 @@ const SignUp = () => {
 
       {/* Right side */}
       <div className="w-full md:w-1/2 bg-white p-6 md:p-10 flex flex-col justify-center">
-        <div className="max-w-md mx-auto w-full">
+        <form onSubmit={handleSubmit} className="max-w-md mx-auto w-full">
           <div className="text-right mb-6 md:mb-10">
             <p className="text-gray-600">
               Already have an account?{" "}
@@ -81,7 +107,8 @@ const SignUp = () => {
                   id="email"
                   type="email"
                   placeholder="Email"
-                  className="w-full p-3 border border-gray-300 rounded-md transition-all duration-300 focus:ring-2 focus:ring-black focus:border-transparent"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -96,7 +123,8 @@ const SignUp = () => {
                   id="password"
                   type="password"
                   placeholder="Password"
-                  className="w-full p-3 border border-gray-300 rounded-md transition-all duration-300 focus:ring-2 focus:ring-black focus:border-transparent"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Password should be at least 10 characters OR at least 8
@@ -115,7 +143,8 @@ const SignUp = () => {
                   id="username"
                   type="text"
                   placeholder="Username"
-                  className="w-full p-3 border border-gray-300 rounded-md transition-all duration-300 focus:ring-2 focus:ring-black focus:border-transparent"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Username may only contain alphanumeric characters or single
@@ -125,7 +154,12 @@ const SignUp = () => {
             </div>
           </div>
 
-          <Button className="w-full bg-black text-white py-3 rounded-md flex items-center justify-center transition-all duration-300 transform hover:scale-105">
+          {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+
+          <Button
+            type="submit"
+            className="w-full bg-black text-white py-3 rounded-md flex items-center justify-center transition-all duration-300 transform hover:scale-105"
+          >
             Continue{" "}
             <ArrowRightAltIcon className="ml-2" sx={{ fontSize: 16 }} />
           </Button>
@@ -134,7 +168,7 @@ const SignUp = () => {
             By clicking "Continue", you agree to our Terms of Service and
             Privacy Policy.
           </p>
-        </div>
+        </form>
       </div>
     </div>
   );

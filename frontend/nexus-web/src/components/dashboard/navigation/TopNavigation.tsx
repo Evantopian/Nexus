@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/useAuth";
 import {
   Bell as NotificationsIcon,
   Mail as EmailIcon,
@@ -12,6 +13,14 @@ interface TopNavigationProps {
 }
 
 const TopNavigation = ({ isMobile = false }: TopNavigationProps) => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
   return (
     <header
       className="fixed top-0 left-5 right-0 bg-white dark:bg-gray-800 z-40 shadow-sm transition-all duration-200 ease-in-out"
@@ -69,12 +78,12 @@ const TopNavigation = ({ isMobile = false }: TopNavigationProps) => {
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200">
             <NotificationsIcon className="text-gray-600 dark:text-gray-300" />
           </button>
-          <Link
-            to="/logout"
+          <button
+            onClick={handleLogout}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200"
           >
             <LogoutIcon className="text-gray-600 dark:text-gray-300" />
-          </Link>
+          </button>
         </div>
       </div>
     </header>

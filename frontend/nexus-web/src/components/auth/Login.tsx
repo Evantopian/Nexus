@@ -1,13 +1,38 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import NexusDragon from "@/assets/Nexus_Dragon.svg";
-
 import BoyWave from "@/assets/pages/auth/BoyWaving.jpg";
 import GirlPose from "@/assets/pages/auth/GirlPosing.png";
+import { useAuth } from "@/contexts/useAuth"; // <- Make sure this points to the correct file
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { user, login } = useAuth();
+  const navigate = useNavigate();
+
+  // Early redirect if the user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    try {
+      await login(email, password);
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Invalid email or password.");
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-black to-[#312E68]">
       <div className="w-full max-w-md mx-auto flex flex-col justify-center px-6 py-12 relative z-10">
@@ -26,7 +51,11 @@ const Login = () => {
           Login to Nexus
         </h1>
 
-        <div className="space-y-6">
+        {error && (
+          <div className="text-red-400 text-sm text-center mb-4">{error}</div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
               htmlFor="email"
@@ -37,6 +66,8 @@ const Login = () => {
             <Input
               id="email"
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
               className="w-full p-3 bg-slate-800/80 backdrop-blur-sm border border-slate-700 text-white rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
             />
@@ -52,6 +83,8 @@ const Login = () => {
             <Input
               id="password"
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               className="w-full p-3 bg-slate-800/80 backdrop-blur-sm border border-slate-700 text-white rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
             />
@@ -65,7 +98,10 @@ const Login = () => {
             </div>
           </div>
 
-          <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-md flex items-center justify-center transition-all duration-300 transform hover:scale-105">
+          <Button
+            type="submit"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-md flex items-center justify-center transition-all duration-300 transform hover:scale-105"
+          >
             Continue{" "}
             <ArrowRightAltIcon className="ml-2" sx={{ fontSize: 16 }} />
           </Button>
@@ -79,7 +115,7 @@ const Login = () => {
               Sign Up →
             </Link>
           </div>
-        </div>
+        </form>
 
         <div className="flex justify-center space-x-4 mt-16">
           <a href="#" className="text-xs text-gray-400 hover:text-gray-300">
@@ -114,4 +150,3 @@ const Login = () => {
 };
 
 export default Login;
-
