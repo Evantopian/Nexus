@@ -9,6 +9,7 @@ import WorkInProgress from "@/components/common/WorkInProgress";
 import MainLayout from "@/layouts/MainLayout";
 import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import AuthRedirect from "@/components/auth/AuthRedirect";
 
 const routes: RouteObject[] = [
   {
@@ -18,10 +19,15 @@ const routes: RouteObject[] = [
   },
   {
     path: "/",
-    element: <AuthLayout />,
+    element: <AuthRedirect />,
     children: [
-      { path: "login", element: <Login /> },
-      { path: "signup", element: <SignUp /> },
+      {
+        element: <AuthLayout />,
+        children: [
+          { path: "login", element: <Login /> },
+          { path: "signup", element: <SignUp /> },
+        ],
+      },
     ],
   },
   {

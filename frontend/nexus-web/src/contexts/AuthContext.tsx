@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { gql } from "@apollo/client";
-import client from "@/lib/apollo-client"; // Import your Apollo client
+import client from "@/lib/apollo-client";
 
 type User = { uuid: string; username: string; email: string };
 
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = response.data.token;
     // Store the token in localStorage or in state
     localStorage.setItem("authToken", token);
-    await refreshUser(); // Update user state after successful login
+    await refreshUser(); // Update user state after login
   };
 
   const signup = async (username: string, email: string, password: string) => {
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         {
           withCredentials: true,
           headers: {
-            Authorization: `Bearer ${token}`, // Pass the token
+            Authorization: `Bearer ${token}`,
           },
         }
       );
