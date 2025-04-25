@@ -16,14 +16,18 @@ defmodule ChatSystemWeb.Router do
 
   scope "/", ChatSystemWeb do
     pipe_through :browser
-
-    get "/", PageController, :home
+  
+    live "/chat", ChatLive
   end
+  
 
   # Other scopes may use custom stacks.
   # scope "/api", ChatSystemWeb do
   #   pipe_through :api
   # end
+  live "/rooms", ChatLive.Root, :index
+  live "/rooms/:id", ChatLive.Root, :show
+
 
   # Enable Swoosh mailbox preview in development
   if Application.compile_env(:chat_system, :dev_routes) do
