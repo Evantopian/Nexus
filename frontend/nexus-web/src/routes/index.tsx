@@ -11,6 +11,7 @@ import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import AuthRedirect from "@/components/auth/AuthRedirect";
 import Profile from "@/components/profile/Profile";
+import ChatLayout from "@/layouts/ChatLayout";
 
 const routes: RouteObject[] = [
   {
@@ -69,6 +70,10 @@ const routes: RouteObject[] = [
         element: <Profile />,
       },
       { path: "games/:gameName", element: <GameDetail /> },
+      {
+        path: "chat",
+        element: <ChatLayout />,
+      },
       {
         path: "*",
         element: (
