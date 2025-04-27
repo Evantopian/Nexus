@@ -5,8 +5,13 @@ interface GamePlayersProps {
   limit?: number;
 }
 
-const GamePlayers = ({ players, limit = 6 }: GamePlayersProps) => {
+const GamePlayers = ({ players = [], limit = 6 }: GamePlayersProps) => {
+  // Default to empty array if players is undefined or null
   const displayPlayers = limit ? players.slice(0, limit) : players;
+
+  if (displayPlayers.length === 0) {
+    return <div>No players available</div>;
+  }
 
   return (
     <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 dark:from-indigo-900/30 dark:to-purple-900/30 p-6 rounded-lg border border-indigo-200 dark:border-indigo-800 backdrop-blur-sm mb-8 mt-6">
@@ -63,7 +68,13 @@ const GamePlayers = ({ players, limit = 6 }: GamePlayersProps) => {
                   {/* Status Indicator */}
                   {player.status && (
                     <div
-                      className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 ${player.status === "online" ? "bg-green-500" : player.status === "away" ? "bg-yellow-500" : "bg-gray-500"}`}
+                      className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 ${
+                        player.status === "online"
+                          ? "bg-green-500"
+                          : player.status === "away"
+                          ? "bg-yellow-500"
+                          : "bg-gray-500"
+                      }`}
                     ></div>
                   )}
                 </div>

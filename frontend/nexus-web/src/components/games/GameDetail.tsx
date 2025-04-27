@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getGameBySlug } from "@/data/DummyGameData";
-// import { GET_GAME_QUERY } from "@/graphql/gameQueries";
+import { useQuery } from "@apollo/client";
+import { GET_GAME_QUERY } from "@/graphql/gameQueries";
 
-// Import modular components
 import GameBanner from "./common/GameBanner";
 import FilterBar from "./common/FilterBar";
 import GameAbout from "./detail/GameAbout";
@@ -14,8 +13,6 @@ import GameLFG from "./detail/GameLFG";
 const GameDetail = () => {
   const { gameName } = useParams<{ gameName: string }>();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("guilds");
-  const [activeFilter, setActiveFilter] = useState("all");
 
   // Redirect to dashboard if gameName is undefined
   useEffect(() => {
@@ -24,11 +21,21 @@ const GameDetail = () => {
     }
   }, [gameName, navigate]);
 
-  // Get game data from our data model
-  const gameData = getGameBySlug(gameName || "");
+  const [activeTab, setActiveTab] = useState("guilds");
+  const [activeFilter, setActiveFilter] = useState("all");
 
-  // If game not found, show error or redirect
-  if (!gameData) {
+  const { loading, error, data } = useQuery(GET_GAME_QUERY, {
+    variables: { slug: gameName }, // Pass gameName as the slug variable
+    skip: !gameName, // Skip the query if no gameName
+  });
+
+  const gameData = data?.getGame;
+
+  if (loading) {
+    return <div className="text-center py-8">Loading...</div>;
+  }
+
+  if (error || !gameData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md text-center">
@@ -49,14 +56,13 @@ const GameDetail = () => {
     );
   }
 
-  // Tab configuration
+  // Your tabs, filters, etc.
   const tabs = [
     { id: "guilds", label: "Guilds/Factions/Servers" },
     { id: "players", label: "Players" },
     { id: "lfg", label: "LFG" },
   ];
 
-  // Filter options
   const filterOptions = [
     { id: "all", label: "All", active: activeFilter === "all" },
     { id: "active", label: "Active", active: activeFilter === "active" },
@@ -75,7 +81,6 @@ const GameDetail = () => {
 
   return (
     <div className="min-h-screen w-full">
-      {/* Game Banner with integrated tabs */}
       <div className="w-[calc(100%+2rem)] -ml-4 -mt-6">
         <GameBanner
           game={gameData}
@@ -84,37 +89,25 @@ const GameDetail = () => {
           tabs={tabs}
         />
       </div>
-      {/* Content Area */}
+
       <div className="w-full py-8">
-        {/* Filters Row */}
         <FilterBar
           options={filterOptions}
           onFilterChange={handleFilterChange}
         />
-
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Content Area - Left Side */}
           <div className="lg:w-3/4">
-            {/* Guilds/Servers Section - Carousel */}
             {activeTab === "guilds" && (
               <GameServers servers={gameData.servers} />
             )}
-
-            {/* Separator Line */}
             <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-6"></div>
-
-            {/* Players Section - Horizontal Cards */}
             <GamePlayers players={gameData.topPlayers} />
-
-            {/* LFG Section */}
             {activeTab === "lfg" && (
               <GameLFG lfgPosts={gameData.lfgPosts} gameName={gameData.title} />
             )}
           </div>
 
-          {/* Sidebar - Right Side */}
           <div className="lg:w-1/4">
-            {/* Game Description */}
             <GameAbout game={gameData} />
           </div>
         </div>

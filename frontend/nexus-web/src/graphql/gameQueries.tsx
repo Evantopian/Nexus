@@ -1,9 +1,8 @@
 import { gql } from "@apollo/client";
 
-// Define your GraphQL query
 export const GET_GAME_QUERY = gql`
-  query getGame {
-    getGame(slug: "apex-legends") {
+  query getGame($slug: String!) {
+    getGame(slug: $slug) {
       id
       slug
       title
