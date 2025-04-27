@@ -7,10 +7,11 @@ defmodule ChatSystemWeb.RoomChannel do
   end
 
   # new msgs
-  def handle_in("message:new", %{"body" => body}, socket) do
-    broadcast!(socket, "message:new", %{user: socket.assigns.username, body: body})
+  def handle_in("message:new", %{"user" => user, "body" => body}, socket) do
+    broadcast!(socket, "message:new", %{user: user, body: body})
     {:noreply, socket}
   end
+  
 
 
 end

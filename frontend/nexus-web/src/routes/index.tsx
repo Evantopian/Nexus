@@ -12,6 +12,7 @@ import DashboardLayout from "@/layouts/DashboardLayout";
 import AuthRedirect from "@/components/auth/AuthRedirect";
 import Profile from "@/components/profile/Profile";
 import ChatLayout from "@/layouts/ChatLayout";
+import ChatArea from "@/components/chats/ChatArea";
 
 const routes: RouteObject[] = [
   {
@@ -73,7 +74,18 @@ const routes: RouteObject[] = [
       {
         path: "chat",
         element: <ChatLayout />,
-      },
+        children: [
+          { path: ":roomId/:channelId", element: <ChatArea /> },
+          {
+            index: true,
+            element: (
+              <div className="p-4 text-gray-400">
+                Select a room and a channel to start messaging.
+              </div>
+            ),
+          },
+        ],
+      },      
       {
         path: "*",
         element: (
