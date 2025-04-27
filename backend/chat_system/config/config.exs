@@ -8,6 +8,7 @@
 import Config
 
 config :chat_system,
+  ecto_repos: [ChatSystem.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
@@ -19,7 +20,7 @@ config :chat_system, ChatSystemWeb.Endpoint,
     layout: false
   ],
   pubsub_server: ChatSystem.PubSub,
-  live_view: [signing_salt: "QhxIfWgY"]
+  live_view: [signing_salt: "6+YO5XTW"]
 
 # Configures the mailer
 #

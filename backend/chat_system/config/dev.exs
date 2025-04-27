@@ -1,5 +1,15 @@
 import Config
 
+# Configure your database
+config :chat_system, ChatSystem.Repo,
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  database: "chat_system_dev",
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
@@ -13,7 +23,7 @@ config :chat_system, ChatSystemWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "xtGgEXDIWtzLazBodlf/FrGQ2Y1bLjGOD84/fVnI/mR4B6iBdKOMBG7ax4ycDwNL",
+  secret_key_base: "OuCjzY1HSTn66P1BQD7bwcl7b2YV9aVndFE3IqcCyRINqimsCbMvp4bKu1q/hV9B",
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:chat_system, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:chat_system, ~w(--watch)]}

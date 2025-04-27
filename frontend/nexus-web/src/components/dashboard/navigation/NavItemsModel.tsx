@@ -37,13 +37,13 @@ export const followedGames: NavItem[] = [
 export const chatItems: NavItem[] = [
   {
     icon: <ChatIcon sx={{ fontSize: 20 }} />,
-    href: "/chat/direct",
+    href: "/chat/",
     tooltip: "Direct Messages",
     label: "Direct Messages",
   },
   {
     icon: <ChatIcon sx={{ fontSize: 20 }} />,
-    href: "/chat/group",
+    href: "/chat/to_not_show_highlighted_since_not_implemented_yet",
     tooltip: "Group Chats",
     label: "Group Chats",
   },
