@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet, FlatList, TouchableOpacity, } from 'react-native';
+import { SafeAreaView, Text, StyleSheet, FlatList } from 'react-native';
 import { getAllGames } from '../../data/DummyGameData';
 import GameItem from '../../components/GameItem';
 

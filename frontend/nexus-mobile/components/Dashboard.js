@@ -1,80 +1,84 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, ImageBackground, StatusBar, Platform } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { getGameByTitle } from '../data/DummyGameData';
+import GuildsRoute from './DashboardContent/GuildsRoute';
+import PlayersRoute from './DashboardContent/PlayersRoute';
+import LFGRoute from './DashboardContent/LFGRoute';
 
-const GuildsRoute = () => (
-  <View style={styles.scene}>
-    <Text style={styles.contentText}>Guilds / Factions / Servers content</Text>
-  </View>
-);
-
-const PlayersRoute = () => (
-  <View style={styles.scene}>
-    <Text style={styles.contentText}>Players content</Text>
-  </View>
-);
-
-const LFGRoute = () => (
-  <View style={styles.scene}>
-    <Text style={styles.contentText}>Looking for Group content</Text>
-  </View>
-);
-
-export default function Dashboard() {
+export default function Dashboard({ route }) {
   const layout = useWindowDimensions();
-
+  const { gameTitle } = route.params;
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    { key: 'guilds', title: 'Guilds/Factions/Servers' },
+    { key: 'guilds', title: 'Guilds' },
     { key: 'players', title: 'Players' },
     { key: 'lfg', title: 'LFG' },
   ]);
 
+  const gameData = getGameByTitle(gameTitle);
+  const backgroundImage = gameData?.image;
+
   const renderScene = SceneMap({
-    guilds: GuildsRoute,
-    players: PlayersRoute,
-    lfg: LFGRoute,
+    guilds: () => <GuildsRoute gameData={gameData} />,
+    players: () => <PlayersRoute gameData={gameData} />,
+    lfg: () => <LFGRoute gameData={gameData} />,
   });
 
   return (
-    <TabView
-      navigationState={{ index, routes }}
-      renderScene={renderScene}
-      onIndexChange={setIndex}
-      initialLayout={{ width: layout.width }}
-      renderTabBar={props => (
-        <TabBar
-          {...props}
-          scrollEnabled
-          indicatorStyle={{ backgroundColor: '#4f46e5' }}
-          style={[styles.tabBar, { paddingHorizontal: 10 }]}
-          labelStyle={[styles.tabLabel, { fontSize: 12, flexShrink: 1 }]}
-        />
-      )}
-    />
+    <View
+      style={[
+        styles.container,
+        { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }, // Add padding for the status bar
+      ]}
+    >
+      <ImageBackground
+        source={{ uri: backgroundImage }}
+        style={styles.gameTitleBackground}
+        resizeMode="cover"
+      >
+        <Text style={styles.gameTitle}>{gameTitle}</Text>
+      </ImageBackground>
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        renderTabBar={props => (
+          <TabBar
+            {...props}
+            indicatorStyle={{ backgroundColor: '#4f46e5' }}
+            style={[styles.tabBar]}
+            labelStyle={[styles.tabLabel, { fontSize: 12, flexShrink: 1 }]}
+          />
+        )}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-    scene: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    contentText: {
-      color: '#fff',
-      fontSize: 12,
-      fontWeight: '600',
-    },
-    tabLabel: {
-      color: '#fff',
-      fontWeight: 'bold',
-      fontSize: 14,
-      textTransform: 'none',
-      flexShrink: 1,
-    },
-    tabBar: {
-      backgroundColor: '#1f2937',
-      height: 50,
-    },
-  });
+  container: {
+    flex: 1,
+  },
+  tabBar: {
+    backgroundColor: '#1f2937',
+    height: 50,
+  },
+  gameTitleBackground: {
+    width: '100%',
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gameTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+  },
+});

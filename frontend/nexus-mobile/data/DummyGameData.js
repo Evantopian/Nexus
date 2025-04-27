@@ -1179,8 +1179,8 @@ export const gameTags = {
     },
   ];
   
-const getGameBySlug = (slug) => {
-    return games.find((game) => game.slug === slug);
+const getGameByTitle = (title) => {
+    return games.find((game) => game.title === title);
 };
 
 const getAllGames = () => {
@@ -1191,5 +1191,5 @@ const getTagColor = (tagName) => {
     return gameTags[tagName]?.color || "bg-gray-100 text-gray-700";
 };
 
-export { getGameBySlug, getAllGames, getTagColor };
+export { getGameByTitle, getAllGames, getTagColor };
 export default games;
