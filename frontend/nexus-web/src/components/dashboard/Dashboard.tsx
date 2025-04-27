@@ -2,7 +2,6 @@ import FeaturedGames from "./FeaturedGames";
 import MainContent from "./MainContent";
 import Sidebar from "./SideBar";
 
-
 // temporary data, waiting for backend APIs to be built, then we will fetch.
 const Dashboard = () => {
   // Featured games data

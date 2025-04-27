@@ -119,12 +119,12 @@ func Profile(ctx context.Context) (*model.User, error) {
 
 	// Query the user from the database using the UUID
 	query := `SELECT uuid, username, email, COALESCE(profile_img, ''), COALESCE(profile_message, ''), 
-							COALESCE(status, ''), COALESCE(rank, ''), created_at, preferences
+							COALESCE(status, ''), COALESCE(rank, ''), COALESCE(reputation, 0), created_at, preferences
 						FROM users WHERE uuid=$1;`
 
 	err = postgres.DB.QueryRow(ctx, query, uuid).Scan(
 		&user.UUID, &user.Username, &user.Email, &user.ProfileImg,
-		&user.ProfileMessage, &user.Status, &user.Rank, &createdAt, &user.Preferences,
+		&user.ProfileMessage, &user.Status, &user.Rank, &user.Reputation, &createdAt, &user.Preferences,
 	)
 
 	if err != nil {
