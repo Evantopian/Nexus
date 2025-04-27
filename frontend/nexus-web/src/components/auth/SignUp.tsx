@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import NexusDragon from "@/assets/Nexus_Dragon.svg";
 import BoyFoxCamp from "@/assets/pages/auth/BoyFoxCamping.png";
-import { useAuth } from "@/contexts/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");

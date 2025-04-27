@@ -6,7 +6,7 @@ import ArrowRightAltIcon from "@mui/icons-material/ArrowRightAlt";
 import NexusDragon from "@/assets/Nexus_Dragon.svg";
 import BoyWave from "@/assets/pages/auth/BoyWaving.jpg";
 import GirlPose from "@/assets/pages/auth/GirlPosing.png";
-import { useAuth } from "@/contexts/useAuth"; // <- Make sure this points to the correct file
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");

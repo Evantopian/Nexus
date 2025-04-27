@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getGameBySlug } from "@/data/DummyGameData";
+// import { GET_GAME_QUERY } from "@/graphql/gameQueries";
 
 // Import modular components
 import GameBanner from "./common/GameBanner";
@@ -76,8 +77,8 @@ const GameDetail = () => {
     <div className="min-h-screen w-full">
       {/* Game Banner with integrated tabs */}
       <div className="w-[calc(100%+2rem)] -ml-4 -mt-6">
-        <GameBanner 
-          game={gameData} 
+        <GameBanner
+          game={gameData}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           tabs={tabs}

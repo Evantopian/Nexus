@@ -10,6 +10,7 @@ import MainLayout from "@/layouts/MainLayout";
 import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import AuthRedirect from "@/components/auth/AuthRedirect";
+import Profile from "@/components/profile/Profile";
 
 const routes: RouteObject[] = [
   {
@@ -65,12 +66,7 @@ const routes: RouteObject[] = [
       },
       {
         path: "profile",
-        element: (
-          <WorkInProgress
-            title="Profile Page"
-            message="Your profile page is under construction. Soon you'll be able to customize your gaming identity."
-          />
-        ),
+        element: <Profile />,
       },
       { path: "games/:gameName", element: <GameDetail /> },
       {

@@ -1,4 +1,4 @@
-import { useAuth } from "@/contexts/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 
 const AuthRedirect = () => {

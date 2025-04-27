@@ -1,9 +1,26 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { gql } from "@apollo/client";
 import client from "@/lib/apollo-client";
+import { PROFILE_QUERY } from "@/graphql/profileQueries";
 
-type User = { uuid: string; username: string; email: string };
+type User = {
+  uuid: string;
+  username: string;
+  email: string;
+  profileImg: string | null;
+  profileMessage: string | null;
+  status: string;
+  reputation: number;
+  rank: string | null;
+  createdAt: string;
+  preferences: Preferences;
+};
+
+interface Preferences {
+  gameType: string;
+  playStyle: string;
+  region: string;
+}
 
 export interface AuthContextType {
   user: User | null;
@@ -13,18 +30,7 @@ export interface AuthContextType {
   logout: () => Promise<void>;
 }
 
-// Named export for context
-export const AuthContext = createContext<AuthContextType | null>(null);
-
-const PROFILE_QUERY = gql`
-  query Profile {
-    profile {
-      uuid
-      username
-      email
-    }
-  }
-`;
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -107,3 +113,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     </AuthContext.Provider>
   );
 };
+
+export function useAuth(): AuthContextType {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+}

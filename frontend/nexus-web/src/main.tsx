@@ -14,13 +14,13 @@ axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider>
-      <ApolloProvider client={client}>
-        <AuthProvider>
+      <AuthProvider>
+        <ApolloProvider client={client}>
           <BrowserRouter>
             <App />
           </BrowserRouter>
-        </AuthProvider>
-      </ApolloProvider>
+        </ApolloProvider>
+      </AuthProvider>
     </ThemeProvider>
   </React.StrictMode>
 );
