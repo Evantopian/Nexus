@@ -1,40 +1,172 @@
-import React from "react";
-import { SafeAreaView, View, Text, StyleSheet } from "react-native";
-import { Searchbar } from 'react-native-paper';
+import React, { useState } from "react";
+import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput } from "react-native";
+import { getAllGames } from "../../data/DummyGameData";
+import { Ionicons } from "@expo/vector-icons";
+import GuildCard from "../../components/Cards/GuildCard";
+import PlayerCard from "../../components/Cards/PlayerCard";
+import GroupCard from "../../components/Cards/GroupCard";
 
-export default function Search({topPadding} ){
-  const [searchQuery, setSearchQuery] = React.useState('');
+export default function FilterBox({ topPadding }) {
+  const [selectedCategory, setSelectedCategory] = useState("Guilds");
+  const [searchQuery, setSearchQuery] = useState("");
+  const gamesList = getAllGames();
+
+  const guilds = gamesList.flatMap((game) => game.servers || []);
+  const players = gamesList.flatMap((game) => game.topPlayers || []);
+  const groups = gamesList.flatMap((game) => game.lfgPosts || []);
+
+  const getData = () => {
+    let data = [];
+    if (selectedCategory === "Guilds") data = guilds;
+    if (selectedCategory === "Players") data = players;
+    if (selectedCategory === "Groups") data = groups;
+
+    if (searchQuery.trim() !== "") {
+      return data.filter((item) =>
+        (item.name || item.title || "").toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    return data;
+  };
+
+  const renderItem = ({ item }) => {
+    if (selectedCategory === "Guilds") return <GuildCard server={item} />;
+    if (selectedCategory === "Players") return <PlayerCard player={item} />;
+    if (selectedCategory === "Groups") return <GroupCard group={item} />;
+    return null;
+  };
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <View style={styles.searchContainer}>
-        <Searchbar
+        <Ionicons name="search" size={20} color="#888" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchBox}
           placeholder="Search"
-          onChangeText={setSearchQuery}
           value={searchQuery}
+          onChangeText={setSearchQuery}
         />
       </View>
-      <View style={styles.body}>
-        <Text style={styles.title}>Search Screen</Text>
-        <Text style={styles.text}>Search for a game/party for you!</Text>
+
+      <View style={styles.filterBox}>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            selectedCategory === "Guilds" && styles.activeFilterButton,
+          ]}
+          onPress={() => setSelectedCategory("Guilds")}
+        >
+          <Text
+            style={[
+              styles.filterText,
+              selectedCategory === "Guilds" && styles.activeFilterText,
+            ]}
+          >
+            Guilds
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            selectedCategory === "Players" && styles.activeFilterButton,
+          ]}
+          onPress={() => setSelectedCategory("Players")}
+        >
+          <Text
+            style={[
+              styles.filterText,
+              selectedCategory === "Players" && styles.activeFilterText,
+            ]}
+          >
+            Players
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            selectedCategory === "Groups" && styles.activeFilterButton,
+          ]}
+          onPress={() => setSelectedCategory("Groups")}
+        >
+          <Text
+            style={[
+              styles.filterText,
+              selectedCategory === "Groups" && styles.activeFilterText,
+            ]}
+          >
+            Groups
+          </Text>
+        </TouchableOpacity>
       </View>
+
+      <FlatList
+        data={getData()}
+        keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+        renderItem={renderItem}
+        contentContainerStyle={styles.listContainer}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No data available</Text>
+        }
+      />
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
   },
   searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    margin: 10,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    borderRadius: 20,
+    backgroundColor: "#f9f9f9",
+    paddingHorizontal: 10,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchBox: {
+    flex: 1,
+    height: 40,
+    fontSize: 14,
+  },
+  filterBox: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 10,
+    backgroundColor: "#f4f4f4",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  filterButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: "#e0e0e0",
+  },
+  activeFilterButton: {
+    backgroundColor: "#4f46e5",
+  },
+  filterText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  activeFilterText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  listContainer: {
     padding: 10,
   },
-  body: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  text: {
-    fontSize: 20,
+  emptyText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#888",
+    marginTop: 20,
   },
 });

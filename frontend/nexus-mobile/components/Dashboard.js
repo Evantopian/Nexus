@@ -29,7 +29,7 @@ export default function Dashboard({ route }) {
     <View
       style={[
         styles.container,
-        { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }, // Add padding for the status bar
+        { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 },
       ]}
     >
       <ImageBackground
