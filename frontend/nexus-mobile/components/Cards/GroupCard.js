@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import SvgUri from 'react-native-svg-uri';
+import { SvgUri } from 'react-native-svg';
 
 const GroupCard = ({ group }) => {
   const isSvg = group.author.avatar.endsWith('.svg') || group.author.avatar.includes('svg');
@@ -38,7 +38,7 @@ const GroupCard = ({ group }) => {
 
         <View style={styles.authorRow}>
           {isSvg ? (
-            <SvgUri source={{ uri: group.author.avatar }} style={styles.avatar} />
+            <SvgUri uri={ group.author.avatar } style={styles.avatar} />
           ) : (
             <Image source={{ uri: group.author.avatar }} style={styles.avatar} />
           )}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import SvgUri from 'react-native-svg-uri';
+import { SvgUri } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 
 const PlayerCard = ({ player }) => {
@@ -9,7 +9,7 @@ const PlayerCard = ({ player }) => {
   return (
     <View style={styles.card}>
       {isSvg ? (
-        <SvgUri source={{ uri: player.avatar }} style={styles.image} />
+        <SvgUri uri={ player.avatar } style={styles.image} />
       ) : (
         <Image source={{ uri: player.avatar }} style={styles.image} />
       )}
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   image: {
-    flex: 1.5,
+    width: '35%',
     resizeMode: 'cover',
     backgroundColor: '#ccc',
   },

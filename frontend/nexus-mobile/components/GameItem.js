@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import SvgUri from 'react-native-svg-uri';
+import { SvgUri } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 
 const GameItem = ({ title, logo, shortDescription }) => {
@@ -15,9 +15,9 @@ const GameItem = ({ title, logo, shortDescription }) => {
     <TouchableOpacity onPress={handlePress} style={styles.wrapper}>
       <View style={styles.gameItem}>
         {isSvg ? (
-          <SvgUri source={{ uri: logo }} style={styles.gameIcon} />
+          <SvgUri  uri={ logo } style={styles.gameIcon}/>
         ) : (
-          <Image source={{ uri: logo }} style={styles.gameIcon} />
+          <Image source={{ uri: logo }} style={styles.gameIcon}/>
         )}
 
         <View style={{ flex: 1 }}>

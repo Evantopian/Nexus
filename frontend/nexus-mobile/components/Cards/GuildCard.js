@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import SvgUri from 'react-native-svg-uri';
+import { SvgUri } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 
 const GuildCard = ({ server }) => {
@@ -9,7 +9,7 @@ const GuildCard = ({ server }) => {
   return (
     <View style={styles.card}>
         {isSvg ? (
-            <SvgUri source={{ uri: server.image }} style={styles.image} />
+            <SvgUri uri={ server.image } style={styles.image} />
         ) : (
             <Image source={{ uri: server.image }} style={styles.image} />
         )}
@@ -41,8 +41,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   image: {
-    flex: 1.5,
-    resizeMode: 'cover',
+    width: '40%',
     backgroundColor: '#ccc',
   },
   infoContainer: {
