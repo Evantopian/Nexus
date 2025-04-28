@@ -8,6 +8,7 @@ const GroupCard = ({ group }) => {
   return (
     <View style={styles.card}>
       <View style={styles.infoContainer}>
+        <Text style={styles.title}>{group.title}</Text>
         <Text style={styles.label}>Description:</Text>
         <Text style={styles.description}>{group.description}</Text>
         {group.requirements?.length > 0 && (
