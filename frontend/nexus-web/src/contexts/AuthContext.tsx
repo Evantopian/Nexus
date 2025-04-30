@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .query<{ profile: User }>({ query: PROFILE_QUERY })
       .then((res) => {
         setUser(res.data.profile);
-        console.log("Fetched User:", res.data.profile); // Log user after fetching profile
+        // console.log("Fetched User:", res.data.profile);
       })
       .catch((err) => console.error("Profile fetch failed", err))
       .finally(() => setLoading(false));

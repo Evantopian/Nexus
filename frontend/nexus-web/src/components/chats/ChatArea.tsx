@@ -1,9 +1,8 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Socket } from "phoenix";
 import { MessageStorage } from "@/data/messageStorage";
-import { useDebouncedCallback } from "use-debounce"; 
+import { useDebouncedCallback } from "use-debounce";
 
 interface Message {
   user: string;
@@ -12,7 +11,9 @@ interface Message {
 
 const ChatArea = () => {
   const { roomId, channelId } = useParams();
-  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>(MessageStorage.load());
+  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>(
+    MessageStorage.load()
+  );
   const [socket, setSocket] = useState<Socket | null>(null);
   const [channel, setChannel] = useState<any>(null);
   const [message, setMessage] = useState("");
@@ -22,7 +23,7 @@ const ChatArea = () => {
 
   const usernameRef = useRef(`User${Math.floor(1000 + Math.random() * 9000)}`);
   const username = usernameRef.current;
-  
+
   useEffect(() => {
     if (!roomId || !channelId) return;
 
@@ -36,15 +37,18 @@ const ChatArea = () => {
     const newChannel = newSocket.channel(topic, {});
     setChannel(newChannel);
 
-    newChannel.join()
+    newChannel
+      .join()
       .receive("ok", () => console.log(`Joined ${topic}`))
-      .receive("error", (err: any) => console.error(`Failed to join ${topic}`, err));
+      .receive("error", (err: any) =>
+        console.error(`Failed to join ${topic}`, err)
+      );
 
     // Message receiving
     newChannel.on("message:new", (payload: Message) => {
       const topic = `room:${roomId}:${channelId}`;
 
-      setMessagesMap(prev => {
+      setMessagesMap((prev) => {
         const currentMessages = prev[topic] || [];
         const updatedMessages = [...currentMessages, payload];
         if (updatedMessages.length > 50) {
@@ -57,7 +61,7 @@ const ChatArea = () => {
     });
 
     newChannel.on("typing:start", (payload: { user: string }) => {
-      setTypingUsers(prev => {
+      setTypingUsers((prev) => {
         if (!prev.includes(payload.user)) {
           return [...prev, payload.user];
         }
@@ -66,7 +70,7 @@ const ChatArea = () => {
     });
 
     newChannel.on("typing:stop", (payload: { user: string }) => {
-      setTypingUsers(prev => prev.filter(u => u !== payload.user));
+      setTypingUsers((prev) => prev.filter((u) => u !== payload.user));
     });
 
     return () => {
@@ -93,26 +97,25 @@ const ChatArea = () => {
   // using debounce (read, it's best practice) to avoid sending too many typing events
   const handleTyping = useDebouncedCallback(() => {
     if (!channel) return;
-  
-    setTypingUsers(prev => {
+
+    setTypingUsers((prev) => {
       if (!prev.includes(username)) {
         return [...prev, username];
       }
       return prev;
     });
-  
+
     channel.push("typing:start", { user: username });
-  
+
     if (typingTimeout.current) {
       clearTimeout(typingTimeout.current);
     }
-  
+
     typingTimeout.current = setTimeout(() => {
-      setTypingUsers(prev => prev.filter(u => u !== username));
+      setTypingUsers((prev) => prev.filter((u) => u !== username));
       channel.push("typing:stop", { user: username });
-    }, 3000); // 3s 
+    }, 3000); // 3s
   }, 300);
-  
 
   const topic = `room:${roomId}:${channelId}`;
   const currentMessages = messagesMap[topic] || [];
@@ -121,7 +124,8 @@ const ChatArea = () => {
     <div className="flex flex-col h-full w-full bg-[#1E1E2F] text-white rounded-lg overflow-hidden">
       <div className="flex items-center justify-between p-4 bg-[#2C2C3E] shadow-md">
         <div className="text-lg font-bold">
-          {(roomId?.toUpperCase() ?? "Unknown Room")} / #{channelId?.replace("-", " ") ?? "Unknown Channel"}
+          {roomId?.toUpperCase() ?? "Unknown Room"} / #
+          {channelId?.replace("-", " ") ?? "Unknown Channel"}
         </div>
       </div>
 
@@ -136,7 +140,8 @@ const ChatArea = () => {
         ))}
         {typingUsers.length > 0 && (
           <div className="px-4 text-sm text-gray-400">
-            {typingUsers.join(", ")} {typingUsers.length > 1 ? "are" : "is"} typing...
+            {typingUsers.join(", ")} {typingUsers.length > 1 ? "are" : "is"}{" "}
+            typing...
           </div>
         )}
         <div ref={bottomRef} />
@@ -149,7 +154,7 @@ const ChatArea = () => {
           value={message}
           onChange={(e) => {
             setMessage(e.target.value);
-            handleTyping(); 
+            handleTyping();
           }}
           placeholder="Type your message..."
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
