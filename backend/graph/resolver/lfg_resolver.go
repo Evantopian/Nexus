@@ -46,7 +46,7 @@ func CreateLFGPost(
 	insertQuery := `
 		INSERT INTO lfg_posts (game_id, title, description, author_id, requirements, tags, expires_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		RETURNING id, game_id, title, description, author_id, requirements, tags, created_at::TEXT, expires_at::TEXt
+		RETURNING id, game_id, title, description, author_id, requirements, tags, created_at::TEXT, expires_at::TEXT
 	`
 
 	err = postgres.DB.QueryRow(

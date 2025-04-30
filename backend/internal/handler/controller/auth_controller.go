@@ -14,7 +14,7 @@ import (
 )
 
 // Token expiration (can be configured via env variables)
-var tokenExpiryMinutes = 60
+var tokenExpiryMinutes = 120
 
 // User represents a user account.
 type User struct {

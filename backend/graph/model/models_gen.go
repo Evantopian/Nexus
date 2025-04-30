@@ -23,7 +23,7 @@ type FriendRequestsList struct {
 }
 
 type Game struct {
-	ID               string     `json:"id"`
+	ID               uuid.UUID  `json:"id"`
 	Slug             string     `json:"slug"`
 	Title            string     `json:"title"`
 	Description      *string    `json:"description,omitempty"`
@@ -87,6 +87,7 @@ type User struct {
 	Rank           *string      `json:"rank,omitempty"`
 	CreatedAt      *string      `json:"createdAt,omitempty"`
 	Preferences    *Preferences `json:"preferences,omitempty"`
+	FollowingGames []*Game      `json:"followingGames"`
 }
 
 type Playstyle string
