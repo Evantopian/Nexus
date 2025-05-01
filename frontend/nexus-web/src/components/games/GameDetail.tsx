@@ -11,10 +11,11 @@ import GamePlayers from "./detail/GamePlayers";
 import GameLFG from "./detail/GameLFG";
 
 const GameDetail = () => {
-  const { gameName } = useParams<{ gameName: string }>();
+  const gameName =
+    useParams<{ gameName: string }>().gameName ?? "defaultGameName";
   const navigate = useNavigate();
 
-  // Redirect to dashboard if gameName is undefined
+  // Redirect to dashboard if gameName is undefined (not a game w/ a page)
   useEffect(() => {
     if (!gameName) {
       navigate("/dashboard");
@@ -26,10 +27,11 @@ const GameDetail = () => {
 
   const { loading, error, data } = useQuery(GET_GAME_QUERY, {
     variables: { slug: gameName }, // Pass gameName as the slug variable
-    skip: !gameName, // Skip the query if no gameName
   });
 
   const gameData = data?.getGame;
+
+  // console.log(gameData);
 
   if (loading) {
     return <div className="text-center py-8">Loading...</div>;
@@ -81,6 +83,7 @@ const GameDetail = () => {
 
   return (
     <div className="min-h-screen w-full">
+      {/* Game Banner with integrated tabs */}
       <div className="w-[calc(100%+2rem)] -ml-4 -mt-6">
         <GameBanner
           game={gameData}
@@ -89,25 +92,33 @@ const GameDetail = () => {
           tabs={tabs}
         />
       </div>
-
+      {/* Content Area */}
       <div className="w-full py-8">
+        {/* Filters Row */}
         <FilterBar
           options={filterOptions}
           onFilterChange={handleFilterChange}
         />
+
         <div className="flex flex-col lg:flex-row gap-8">
+          {/* Main Content Area - Left Side */}
           <div className="lg:w-3/4">
-            {activeTab === "guilds" && (
-              <GameServers servers={gameData.servers} />
-            )}
+            {/* Guilds/Servers Section - Carousel */}
+            {activeTab === "guilds" && <GameServers gameName={gameName} />}
+
+            {/* Separator Line */}
             <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-6"></div>
+
+            {/* Players Section - Horizontal Cards */}
             <GamePlayers players={gameData.topPlayers} />
-            {activeTab === "lfg" && (
-              <GameLFG lfgPosts={gameData.lfgPosts} gameName={gameData.title} />
-            )}
+
+            {/* LFG Section */}
+            {activeTab === "lfg" && <GameLFG gameName={gameName} />}
           </div>
 
+          {/* Sidebar - Right Side */}
           <div className="lg:w-1/4">
+            {/* Game Description */}
             <GameAbout game={gameData} />
           </div>
         </div>

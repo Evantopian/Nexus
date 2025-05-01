@@ -22,8 +22,11 @@ const GameBanner = ({
   setActiveTab,
   tabs,
 }: GameBannerProps) => {
-  const { user } = useAuth();
   const [isFollowing, setIsFollowing] = useState(false);
+  const { user } = useAuth();
+
+  // Issue: On first render, user id is not defined.
+  // console.log("user", user?.uuid);
 
   // Query to check if the user is following the game
   const {} = useQuery(IS_USER_FOLLOWING_GAME, {

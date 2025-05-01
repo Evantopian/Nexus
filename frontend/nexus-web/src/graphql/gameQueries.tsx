@@ -18,20 +18,6 @@ export const GET_GAME_QUERY = gql`
       platforms
       tags
       rating
-      servers {
-        id
-        name
-        image
-        description
-        createdAt
-      }
-      lfgPosts {
-        id
-        title
-        description
-        createdAt
-        authorId
-      }
     }
   }
 `;

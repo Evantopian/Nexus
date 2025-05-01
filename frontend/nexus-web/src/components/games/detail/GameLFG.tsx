@@ -1,12 +1,22 @@
 import { Plus } from "lucide-react";
-import { LFGPost } from "@/data/DummyGameData";
+import { useQuery } from "@apollo/client";
+import { GET_LFG_POSTS_BY_SLUG } from "@/graphql/lfgQueries";
 
 interface GameLFGProps {
-  lfgPosts: LFGPost[];
   gameName: string;
 }
 
-const GameLFG = ({ lfgPosts, gameName }: GameLFGProps) => {
+const GameLFG = ({ gameName }: GameLFGProps) => {
+  const { data } = useQuery(GET_LFG_POSTS_BY_SLUG, {
+    variables: { slug: gameName }, // Pass gameName as the slug variable
+  });
+
+  console.log(gameName);
+
+  const lfgPosts = data?.getLFGPosts || [];
+
+  console.log(lfgPosts);
+
   return (
     <div className="mt-8 bg-gradient-to-r from-green-500/10 to-emerald-500/10 dark:from-green-900/30 dark:to-emerald-900/30 p-6 rounded-lg border border-green-200 dark:border-green-800">
       <div className="flex justify-between items-center mb-4">
@@ -20,7 +30,7 @@ const GameLFG = ({ lfgPosts, gameName }: GameLFGProps) => {
 
       {lfgPosts && lfgPosts.length > 0 ? (
         <div className="space-y-4">
-          {lfgPosts.map((post) => (
+          {lfgPosts.map((post: any) => (
             <div
               key={post.id}
               className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:translate-y-[-2px]"
@@ -36,13 +46,14 @@ const GameLFG = ({ lfgPosts, gameName }: GameLFGProps) => {
                 </div>
                 <div className="flex items-center">
                   <img
-                    src={post.author.avatar}
-                    alt={post.author.name}
+                    src={`https://example.com/avatar/${post.authorId}`} // Placeholder URL for avatar
+                    alt={`User ${post.authorId}`} // Placeholder alt text for author avatar
                     className="w-8 h-8 rounded-full mr-2"
                   />
                   <span className="text-sm font-medium">
-                    {post.author.name}
-                  </span>
+                    User {post.authorId}
+                  </span>{" "}
+                  {/* Placeholder for the user's name */}
                 </div>
               </div>
 
@@ -51,7 +62,7 @@ const GameLFG = ({ lfgPosts, gameName }: GameLFGProps) => {
                   Requirements:
                 </h4>
                 <div className="flex flex-wrap gap-2 max-w-full overflow-hidden">
-                  {post.requirements.map((req, index) => (
+                  {post.requirements.map((req: string, index: number) => (
                     <span
                       key={index}
                       className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 px-2 py-1 rounded-full"
@@ -64,7 +75,7 @@ const GameLFG = ({ lfgPosts, gameName }: GameLFGProps) => {
 
               <div className="flex justify-between items-center mt-4">
                 <div className="flex flex-wrap gap-2 max-w-full overflow-hidden">
-                  {post.tags.map((tag, index) => (
+                  {post.tags.map((tag: string, index: number) => (
                     <span
                       key={index}
                       className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full"
