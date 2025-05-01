@@ -8,7 +8,7 @@ type LFGPost {
   requirements: [String!]!
   tags: [String!]!
   createdAt: String!
-  expiresAt: String
+  expiresAt: String!
 }
 
 extend type Query {

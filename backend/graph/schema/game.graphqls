@@ -15,9 +15,9 @@ type Game {
   platforms: [String!]
   tags: [String!]
   rating: Float
-  servers: [Server]
-  topPlayers: [User]
-  lfgPosts: [LFGPost]
+  # servers: [Server]
+  # topPlayers: [User]
+  # lfgPosts: [LFGPost]
 }
 
 extend type Query {
