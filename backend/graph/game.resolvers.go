@@ -9,7 +9,6 @@ import (
 
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/Evantopian/Nexus/graph/resolver"
-	"github.com/google/uuid"
 )
 
 // CreateGame is the resolver for the createGame field.
@@ -22,16 +21,6 @@ func (r *mutationResolver) UpdateGame(ctx context.Context, slug string, title st
 	return resolver.UpdateGame(ctx, slug, title, description, shortDescription, image, banner, logo, players, releaseDate, developer, publisher, platforms, tags, rating)
 }
 
-// FollowGame is the resolver for the followGame field.
-func (r *mutationResolver) FollowGame(ctx context.Context, slug string) (bool, error) {
-	return resolver.FollowGame(ctx, slug)
-}
-
-// UnfollowGame is the resolver for the unfollowGame field.
-func (r *mutationResolver) UnfollowGame(ctx context.Context, slug string) (bool, error) {
-	return resolver.UnfollowGame(ctx, slug)
-}
-
 // DeleteGame is the resolver for the deleteGame field.
 func (r *mutationResolver) DeleteGame(ctx context.Context, slug string) (bool, error) {
 	return resolver.DeleteGame(ctx, slug)
@@ -40,14 +29,4 @@ func (r *mutationResolver) DeleteGame(ctx context.Context, slug string) (bool, e
 // GetGame is the resolver for the getGame field.
 func (r *queryResolver) GetGame(ctx context.Context, slug string) (*model.Game, error) {
 	return resolver.GetGame(ctx, slug)
-}
-
-// GetUserFollowedGames is the resolver for the getUserFollowedGames field.
-func (r *queryResolver) GetUserFollowedGames(ctx context.Context, userID uuid.UUID) ([]*model.Game, error) {
-	return resolver.GetUserFollowedGames(ctx, userID)
-}
-
-// IsUserFollowingGame is the resolver for the isUserFollowingGame field.
-func (r *queryResolver) IsUserFollowingGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (bool, error) {
-	return resolver.IsUserFollowingGame(ctx, userID, gameID)
 }

@@ -9,8 +9,12 @@ import GameAbout from "./detail/GameAbout";
 import GameServers from "./detail/GameServers";
 import GamePlayers from "./detail/GamePlayers";
 import GameLFG from "./detail/GameLFG";
+import { useAuth } from "@/contexts/AuthContext";
+import { GET_USER_FOLLOWED_GAMES } from "@/graphql/userQueries";
 
 const GameDetail = () => {
+  const { user } = useAuth();
+
   const gameName =
     useParams<{ gameName: string }>().gameName ?? "defaultGameName";
   const navigate = useNavigate();
@@ -26,12 +30,21 @@ const GameDetail = () => {
   const [activeFilter, setActiveFilter] = useState("all");
 
   const { loading, error, data } = useQuery(GET_GAME_QUERY, {
-    variables: { slug: gameName }, // Pass gameName as the slug variable
+    variables: { slug: gameName },
   });
 
   const gameData = data?.getGame;
 
   // console.log(gameData);
+
+  // User followed games for game banner
+  const { data: followedData } = useQuery(GET_USER_FOLLOWED_GAMES, {
+    variables: { userId: user?.uuid },
+    skip: !user?.uuid,
+  });
+
+  const followedGames = followedData?.getUserFollowedGames || [];
+  const isFollowed = followedGames.some((game: any) => game.slug === gameName);
 
   if (loading) {
     return <div className="text-center py-8">Loading...</div>;
@@ -90,6 +103,7 @@ const GameDetail = () => {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           tabs={tabs}
+          isFollowed={isFollowed}
         />
       </div>
       {/* Content Area */}

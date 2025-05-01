@@ -22,8 +22,6 @@ type Game {
 
 extend type Query {
   getGame(slug: String!): Game!
-  getUserFollowedGames(userId: UUID!): [Game!]!
-  isUserFollowingGame(userId: UUID!, gameId: UUID!): Boolean!
 }
 
 extend type Mutation {
@@ -60,12 +58,6 @@ extend type Mutation {
     tags: [String!]
     rating: Float
   ): Game!
-
-  # Add a game to the user's follow list
-  followGame(slug: String!): Boolean!
-
-  # Remove a game from the user's follow list
-  unfollowGame(slug: String!): Boolean!
 
   deleteGame(slug: String!): Boolean!
 }

@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import client from "@/lib/apollo-client";
-import { PROFILE_QUERY } from "@/graphql/profileQueries";
+import { PROFILE_QUERY } from "@/graphql/userQueries";
 
 type User = {
   uuid: string;

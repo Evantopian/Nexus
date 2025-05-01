@@ -1,12 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Users, Heart, MessageSquare } from "lucide-react";
-import { useMutation, useQuery } from "@apollo/client";
-import {
-  FOLLOW_GAME,
-  IS_USER_FOLLOWING_GAME,
-  UNFOLLOW_GAME,
-} from "@/graphql/gameQueries";
-import { useAuth } from "@/contexts/AuthContext";
+import { useMutation } from "@apollo/client";
+import { FOLLOW_GAME, UNFOLLOW_GAME } from "@/graphql/gameQueries";
 import { Game, getTagColor } from "@/data/DummyGameData";
 
 interface GameBannerProps {
@@ -14,6 +9,7 @@ interface GameBannerProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   tabs: { id: string; label: string }[];
+  isFollowed: boolean;
 }
 
 const GameBanner = ({
@@ -21,33 +17,20 @@ const GameBanner = ({
   activeTab,
   setActiveTab,
   tabs,
+  isFollowed,
 }: GameBannerProps) => {
   const [isFollowing, setIsFollowing] = useState(false);
-  const { user } = useAuth();
 
-  // Issue: On first render, user id is not defined.
-  // console.log("user", user?.uuid);
-
-  // Query to check if the user is following the game
-  const {} = useQuery(IS_USER_FOLLOWING_GAME, {
-    variables: { userId: user?.uuid, gameId: game.id },
-    onCompleted: (data) => {
-      if (data?.isUserFollowingGame !== undefined) {
-        setIsFollowing(data.isUserFollowingGame); // Set follow status based on the query result
-      }
-    },
-    onError: (err) => {
-      console.error("Error fetching follow status:", err.message);
-    },
-  });
+  useEffect(() => {
+    setIsFollowing(isFollowed);
+  }, [isFollowed]);
 
   // Follow Game Mutation
   const [followGame, { loading: followLoading }] = useMutation(FOLLOW_GAME, {
     variables: { slug: game.slug },
     onCompleted: (data) => {
-      // console.log(data); // Check the returned data
       if (data?.followGame) {
-        setIsFollowing(true); // Successfully followed
+        setIsFollowing(true);
       }
     },
     onError: (err) => {
@@ -61,9 +44,8 @@ const GameBanner = ({
     {
       variables: { slug: game.slug },
       onCompleted: (data) => {
-        // console.log(data); // Check the returned data
         if (data?.unfollowGame) {
-          setIsFollowing(false); // Successfully unfollowed
+          setIsFollowing(false);
         }
       },
       onError: (err) => {

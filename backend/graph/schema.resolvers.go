@@ -9,6 +9,7 @@ import (
 
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/Evantopian/Nexus/graph/resolver"
+	"github.com/google/uuid"
 )
 
 // UpdateUser is the resolver for the updateUser field.
@@ -31,9 +32,29 @@ func (r *mutationResolver) UpdatePreference(ctx context.Context, region *string,
 	return resolver.UpdatePreference(ctx, region, playstyle)
 }
 
+// FollowGame is the resolver for the followGame field.
+func (r *mutationResolver) FollowGame(ctx context.Context, slug string) (bool, error) {
+	return resolver.FollowGame(ctx, slug)
+}
+
+// UnfollowGame is the resolver for the unfollowGame field.
+func (r *mutationResolver) UnfollowGame(ctx context.Context, slug string) (bool, error) {
+	return resolver.UnfollowGame(ctx, slug)
+}
+
 // Profile is the resolver for the profile field.
 func (r *queryResolver) Profile(ctx context.Context) (*model.User, error) {
 	return resolver.Profile(ctx)
+}
+
+// GetUserFollowedGames is the resolver for the getUserFollowedGames field.
+func (r *queryResolver) GetUserFollowedGames(ctx context.Context, userID uuid.UUID) ([]*model.Game, error) {
+	return resolver.GetUserFollowedGames(ctx, userID)
+}
+
+// IsUserFollowingGame is the resolver for the isUserFollowingGame field.
+func (r *queryResolver) IsUserFollowingGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (bool, error) {
+	return resolver.IsUserFollowingGame(ctx, userID, gameID)
 }
 
 // Mutation returns MutationResolver implementation.

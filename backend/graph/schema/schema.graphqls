@@ -32,6 +32,8 @@ type Preferences {
 # Root Query type (Protected Query)
 type Query {
   profile: User! # Get the user's profile
+  getUserFollowedGames(userId: UUID!): [Game!]!
+  isUserFollowingGame(userId: UUID!, gameId: UUID!): Boolean!
 }
 
 # Root Mutation type (Protected User Management)
@@ -50,4 +52,10 @@ type Mutation {
   adjustRep(amount: Int!): Boolean!
 
   updatePreference(region: String, playstyle: Playstyle): Preferences!
+
+  # Add a game to the user's follow list
+  followGame(slug: String!): Boolean!
+
+  # Remove a game from the user's follow list
+  unfollowGame(slug: String!): Boolean!
 }
