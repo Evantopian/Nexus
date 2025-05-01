@@ -46,12 +46,12 @@ const GameLFG = ({ gameName }: GameLFGProps) => {
                 </div>
                 <div className="flex items-center">
                   <img
-                    src={`https://example.com/avatar/${post.authorId}`} // Placeholder URL for avatar
+                    src={post.author.profileImg} // Placeholder URL for avatar
                     alt={`User ${post.authorId}`} // Placeholder alt text for author avatar
                     className="w-8 h-8 rounded-full mr-2"
                   />
                   <span className="text-sm font-medium">
-                    User {post.authorId}
+                    User {post.author.username}
                   </span>{" "}
                   {/* Placeholder for the user's name */}
                 </div>

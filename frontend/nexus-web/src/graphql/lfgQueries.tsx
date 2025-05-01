@@ -38,6 +38,11 @@ export const GET_LFG_POSTS_BY_SLUG = gql`
       title
       description
       authorId
+      author {
+        uuid
+        username
+        profileImg
+      }
       requirements
       tags
       createdAt
