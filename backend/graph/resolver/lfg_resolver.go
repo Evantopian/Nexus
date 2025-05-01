@@ -141,16 +141,19 @@ func DeleteLFGPost(ctx context.Context, postID uuid.UUID) (bool, error) {
 	return true, nil
 }
 
-// GetLFGPosts gets all LFGPosts for a game based on the slug
+// GetLFGPosts gets all LFGPosts for a game based on the slug, including author information
 func GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error) {
 	var lfgPosts []*model.LFGPost
 
+	// Modified SQL query to join users table and fetch author details
 	query := `
-			SELECT p.id, p.game_id, p.title, p.description, p.author_id, p.requirements, p.tags, p.created_at::TEXT, p.expires_at::TEXT
-			FROM lfg_posts p
-			JOIN games g ON p.game_id = g.id
-			WHERE g.slug = $1
-			ORDER BY p.created_at DESC
+		SELECT p.id, p.game_id, p.title, p.description, p.author_id, p.requirements, p.tags, p.created_at::TEXT, p.expires_at::TEXT,
+		       u.username, u.profile_img
+		FROM lfg_posts p
+		JOIN games g ON p.game_id = g.id
+		JOIN users u ON p.author_id = u.uuid  -- Join with users table to get author details
+		WHERE g.slug = $1
+		ORDER BY p.created_at DESC
 	`
 
 	rows, err := postgres.DB.Query(ctx, query, slug)
@@ -159,15 +162,28 @@ func GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error) {
 	}
 	defer rows.Close()
 
+	// Iterate through rows and scan results into the LFGPost struct
 	for rows.Next() {
 		var post model.LFGPost
+		var authorUsername, authorProfileImg string
+
 		err := rows.Scan(
 			&post.ID, &post.GameID, &post.Title, &post.Description, &post.AuthorID,
 			&post.Requirements, &post.Tags, &post.CreatedAt, &post.ExpiresAt,
+			&authorUsername, &authorProfileImg,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error scanning LFG post: %v", err)
 		}
+
+		// Add author details to the post
+		post.Author = &model.User{
+			UUID:       post.AuthorID,
+			Username:   authorUsername,
+			ProfileImg: &authorProfileImg,
+		}
+
+		// Append the post to the list of LFGPosts
 		lfgPosts = append(lfgPosts, &post)
 	}
 

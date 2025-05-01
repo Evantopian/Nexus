@@ -53,9 +53,9 @@ func CreateGame(
 		return nil, fmt.Errorf("error inserting game: %v", err)
 	}
 
-	// Initialize empty lists for related data
-	game.Servers = []*model.Server{}
-	game.LfgPosts = []*model.LFGPost{}
+	// // Initialize empty lists for related data
+	// game.Servers = []*model.Server{}
+	// game.LfgPosts = []*model.LFGPost{}
 
 	return game, nil
 }
@@ -104,8 +104,8 @@ func UpdateGame(
 		return nil, fmt.Errorf("error updating game: %v", err)
 	}
 
-	game.Servers = []*model.Server{}
-	game.LfgPosts = []*model.LFGPost{}
+	// game.Servers = []*model.Server{}
+	// game.LfgPosts = []*model.LFGPost{}
 
 	return game, nil
 }

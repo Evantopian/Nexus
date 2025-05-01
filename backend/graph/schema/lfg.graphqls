@@ -5,6 +5,7 @@ type LFGPost {
   title: String!
   description: String!
   authorId: UUID!
+  author: User!
   requirements: [String!]!
   tags: [String!]!
   createdAt: String!

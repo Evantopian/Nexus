@@ -66,22 +66,20 @@ type ComplexityRoot struct {
 		Developer        func(childComplexity int) int
 		ID               func(childComplexity int) int
 		Image            func(childComplexity int) int
-		LfgPosts         func(childComplexity int) int
 		Logo             func(childComplexity int) int
 		Platforms        func(childComplexity int) int
 		Players          func(childComplexity int) int
 		Publisher        func(childComplexity int) int
 		Rating           func(childComplexity int) int
 		ReleaseDate      func(childComplexity int) int
-		Servers          func(childComplexity int) int
 		ShortDescription func(childComplexity int) int
 		Slug             func(childComplexity int) int
 		Tags             func(childComplexity int) int
 		Title            func(childComplexity int) int
-		TopPlayers       func(childComplexity int) int
 	}
 
 	LFGPost struct {
+		Author       func(childComplexity int) int
 		AuthorID     func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
 		Description  func(childComplexity int) int
@@ -286,13 +284,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Game.Image(childComplexity), true
 
-	case "Game.lfgPosts":
-		if e.complexity.Game.LfgPosts == nil {
-			break
-		}
-
-		return e.complexity.Game.LfgPosts(childComplexity), true
-
 	case "Game.logo":
 		if e.complexity.Game.Logo == nil {
 			break
@@ -335,13 +326,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Game.ReleaseDate(childComplexity), true
 
-	case "Game.servers":
-		if e.complexity.Game.Servers == nil {
-			break
-		}
-
-		return e.complexity.Game.Servers(childComplexity), true
-
 	case "Game.shortDescription":
 		if e.complexity.Game.ShortDescription == nil {
 			break
@@ -370,12 +354,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Game.Title(childComplexity), true
 
-	case "Game.topPlayers":
-		if e.complexity.Game.TopPlayers == nil {
+	case "LFGPost.author":
+		if e.complexity.LFGPost.Author == nil {
 			break
 		}
 
-		return e.complexity.Game.TopPlayers(childComplexity), true
+		return e.complexity.LFGPost.Author(childComplexity), true
 
 	case "LFGPost.authorId":
 		if e.complexity.LFGPost.AuthorID == nil {
@@ -3452,189 +3436,6 @@ func (ec *executionContext) fieldContext_Game_rating(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Game_servers(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Game_servers(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Servers, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Server)
-	fc.Result = res
-	return ec.marshalOServer2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐServer(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Game_servers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Game",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Server_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Server_name(ctx, field)
-			case "members":
-				return ec.fieldContext_Server_members(ctx, field)
-			case "image":
-				return ec.fieldContext_Server_image(ctx, field)
-			case "description":
-				return ec.fieldContext_Server_description(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Server_createdAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Server", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Game_topPlayers(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Game_topPlayers(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TopPlayers, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.User)
-	fc.Result = res
-	return ec.marshalOUser2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Game_topPlayers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Game",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "uuid":
-				return ec.fieldContext_User_uuid(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "username":
-				return ec.fieldContext_User_username(ctx, field)
-			case "password":
-				return ec.fieldContext_User_password(ctx, field)
-			case "profileImg":
-				return ec.fieldContext_User_profileImg(ctx, field)
-			case "profileMessage":
-				return ec.fieldContext_User_profileMessage(ctx, field)
-			case "status":
-				return ec.fieldContext_User_status(ctx, field)
-			case "reputation":
-				return ec.fieldContext_User_reputation(ctx, field)
-			case "rank":
-				return ec.fieldContext_User_rank(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "preferences":
-				return ec.fieldContext_User_preferences(ctx, field)
-			case "followingGames":
-				return ec.fieldContext_User_followingGames(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Game_lfgPosts(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Game_lfgPosts(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.LfgPosts, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.LFGPost)
-	fc.Result = res
-	return ec.marshalOLFGPost2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Game_lfgPosts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Game",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_LFGPost_id(ctx, field)
-			case "gameId":
-				return ec.fieldContext_LFGPost_gameId(ctx, field)
-			case "title":
-				return ec.fieldContext_LFGPost_title(ctx, field)
-			case "description":
-				return ec.fieldContext_LFGPost_description(ctx, field)
-			case "authorId":
-				return ec.fieldContext_LFGPost_authorId(ctx, field)
-			case "requirements":
-				return ec.fieldContext_LFGPost_requirements(ctx, field)
-			case "tags":
-				return ec.fieldContext_LFGPost_tags(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_LFGPost_createdAt(ctx, field)
-			case "expiresAt":
-				return ec.fieldContext_LFGPost_expiresAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type LFGPost", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _LFGPost_id(ctx context.Context, field graphql.CollectedField, obj *model.LFGPost) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LFGPost_id(ctx, field)
 	if err != nil {
@@ -3855,6 +3656,76 @@ func (ec *executionContext) fieldContext_LFGPost_authorId(_ context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _LFGPost_author(ctx context.Context, field graphql.CollectedField, obj *model.LFGPost) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_LFGPost_author(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Author, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_LFGPost_author(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LFGPost",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "uuid":
+				return ec.fieldContext_User_uuid(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "profileImg":
+				return ec.fieldContext_User_profileImg(ctx, field)
+			case "profileMessage":
+				return ec.fieldContext_User_profileMessage(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
+			case "reputation":
+				return ec.fieldContext_User_reputation(ctx, field)
+			case "rank":
+				return ec.fieldContext_User_rank(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "preferences":
+				return ec.fieldContext_User_preferences(ctx, field)
+			case "followingGames":
+				return ec.fieldContext_User_followingGames(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _LFGPost_requirements(ctx context.Context, field graphql.CollectedField, obj *model.LFGPost) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_LFGPost_requirements(ctx, field)
 	if err != nil {
@@ -4008,11 +3879,14 @@ func (ec *executionContext) _LFGPost_expiresAt(ctx context.Context, field graphq
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_LFGPost_expiresAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4568,12 +4442,6 @@ func (ec *executionContext) fieldContext_Mutation_createGame(ctx context.Context
 				return ec.fieldContext_Game_tags(ctx, field)
 			case "rating":
 				return ec.fieldContext_Game_rating(ctx, field)
-			case "servers":
-				return ec.fieldContext_Game_servers(ctx, field)
-			case "topPlayers":
-				return ec.fieldContext_Game_topPlayers(ctx, field)
-			case "lfgPosts":
-				return ec.fieldContext_Game_lfgPosts(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
 		},
@@ -4661,12 +4529,6 @@ func (ec *executionContext) fieldContext_Mutation_updateGame(ctx context.Context
 				return ec.fieldContext_Game_tags(ctx, field)
 			case "rating":
 				return ec.fieldContext_Game_rating(ctx, field)
-			case "servers":
-				return ec.fieldContext_Game_servers(ctx, field)
-			case "topPlayers":
-				return ec.fieldContext_Game_topPlayers(ctx, field)
-			case "lfgPosts":
-				return ec.fieldContext_Game_lfgPosts(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
 		},
@@ -4899,6 +4761,8 @@ func (ec *executionContext) fieldContext_Mutation_createLFGPost(ctx context.Cont
 				return ec.fieldContext_LFGPost_description(ctx, field)
 			case "authorId":
 				return ec.fieldContext_LFGPost_authorId(ctx, field)
+			case "author":
+				return ec.fieldContext_LFGPost_author(ctx, field)
 			case "requirements":
 				return ec.fieldContext_LFGPost_requirements(ctx, field)
 			case "tags":
@@ -4974,6 +4838,8 @@ func (ec *executionContext) fieldContext_Mutation_updateLFGPost(ctx context.Cont
 				return ec.fieldContext_LFGPost_description(ctx, field)
 			case "authorId":
 				return ec.fieldContext_LFGPost_authorId(ctx, field)
+			case "author":
+				return ec.fieldContext_LFGPost_author(ctx, field)
 			case "requirements":
 				return ec.fieldContext_LFGPost_requirements(ctx, field)
 			case "tags":
@@ -5636,12 +5502,6 @@ func (ec *executionContext) fieldContext_Query_getGame(ctx context.Context, fiel
 				return ec.fieldContext_Game_tags(ctx, field)
 			case "rating":
 				return ec.fieldContext_Game_rating(ctx, field)
-			case "servers":
-				return ec.fieldContext_Game_servers(ctx, field)
-			case "topPlayers":
-				return ec.fieldContext_Game_topPlayers(ctx, field)
-			case "lfgPosts":
-				return ec.fieldContext_Game_lfgPosts(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
 		},
@@ -5729,12 +5589,6 @@ func (ec *executionContext) fieldContext_Query_getUserFollowedGames(ctx context.
 				return ec.fieldContext_Game_tags(ctx, field)
 			case "rating":
 				return ec.fieldContext_Game_rating(ctx, field)
-			case "servers":
-				return ec.fieldContext_Game_servers(ctx, field)
-			case "topPlayers":
-				return ec.fieldContext_Game_topPlayers(ctx, field)
-			case "lfgPosts":
-				return ec.fieldContext_Game_lfgPosts(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
 		},
@@ -5857,6 +5711,8 @@ func (ec *executionContext) fieldContext_Query_getLFGPosts(ctx context.Context, 
 				return ec.fieldContext_LFGPost_description(ctx, field)
 			case "authorId":
 				return ec.fieldContext_LFGPost_authorId(ctx, field)
+			case "author":
+				return ec.fieldContext_LFGPost_author(ctx, field)
 			case "requirements":
 				return ec.fieldContext_LFGPost_requirements(ctx, field)
 			case "tags":
@@ -6908,12 +6764,6 @@ func (ec *executionContext) fieldContext_User_followingGames(_ context.Context, 
 				return ec.fieldContext_Game_tags(ctx, field)
 			case "rating":
 				return ec.fieldContext_Game_rating(ctx, field)
-			case "servers":
-				return ec.fieldContext_Game_servers(ctx, field)
-			case "topPlayers":
-				return ec.fieldContext_Game_topPlayers(ctx, field)
-			case "lfgPosts":
-				return ec.fieldContext_Game_lfgPosts(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Game", field.Name)
 		},
@@ -9028,12 +8878,6 @@ func (ec *executionContext) _Game(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Game_tags(ctx, field, obj)
 		case "rating":
 			out.Values[i] = ec._Game_rating(ctx, field, obj)
-		case "servers":
-			out.Values[i] = ec._Game_servers(ctx, field, obj)
-		case "topPlayers":
-			out.Values[i] = ec._Game_topPlayers(ctx, field, obj)
-		case "lfgPosts":
-			out.Values[i] = ec._Game_lfgPosts(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9093,6 +8937,11 @@ func (ec *executionContext) _LFGPost(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "author":
+			out.Values[i] = ec._LFGPost_author(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "requirements":
 			out.Values[i] = ec._LFGPost_requirements(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -9110,6 +8959,9 @@ func (ec *executionContext) _LFGPost(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "expiresAt":
 			out.Values[i] = ec._LFGPost_expiresAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10764,47 +10616,6 @@ func (ec *executionContext) marshalOInt2ᚖint32(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalOLFGPost2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx context.Context, sel ast.SelectionSet, v []*model.LFGPost) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOLFGPost2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
 func (ec *executionContext) marshalOLFGPost2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx context.Context, sel ast.SelectionSet, v *model.LFGPost) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -10833,47 +10644,6 @@ func (ec *executionContext) marshalOPreferences2ᚖgithubᚗcomᚋEvantopianᚋN
 		return graphql.Null
 	}
 	return ec._Preferences(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOServer2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐServer(ctx context.Context, sel ast.SelectionSet, v []*model.Server) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOServer2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐServer(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
 }
 
 func (ec *executionContext) marshalOServer2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐServer(ctx context.Context, sel ast.SelectionSet, v *model.Server) graphql.Marshaler {
@@ -10949,47 +10719,6 @@ func (ec *executionContext) marshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(
 	}
 	res := graphql.MarshalUUID(*v)
 	return res
-}
-
-func (ec *executionContext) marshalOUser2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v []*model.User) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
