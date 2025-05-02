@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const PROFILE_QUERY = gql`
-  query Profile {
+  query profile {
     profile {
       uuid
       username
@@ -21,7 +21,7 @@ export const PROFILE_QUERY = gql`
 `;
 
 export const GET_USER_FOLLOWED_GAMES = gql`
-  query GetUserFollowedGames($userId: UUID!) {
+  query getUserFollowedGames($userId: UUID!) {
     getUserFollowedGames(userId: $userId) {
       id
       slug

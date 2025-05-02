@@ -13,8 +13,7 @@ import AuthRedirect from "@/components/auth/AuthRedirect";
 import Profile from "@/components/profile/Profile";
 import ChatLayout from "@/layouts/ChatLayout";
 import ChatArea from "@/components/chats/ChatArea";
-import LFGPosts from "@/components/dashboard/side/LFGPosts";
-import { dummyPosts } from "@/data/MockData";
+import Lfg from "@/components/lfg/LFG";
 
 const routes: RouteObject[] = [
   {
@@ -41,10 +40,7 @@ const routes: RouteObject[] = [
     children: [
       { path: "dashboard", element: <Dashboard /> },
       { path: "browse", element: <GamesList /> },
-      {
-        path: "lfg",
-        element: <LFGPosts posts={dummyPosts} />,
-      },
+      { path: "lfg", element: <Lfg /> },
       {
         path: "players",
         element: (

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Users } from "lucide-react";
-import { Game, getTagColor } from "@/data/DummyGameData";
+import { getTagColor } from "@/data/DummyGameData";
+import { Game } from "@/contexts/GameContext";
 
 interface GameGridProps {
   games: Game[];
@@ -43,13 +44,15 @@ const GameGrid = ({ games }: GameGridProps) => {
             </h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">
               {game.shortDescription ||
-                game.description.substring(0, 120) + "..."}
+                game.description?.substring(0, 120) + "..."}
             </p>
             <div className="flex flex-wrap gap-2 max-w-full overflow-hidden">
               {game.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className={`text-xs px-2 py-1 rounded-full ${getTagColor(tag)}`}
+                  className={`text-xs px-2 py-1 rounded-full ${getTagColor(
+                    tag
+                  )}`}
                 >
                   {tag}
                 </span>

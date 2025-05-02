@@ -22,20 +22,42 @@ export const GET_GAME_QUERY = gql`
   }
 `;
 
+export const GET_ALL_GAMES = gql`
+  query GetAllGames {
+    getAllGames {
+      id
+      slug
+      title
+      description
+      shortDescription
+      image
+      banner
+      logo
+      players
+      releaseDate
+      developer
+      publisher
+      platforms
+      tags
+      rating
+    }
+  }
+`;
+
 export const FOLLOW_GAME = gql`
-  mutation FollowGame($slug: String!) {
+  mutation followGame($slug: String!) {
     followGame(slug: $slug)
   }
 `;
 
 export const UNFOLLOW_GAME = gql`
-  mutation UnfollowGame($slug: String!) {
+  mutation unfollowGame($slug: String!) {
     unfollowGame(slug: $slug)
   }
 `;
 
 export const IS_USER_FOLLOWING_GAME = gql`
-  query IsUserFollowingGame($userId: UUID!, $gameId: UUID!) {
+  query isUserFollowingGame($userId: UUID!, $gameId: UUID!) {
     isUserFollowingGame(userId: $userId, gameId: $gameId)
   }
 `;
