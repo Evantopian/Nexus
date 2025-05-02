@@ -30,3 +30,8 @@ func (r *mutationResolver) DeleteGame(ctx context.Context, slug string) (bool, e
 func (r *queryResolver) GetGame(ctx context.Context, slug string) (*model.Game, error) {
 	return resolver.GetGame(ctx, slug)
 }
+
+// GetAllGames is the resolver for the getAllGames field.
+func (r *queryResolver) GetAllGames(ctx context.Context) ([]*model.Game, error) {
+	return resolver.GetAllGames(ctx)
+}

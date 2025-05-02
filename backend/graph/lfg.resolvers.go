@@ -45,3 +45,8 @@ func (r *mutationResolver) DeleteLFGPost(ctx context.Context, postID uuid.UUID) 
 func (r *queryResolver) GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error) {
 	return resolver.GetLFGPosts(ctx, slug)
 }
+
+// GetAllLFGPosts is the resolver for the getAllLFGPosts field.
+func (r *queryResolver) GetAllLFGPosts(ctx context.Context, limit *int32, offset *int32) ([]*model.LFGPost, error) {
+	return resolver.GetAllLFGPosts(ctx, int(*limit), int(*offset))
+}

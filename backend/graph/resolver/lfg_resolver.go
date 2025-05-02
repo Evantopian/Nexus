@@ -189,3 +189,51 @@ func GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error) {
 
 	return lfgPosts, nil
 }
+
+// GetAllLFGPosts retrieves all LFGPosts across all games with pagination
+func GetAllLFGPosts(ctx context.Context, limit int, offset int) ([]*model.LFGPost, error) {
+	var lfgPosts []*model.LFGPost
+
+	// Modified SQL query to include limit and offset for pagination
+	query := `
+		SELECT p.id, p.game_id, p.title, p.description, p.author_id, p.requirements, p.tags, p.created_at::TEXT, p.expires_at::TEXT,
+		       u.username, u.profile_img
+		FROM lfg_posts p
+		JOIN users u ON p.author_id = u.uuid  -- Join with users table to get author details
+		ORDER BY p.created_at DESC
+		LIMIT $1 OFFSET $2
+	`
+
+	rows, err := postgres.DB.Query(ctx, query, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving LFG posts: %v", err)
+	}
+	defer rows.Close()
+
+	// Iterate through rows and scan results into the LFGPost struct
+	for rows.Next() {
+		var post model.LFGPost
+		var authorUsername, authorProfileImg string
+
+		err := rows.Scan(
+			&post.ID, &post.GameID, &post.Title, &post.Description, &post.AuthorID,
+			&post.Requirements, &post.Tags, &post.CreatedAt, &post.ExpiresAt,
+			&authorUsername, &authorProfileImg,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning LFG post: %v", err)
+		}
+
+		// Add author details to the post
+		post.Author = &model.User{
+			UUID:       post.AuthorID,
+			Username:   authorUsername,
+			ProfileImg: &authorProfileImg,
+		}
+
+		// Append the post to the list of LFGPosts
+		lfgPosts = append(lfgPosts, &post)
+	}
+
+	return lfgPosts, nil
+}

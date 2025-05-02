@@ -164,3 +164,48 @@ func GetGame(ctx context.Context, slug string) (*model.Game, error) {
 
 	return &game, nil
 }
+
+// GetAllGames returns all games from the database
+func GetAllGames(ctx context.Context) ([]*model.Game, error) {
+	query := `
+		SELECT 
+			id, slug, title, description, short_description, image, 
+			banner, logo, players, release_date::TEXT, developer, 
+			publisher, rating, platforms, tags
+		FROM games
+	`
+
+	rows, err := postgres.DB.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("error querying all games: %w", err)
+	}
+	defer rows.Close()
+
+	var games []*model.Game
+
+	for rows.Next() {
+		var game model.Game
+		var platforms, tags []string
+
+		err := rows.Scan(
+			&game.ID, &game.Slug, &game.Title, &game.Description, &game.ShortDescription,
+			&game.Image, &game.Banner, &game.Logo, &game.Players, &game.ReleaseDate,
+			&game.Developer, &game.Publisher, &game.Rating,
+			&platforms, &tags,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning game row: %w", err)
+		}
+
+		game.Platforms = platforms
+		game.Tags = tags
+
+		games = append(games, &game)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("row iteration error: %w", err)
+	}
+
+	return games, nil
+}

@@ -22,6 +22,7 @@ type Game {
 
 extend type Query {
   getGame(slug: String!): Game!
+  getAllGames: [Game]!
 }
 
 extend type Mutation {
