@@ -4,7 +4,7 @@ import { CREATE_LFG_POST, UPDATE_LFG_POST } from "@/graphql/lfgQueries";
 import { useGames } from "@/contexts/GameContext"; // Import GameContext
 import { useNavigate } from "react-router-dom";
 
-type LFGPostFormData = {
+export type LFGPostFormData = {
   gameId: string;
   title: string;
   description: string;
@@ -30,7 +30,8 @@ const defaultValues: LFGPostFormData = {
 const LfgForm: React.FC<LfgFormProps> = ({ initialData, onClose }) => {
   const [formData, setFormData] = useState<LFGPostFormData>(
     initialData || defaultValues
-  );
+  ); // Initialize form data with initialData if editing
+
   const { games, loading: gamesLoading, error: gamesError } = useGames(); // Use GameContext here
 
   const [error, setError] = useState("");
@@ -79,6 +80,8 @@ const LfgForm: React.FC<LfgFormProps> = ({ initialData, onClose }) => {
     e.preventDefault();
     setError("");
 
+    // console.log(formData.gameId);
+
     // Check for required fields validation (all except expirationHour)
     if (!formData.gameId || !formData.title || !formData.description) {
       setError("Please fill in all required fields.");
@@ -87,7 +90,10 @@ const LfgForm: React.FC<LfgFormProps> = ({ initialData, onClose }) => {
 
     try {
       if (isEdit && initialData?.id) {
-        await updateLfgPost({ variables: { id: initialData.id, ...formData } });
+        const { gameId, ...updateData }: LFGPostFormData = formData;
+        await updateLfgPost({
+          variables: { postId: initialData.id, ...updateData },
+        });
       } else {
         await createLfgPost({ variables: formData });
       }
@@ -165,7 +171,7 @@ const LfgForm: React.FC<LfgFormProps> = ({ initialData, onClose }) => {
         <input
           name="requirements"
           placeholder="Comma-separated list (e.g. mic, rank X)"
-          value={formData.requirements.join(", ")}
+          value={(formData.requirements || []).join(", ")} // Fallback to empty array if undefined
           onChange={(e) => handleListChange("requirements", e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />

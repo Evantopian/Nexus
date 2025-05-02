@@ -1,50 +1,68 @@
-import { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_ALL_LFG_POSTS } from "@/graphql/lfgQueries";
+import { GET_ALL_LFG_POSTS, GET_USER_LFG_POSTS } from "@/graphql/lfgQueries";
 import LFGPosts from "../common/LFGPosts";
-import LfgForm from "./LFGForm";
+import UserLfgPosts from "./UserLFGPosts";
+
+// Need to organize types, maybe make 2 tabs (separate views)
+// Reorganize which lfgpost component is used (lfgpost for side & lfgpost for user view, all view, and game view)
 
 const Lfg = () => {
-  const [showForm, setShowForm] = useState(false);
-
-  const { data, loading, error, refetch } = useQuery(GET_ALL_LFG_POSTS, {
+  // Fetch all LFG posts (public posts)
+  const {
+    data: allPostsData,
+    loading: allPostsLoading,
+    error: allPostsError,
+  } = useQuery(GET_ALL_LFG_POSTS, {
     variables: { limit: 5, offset: 0 },
   });
 
-  const lfgPostData = data?.getAllLFGPosts || [];
+  // Fetch user's own LFG posts
+  const {
+    data: userPostsData,
+    loading: userPostsLoading,
+    error: userPostsError,
+    refetch: refetchUserPosts,
+  } = useQuery(GET_USER_LFG_POSTS, {
+    variables: { limit: 5, offset: 0 },
+  });
 
-  const handleCreateLfgPost = () => {
-    setShowForm(true);
-  };
+  // Extract data
+  const allPosts = allPostsData?.getAllLFGPosts || [];
+  const userPosts = userPostsData?.getUserLFGPosts || [];
 
-  const handleCloseForm = () => {
-    setShowForm(false);
-    refetch(); // Refetch the posts after closing the form
-  };
-
-  if (loading) return <p>Loading LFG Posts...</p>;
-  if (error) return <p>Error fetching LFG posts: {error.message}</p>;
+  console.log("User posts", userPosts);
 
   return (
     <div className="min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4 mt-8 text-gray-900 dark:text-white">
+      <h1 className="text-3xl font-bold mb-6 mt-8 text-gray-900 dark:text-white">
         Looking For Group
       </h1>
 
-      {showForm ? (
-        <div className="mb-6">
-          <LfgForm onClose={handleCloseForm} />
-        </div>
-      ) : (
-        <button
-          onClick={handleCreateLfgPost}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
-        >
-          Create LFG Post
-        </button>
-      )}
+      {/* User's Own LFG Posts */}
+      <section className="mb-10">
+        {userPostsLoading ? (
+          <p>Loading Your LFG Posts...</p>
+        ) : userPostsError ? (
+          <p className="text-red-500">
+            Error fetching your posts: {userPostsError.message}
+          </p>
+        ) : (
+          <UserLfgPosts posts={userPosts} refetch={refetchUserPosts} />
+        )}
+      </section>
 
-      <LFGPosts posts={lfgPostData} />
+      {/* All Public LFG Posts */}
+      <section>
+        {allPostsLoading ? (
+          <p>Loading LFG Posts...</p>
+        ) : allPostsError ? (
+          <p className="text-red-500">
+            Error fetching posts: {allPostsError.message}
+          </p>
+        ) : (
+          <LFGPosts posts={allPosts} />
+        )}
+      </section>
     </div>
   );
 };

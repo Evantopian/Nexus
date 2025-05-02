@@ -1,6 +1,7 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_GAMES } from "@/graphql/gameQueries";
+import { useAuth } from "./AuthContext";
 
 export type Game = {
   id: string;
@@ -20,7 +21,6 @@ export type Game = {
   rating?: number;
 };
 
-// Define the context type
 type GameContextType = {
   games: Game[];
   loading: boolean;
@@ -30,10 +30,22 @@ type GameContextType = {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
-  const { data, loading, error } = useQuery(GET_ALL_GAMES);
+  const { user } = useAuth();
+  const { data, loading, error, refetch } = useQuery(GET_ALL_GAMES, {
+    skip: !user, // Only fetch when the user is logged in
+    fetchPolicy: "network-only", // Always fetch fresh data
+  });
+
+  // Refetch the games when the user logs in or when the token becomes available
+  useEffect(() => {
+    if (user) {
+      refetch();
+    }
+  }, [user, refetch]);
+
   const games = data?.getAllGames ?? [];
 
-  console.log(games);
+  // console.log("Games list", games);
 
   return (
     <GameContext.Provider value={{ games, loading, error }}>

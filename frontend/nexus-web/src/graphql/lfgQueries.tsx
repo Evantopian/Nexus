@@ -32,7 +32,7 @@ export const CREATE_LFG_POST = gql`
 
 export const UPDATE_LFG_POST = gql`
   mutation updateLFGPost(
-    $gameId: UUID!
+    $postId: UUID!
     $title: String!
     $description: String!
     $requirements: [String!]!
@@ -40,7 +40,7 @@ export const UPDATE_LFG_POST = gql`
     $expirationHour: Int
   ) {
     updateLFGPost(
-      gameId: $gameId
+      postId: $postId
       title: $title
       description: $description
       requirements: $requirements
@@ -57,6 +57,12 @@ export const UPDATE_LFG_POST = gql`
       createdAt
       expiresAt
     }
+  }
+`;
+
+export const DELETE_LFG_POST = gql`
+  mutation deleteLFGPost($postId: UUID!) {
+    deleteLFGPost(postId: $postId)
   }
 `;
 
@@ -85,12 +91,37 @@ export const GET_ALL_LFG_POSTS = gql`
   query getAllLFGPosts($limit: Int, $offset: Int) {
     getAllLFGPosts(limit: $limit, offset: $offset) {
       id
+      gameId
       title
       description
+      authorId
       author {
+        uuid
         username
         profileImg
       }
+      requirements
+      tags
+      createdAt
+      expiresAt
+    }
+  }
+`;
+
+export const GET_USER_LFG_POSTS = gql`
+  query getUserLFGPosts($limit: Int, $offset: Int) {
+    getUserLFGPosts(limit: $limit, offset: $offset) {
+      id
+      gameId
+      title
+      description
+      authorId
+      author {
+        uuid
+        username
+        profileImg
+      }
+      requirements
       tags
       createdAt
       expiresAt

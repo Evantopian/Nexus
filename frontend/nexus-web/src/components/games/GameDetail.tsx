@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@apollo/client";
+
 import { GET_GAME_QUERY } from "@/graphql/gameQueries";
+import { useFollowedGames } from "@/contexts/FollowedGamesContext";
 
 import GameBanner from "./common/GameBanner";
 import FilterBar from "./common/FilterBar";
@@ -9,22 +11,11 @@ import GameAbout from "./detail/GameAbout";
 import GameServers from "./detail/GameServers";
 import GamePlayers from "./detail/GamePlayers";
 import GameLFG from "./detail/GameLFG";
-import { useAuth } from "@/contexts/AuthContext";
-import { GET_USER_FOLLOWED_GAMES } from "@/graphql/userQueries";
 
 const GameDetail = () => {
-  const { user } = useAuth();
-
   const gameName =
     useParams<{ gameName: string }>().gameName ?? "defaultGameName";
   const navigate = useNavigate();
-
-  // Redirect to dashboard if gameName is undefined (not a game w/ a page)
-  useEffect(() => {
-    if (!gameName) {
-      navigate("/dashboard");
-    }
-  }, [gameName, navigate]);
 
   const [activeTab, setActiveTab] = useState("guilds");
   const [activeFilter, setActiveFilter] = useState("all");
@@ -35,16 +26,17 @@ const GameDetail = () => {
 
   const gameData = data?.getGame;
 
+  const { followedGames } = useFollowedGames();
+  const isFollowed = followedGames.some((game: any) => game.slug === gameName);
+
   // console.log(gameData);
 
-  // User followed games for game banner
-  const { data: followedData } = useQuery(GET_USER_FOLLOWED_GAMES, {
-    variables: { userId: user?.uuid },
-    skip: !user?.uuid,
-  });
-
-  const followedGames = followedData?.getUserFollowedGames || [];
-  const isFollowed = followedGames.some((game: any) => game.slug === gameName);
+  // Redirect to dashboard if no valid game name
+  useEffect(() => {
+    if (!gameName) {
+      navigate("/dashboard");
+    }
+  }, [gameName, navigate]);
 
   if (loading) {
     return <div className="text-center py-8">Loading...</div>;

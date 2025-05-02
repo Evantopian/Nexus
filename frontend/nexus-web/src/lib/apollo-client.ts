@@ -1,32 +1,23 @@
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloLink,
-  HttpLink,
-} from "@apollo/client";
+import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 
-// Assuming you have a method to get the token (e.g., from localStorage)
-const getAuthToken = () => {
-  return localStorage.getItem("authToken"); // Or from context if you store it there
-};
+const httpLink = createHttpLink({
+  uri: "http://localhost:8080/query",
+});
 
-// Create a middleware to attach the authorization token to each request
-const authLink = new ApolloLink((operation, forward) => {
-  const token = getAuthToken();
-
-  // Add the token to the request header if it exists
-  operation.setContext({
+const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem("authToken");
+  return {
     headers: {
-      Authorization: token ? `Bearer ${token}` : "", // Include the token in the Authorization header
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
     },
-  });
-
-  return forward(operation);
+  };
 });
 
 // Create the Apollo Client with the authLink middleware
 const client = new ApolloClient({
-  link: authLink.concat(new HttpLink({ uri: "http://localhost:8080/query" })),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
 

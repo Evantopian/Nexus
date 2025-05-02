@@ -2,6 +2,7 @@ import { useLocation } from "react-router-dom";
 import { followedGames, chatItems, serverItems } from "./NavItemsModel";
 import NavItem from "./NavItem";
 import SectionHeader from "./SectionHeader";
+// import { useFollowedGames } from "@/contexts/FollowedGamesContext";
 
 interface SidebarContentProps {
   expanded: boolean;
@@ -9,6 +10,7 @@ interface SidebarContentProps {
 
 const SidebarContent = ({ expanded }: SidebarContentProps) => {
   const location = useLocation();
+  // const { followedGames } = useFollowedGames();
 
   return (
     <div className="w-full overflow-hidden">
