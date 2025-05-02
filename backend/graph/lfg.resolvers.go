@@ -50,3 +50,8 @@ func (r *queryResolver) GetLFGPosts(ctx context.Context, slug string) ([]*model.
 func (r *queryResolver) GetAllLFGPosts(ctx context.Context, limit *int32, offset *int32) ([]*model.LFGPost, error) {
 	return resolver.GetAllLFGPosts(ctx, int(*limit), int(*offset))
 }
+
+// GetUserLFGPosts is the resolver for the getUserLFGPosts field.
+func (r *queryResolver) GetUserLFGPosts(ctx context.Context, limit *int32, offset *int32) ([]*model.LFGPost, error) {
+	return resolver.GetUserLFGPosts(ctx, int(*limit), int(*offset))
+}

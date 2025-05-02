@@ -128,6 +128,7 @@ type ComplexityRoot struct {
 		GetLFGPosts          func(childComplexity int, slug string) int
 		GetServers           func(childComplexity int, slug string) int
 		GetUserFollowedGames func(childComplexity int, userID uuid.UUID) int
+		GetUserLFGPosts      func(childComplexity int, limit *int32, offset *int32) int
 		IsUserFollowingGame  func(childComplexity int, userID uuid.UUID, gameID uuid.UUID) int
 		Profile              func(childComplexity int) int
 	}
@@ -189,6 +190,7 @@ type QueryResolver interface {
 	GetAllGames(ctx context.Context) ([]*model.Game, error)
 	GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error)
 	GetAllLFGPosts(ctx context.Context, limit *int32, offset *int32) ([]*model.LFGPost, error)
+	GetUserLFGPosts(ctx context.Context, limit *int32, offset *int32) ([]*model.LFGPost, error)
 	GetServers(ctx context.Context, slug string) ([]*model.Server, error)
 }
 
@@ -757,6 +759,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetUserFollowedGames(childComplexity, args["userId"].(uuid.UUID)), true
+
+	case "Query.getUserLFGPosts":
+		if e.complexity.Query.GetUserLFGPosts == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getUserLFGPosts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUserLFGPosts(childComplexity, args["limit"].(*int32), args["offset"].(*int32)), true
 
 	case "Query.isUserFollowingGame":
 		if e.complexity.Query.IsUserFollowingGame == nil {
@@ -2448,6 +2462,47 @@ func (ec *executionContext) field_Query_getUserFollowedGames_argsUserID(
 	}
 
 	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_getUserLFGPosts_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_getUserLFGPosts_argsLimit(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["limit"] = arg0
+	arg1, err := ec.field_Query_getUserLFGPosts_argsOffset(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["offset"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Query_getUserLFGPosts_argsLimit(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int32, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+	if tmp, ok := rawArgs["limit"]; ok {
+		return ec.unmarshalOInt2ᚖint32(ctx, tmp)
+	}
+
+	var zeroVal *int32
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_getUserLFGPosts_argsOffset(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int32, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+	if tmp, ok := rawArgs["offset"]; ok {
+		return ec.unmarshalOInt2ᚖint32(ctx, tmp)
+	}
+
+	var zeroVal *int32
 	return zeroVal, nil
 }
 
@@ -5950,6 +6005,83 @@ func (ec *executionContext) fieldContext_Query_getAllLFGPosts(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getAllLFGPosts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getUserLFGPosts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getUserLFGPosts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUserLFGPosts(rctx, fc.Args["limit"].(*int32), fc.Args["offset"].(*int32))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.LFGPost)
+	fc.Result = res
+	return ec.marshalNLFGPost2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐLFGPost(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getUserLFGPosts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_LFGPost_id(ctx, field)
+			case "gameId":
+				return ec.fieldContext_LFGPost_gameId(ctx, field)
+			case "title":
+				return ec.fieldContext_LFGPost_title(ctx, field)
+			case "description":
+				return ec.fieldContext_LFGPost_description(ctx, field)
+			case "authorId":
+				return ec.fieldContext_LFGPost_authorId(ctx, field)
+			case "author":
+				return ec.fieldContext_LFGPost_author(ctx, field)
+			case "requirements":
+				return ec.fieldContext_LFGPost_requirements(ctx, field)
+			case "tags":
+				return ec.fieldContext_LFGPost_tags(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_LFGPost_createdAt(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_LFGPost_expiresAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LFGPost", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getUserLFGPosts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -9633,6 +9765,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getAllLFGPosts(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getUserLFGPosts":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getUserLFGPosts(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

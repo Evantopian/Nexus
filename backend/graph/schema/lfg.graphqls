@@ -15,6 +15,7 @@ type LFGPost {
 extend type Query {
   getLFGPosts(slug: String!): [LFGPost]!
   getAllLFGPosts(limit: Int, offset: Int): [LFGPost]!
+  getUserLFGPosts(limit: Int, offset: Int): [LFGPost]!
 }
 
 extend type Mutation {

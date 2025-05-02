@@ -237,3 +237,54 @@ func GetAllLFGPosts(ctx context.Context, limit int, offset int) ([]*model.LFGPos
 
 	return lfgPosts, nil
 }
+
+// GetUserLFGPosts retrieves LFGPosts created by the logged-in user with pagination
+func GetUserLFGPosts(ctx context.Context, limit int, offset int) ([]*model.LFGPost, error) {
+	userUUID, exists := ctx.Value(contextkey.UserUUIDKey).(string)
+	if !exists || userUUID == "" {
+		fmt.Println("User UUID is missing in context!")
+		return nil, fmt.Errorf("authorization token missing or invalid")
+	}
+
+	var lfgPosts []*model.LFGPost
+
+	query := `
+		SELECT p.id, p.game_id, p.title, p.description, p.author_id, p.requirements, p.tags, p.created_at::TEXT, p.expires_at::TEXT,
+		       u.username, u.profile_img
+		FROM lfg_posts p
+		JOIN users u ON p.author_id = u.uuid
+		WHERE p.author_id = $1
+		ORDER BY p.created_at DESC
+		LIMIT $2 OFFSET $3
+	`
+
+	rows, err := postgres.DB.Query(ctx, query, userUUID, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving user LFG posts: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post model.LFGPost
+		var authorUsername, authorProfileImg string
+
+		err := rows.Scan(
+			&post.ID, &post.GameID, &post.Title, &post.Description, &post.AuthorID,
+			&post.Requirements, &post.Tags, &post.CreatedAt, &post.ExpiresAt,
+			&authorUsername, &authorProfileImg,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning user LFG post: %v", err)
+		}
+
+		post.Author = &model.User{
+			UUID:       post.AuthorID,
+			Username:   authorUsername,
+			ProfileImg: &authorProfileImg,
+		}
+
+		lfgPosts = append(lfgPosts, &post)
+	}
+
+	return lfgPosts, nil
+}
