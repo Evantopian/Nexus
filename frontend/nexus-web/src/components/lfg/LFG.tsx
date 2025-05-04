@@ -1,13 +1,14 @@
+import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_LFG_POSTS, GET_USER_LFG_POSTS } from "@/graphql/lfgQueries";
 import LFGPosts from "../common/LFGPosts";
 import UserLfgPosts from "./UserLFGPosts";
 
-// Need to organize types, maybe make 2 tabs (separate views)
 // Reorganize which lfgpost component is used (lfgpost for side & lfgpost for user view, all view, and game view)
 
 const Lfg = () => {
-  // Fetch all LFG posts (public posts)
+  const [activeTab, setActiveTab] = useState<"all" | "user">("all");
+
   const {
     data: allPostsData,
     loading: allPostsLoading,
@@ -16,7 +17,6 @@ const Lfg = () => {
     variables: { limit: 5, offset: 0 },
   });
 
-  // Fetch user's own LFG posts
   const {
     data: userPostsData,
     loading: userPostsLoading,
@@ -26,11 +26,8 @@ const Lfg = () => {
     variables: { limit: 5, offset: 0 },
   });
 
-  // Extract data
   const allPosts = allPostsData?.getAllLFGPosts || [];
   const userPosts = userPostsData?.getUserLFGPosts || [];
-
-  console.log("User posts", userPosts);
 
   return (
     <div className="min-h-screen p-4">
@@ -38,22 +35,43 @@ const Lfg = () => {
         Looking For Group
       </h1>
 
-      {/* User's Own LFG Posts */}
-      <section className="mb-10">
-        {userPostsLoading ? (
-          <p>Loading Your LFG Posts...</p>
-        ) : userPostsError ? (
-          <p className="text-red-500">
-            Error fetching your posts: {userPostsError.message}
-          </p>
-        ) : (
-          <UserLfgPosts posts={userPosts} refetch={refetchUserPosts} />
-        )}
-      </section>
+      {/* Tabs */}
+      <div className="flex space-x-4 mb-6">
+        <button
+          className={`px-4 py-2 rounded ${
+            activeTab === "all"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white"
+          }`}
+          onClick={() => setActiveTab("all")}
+        >
+          All Posts
+        </button>
+        <button
+          className={`px-4 py-2 rounded ${
+            activeTab === "user"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white"
+          }`}
+          onClick={() => setActiveTab("user")}
+        >
+          Your Posts
+        </button>
+      </div>
 
-      {/* All Public LFG Posts */}
-      <section>
-        {allPostsLoading ? (
+      {/* Tab Content */}
+      <div>
+        {activeTab === "user" ? (
+          userPostsLoading ? (
+            <p>Loading Your LFG Posts...</p>
+          ) : userPostsError ? (
+            <p className="text-red-500">
+              Error fetching your posts: {userPostsError.message}
+            </p>
+          ) : (
+            <UserLfgPosts posts={userPosts} refetch={refetchUserPosts} />
+          )
+        ) : allPostsLoading ? (
           <p>Loading LFG Posts...</p>
         ) : allPostsError ? (
           <p className="text-red-500">
@@ -62,7 +80,7 @@ const Lfg = () => {
         ) : (
           <LFGPosts posts={allPosts} />
         )}
-      </section>
+      </div>
     </div>
   );
 };

@@ -2,9 +2,16 @@ import { useMutation } from "@apollo/client";
 import { DELETE_LFG_POST } from "@/graphql/lfgQueries";
 import LFGForm from "./LFGForm";
 import { useState } from "react";
-import { LFGPostFormData } from "./LFGForm";
 
-// Define types for the posts and the refetch function
+export type LFGPostFormData = {
+  gameId: string;
+  title: string;
+  description: string;
+  requirements: string[];
+  tags: string[];
+  expirationHour: number;
+};
+
 interface LfgPost extends LFGPostFormData {
   id: string;
 }
@@ -15,17 +22,21 @@ interface UserLfgPostsProps {
 }
 
 const UserLfgPosts: React.FC<UserLfgPostsProps> = ({ posts, refetch }) => {
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleteLfgPost] = useMutation(DELETE_LFG_POST);
+
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState<LfgPost | null>(null);
+  const [canEdit, setCanEdit] = useState(false);
 
-  const handleDelete = async (id: string) => {
-    // console.log(id); // Make sure id is the correct value
-    await deleteLfgPost({ variables: { postId: id } }); // Pass postId here
-    refetch(); // Refetch posts after deleting
+  const confirmDelete = async () => {
+    if (!confirmDeleteId) return;
+    await deleteLfgPost({ variables: { postId: confirmDeleteId } });
+    setConfirmDeleteId(null); // close modal
+    refetch();
   };
 
-  const handleEdit = (post: LfgPost) => {
+  const handleEditClick = (post: LfgPost) => {
     setEditData(post);
     setShowForm(true);
   };
@@ -33,24 +44,30 @@ const UserLfgPosts: React.FC<UserLfgPostsProps> = ({ posts, refetch }) => {
   const handleFormClose = () => {
     setEditData(null);
     setShowForm(false);
-    refetch(); // Refetch posts after editing
+    refetch();
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-        Your LFG Posts
-      </h2>
       {showForm ? (
         <LFGForm initialData={editData!} onClose={handleFormClose} />
       ) : (
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200"
-        >
-          Create New LFG
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200"
+          >
+            Create New LFG
+          </button>
+          <button
+            onClick={() => setCanEdit((prev) => !prev)}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200"
+          >
+            {canEdit ? "Finish" : "Edit LFGs"}
+          </button>
+        </div>
       )}
+
       <div className="space-y-4">
         {posts.length > 0 ? (
           posts.map((post) => (
@@ -64,20 +81,34 @@ const UserLfgPosts: React.FC<UserLfgPostsProps> = ({ posts, refetch }) => {
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
                 {post.description}
               </p>
-              <div className="flex gap-4 mt-4">
-                <button
-                  onClick={() => handleEdit(post)}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg transition-all duration-200"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(post.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition-all duration-200"
-                >
-                  Delete
-                </button>
+              <div className="flex items-center mt-4">
+                {post.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className={`bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 text-xs px-2 py-1 rounded-full ${
+                      index > 0 ? "ml-1" : ""
+                    }`}
+                  >
+                    {tag}
+                  </span>
+                ))}
               </div>
+              {canEdit && (
+                <div className="flex gap-4 mt-4">
+                  <button
+                    onClick={() => handleEditClick(post)}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg transition-all duration-200"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => setConfirmDeleteId(post.id)}
+                    className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg transition-all duration-200"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           ))
         ) : (
@@ -86,6 +117,33 @@ const UserLfgPosts: React.FC<UserLfgPostsProps> = ({ posts, refetch }) => {
           </p>
         )}
       </div>
+
+      {confirmDeleteId && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Confirm Delete
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Are you sure you want to delete this post?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
