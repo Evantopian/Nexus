@@ -1,0 +1,3 @@
+https://www.dicebear.com/ (for imgs beyond mui & luicde)
+https://colorhunt.co/  (referencing our dynamaic color palette)
+https://ui.shadcn.com/ (component library)

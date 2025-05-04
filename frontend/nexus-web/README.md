@@ -1,50 +1,34 @@
-# React + TypeScript + Vite
+# Nexus  
+Frontend for the Nexus web app (React + TypeScript + Vite)  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Milestones  
+General Implementations (no nitpick of UI)
 
-Currently, two official plugins are available:
+| Status | Milestone               | Description                          |
+|--------|-------------------------|--------------------------------------|
+| ✅     | Initial Setup            | Project structure and config        |
+| ✅     | Common Page Layouts 1    | Home & Landing Pages                |
+| ⏳     | Common Page Layouts 2    | Dashboard, Query, Game Pages        |
+| ⏳⏳    | Developer Panel    | Create a UI to easily integrate system UI dependencies (game images, banners, logos, etc)      |
+| ⏳⏳    | Core Features Backend    | API integrations (auth, pull from dev panel)      |
+| -      | TBD                      | TBD                                  |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Bugs to Fix  
+Bugs and nitpicks of UI
 
-## Expanding the ESLint configuration
+| Bug  | Description                                                   |
+|------|---------------------------------------------------------------|
+| 🐞   | Dark Theme on Homepage (need to reconfigure so its not affected or make homepage theme viable)                                      |
+| 🐞   | Featured Cards need to be realigned for mobile webview        |
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-- Configure the top-level `parserOptions` property like this:
+Working Tree Routes:
+* Following -> Layout of followed games, players, servers joined.
+* Browse -> Search
+* LFG -> Collection of LFGs sorted by Genre? (Netflix style)
+* Players -> Same as LFG but for players.
+* Events -> TBD
+> **LFG and Players Require Recommendation Model, can also incoperate games.**
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+(Locally Stored: Game Channels -waiting on backend APIs to make use.)
