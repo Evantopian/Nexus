@@ -97,7 +97,7 @@ INSERT INTO users (
 )
 VALUES (
     'testuser@example.com',
-    '$2a$12$CpQct0NpAvDJv2LneH7SoOArAZSwnZ/oQbQi86gXLKXTQ0Xg.3nnG', -- password123 in bscrypt (12)
+    '$2a$10$rJM5kfknbUQSPFBiaFlfOuyuo1KKUzYcKIVXQec/0zBSgoAougQmu', -- hashed password 
     'testuser',
     'https://example.com/avatar.jpg',
     'Let’s game!',
@@ -120,7 +120,7 @@ INSERT INTO users (
 )
 VALUES (
     'testuser2@example.com',
-    '$2a$12$cnklf7YybVVNGYByqLk96OB6pvQYnyvXFOJTN2D6hrDhMTPFFuLMm', -- password11a in byscrypt
+    '$2a$10$sf76Izk9GvxNanbplyEuzO.xPp7aQ84vDl9yleCLzjNau2CASZWDu', 
     'testuser2',
     'https://example.com/avatar2.jpg',
     'Let’s game!',
