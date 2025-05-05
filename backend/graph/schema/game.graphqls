@@ -1,0 +1,63 @@
+# Game Type
+type Game {
+  id: ID!
+  slug: String!
+  title: String!
+  description: String
+  shortDescription: String
+  image: String
+  banner: String
+  logo: String
+  players: String
+  releaseDate: String
+  developer: String
+  publisher: String
+  platforms: [String!]
+  tags: [String!]
+  rating: Float
+  servers: [Server]
+  topPlayers: [User]
+  lfgPosts: [LFGPost]
+}
+
+extend type Query {
+  getGame(slug: String!): Game!
+}
+
+extend type Mutation {
+  createGame(
+    slug: String!
+    title: String!
+    description: String
+    shortDescription: String
+    image: String
+    banner: String
+    logo: String
+    players: String
+    releaseDate: String
+    developer: String
+    publisher: String
+    platforms: [String!]
+    tags: [String!]
+    rating: Float
+  ): Game!
+
+  updateGame(
+    slug: String!
+    title: String!
+    description: String
+    shortDescription: String
+    image: String
+    banner: String
+    logo: String
+    players: String
+    releaseDate: String
+    developer: String
+    publisher: String
+    platforms: [String!]
+    tags: [String!]
+    rating: Float
+  ): Game!
+
+  deleteGame(slug: String!): Boolean!
+}

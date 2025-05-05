@@ -1,0 +1,25 @@
+# Define the GameServer type
+type Server {
+  id: UUID!
+  name: String!
+  members: [User]!
+  image: String
+  description: String
+  createdAt: String!
+}
+
+extend type Query {
+  getServers(slug: String!): [Server]!
+}
+
+extend type Mutation {
+  createServer(
+    gameId: UUID
+    name: String!
+    image: String
+    description: String
+  ): Server!
+  joinServer(serverId: UUID!): Boolean!
+  leaveServer(serverId: UUID!): Boolean!
+  deleteServer(serverId: UUID!): Boolean!
+}
