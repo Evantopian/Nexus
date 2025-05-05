@@ -4,6 +4,8 @@ go 1.23.6
 
 require (
 	github.com/99designs/gqlgen v0.17.68
+	github.com/aws/aws-lambda-go v1.48.0
+	github.com/awslabs/aws-lambda-go-api-proxy v0.16.2
 	github.com/gin-contrib/cors v1.7.4
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
