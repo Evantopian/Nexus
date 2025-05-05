@@ -2,11 +2,28 @@ import React, { useState } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from "react-native";
 import { validateLogin } from "../utils/validator";
+import { Alert } from "react-native";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login({ navigation }) {
 
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState('');
+  const [error, setError] = useState("");
+  const { login } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      await login(email, password);
+      Alert.alert("Works");
+      navigation.navigate("Main Content");
+    } catch (err) {
+      console.error("Login Error:", err.response?.data || err.message);
+      setError("Invalid email or password.");
+    }
+  };
 
   return (
     <LinearGradient
@@ -22,13 +39,13 @@ export default function Login({ navigation }) {
         {/* Login Header */}
         <Text style={styles.headerText}>Login to Nexus</Text>
 
-        {/* Username Input */}
+        {/* Email Input */}
         <TextInput
-            placeholder="Username"
+            placeholder="Email"
             placeholderTextColor="#ccc"
             style={styles.input}
-            value={username}
-            onChangeText={setUsername}
+            value={email}
+            onChangeText={setEmail}
         />
 
         {/* Password Input */}
@@ -47,9 +64,13 @@ export default function Login({ navigation }) {
         </TouchableOpacity>
 
         {/* Continue Button */}
-        <TouchableOpacity style={styles.button} onPress={() => validateLogin(username, password, navigation)}>
+        <TouchableOpacity style={styles.button} onPress={() => handleSubmit(email, password)}>
             <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
+
+        {error && (
+          <div className="text-red-400 text-sm text-center mb-4">{error}</div>
+        )}
     
         {/* Sign Up Link */}
         <View style={styles.signUpContainer}>

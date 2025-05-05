@@ -1,6 +1,7 @@
 import React from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import {login} from "../test";
 
 export default function Landing({ navigation }) {
   return (
@@ -26,7 +27,7 @@ export default function Landing({ navigation }) {
         {/* Buttons */}
         <TouchableOpacity
           style={styles.registerButton}
-          onPress={() => navigation.navigate("Signup")}
+          onPress={() => login()}
         >
           <Text style={styles.registerText}>Register</Text>
         </TouchableOpacity>
