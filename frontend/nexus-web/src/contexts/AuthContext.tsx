@@ -70,6 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = response.data.token;
     // Store the token in localStorage or in state
     localStorage.setItem("authToken", token);
+    // console.log("Login response", response.data);
     await refreshUser(); // Update user state after login
   };
 

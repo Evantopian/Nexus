@@ -148,10 +148,10 @@ func GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error) {
 	// Modified SQL query to join users table and fetch author details
 	query := `
 		SELECT p.id, p.game_id, p.title, p.description, p.author_id, p.requirements, p.tags, p.created_at::TEXT, p.expires_at::TEXT,
-		       u.username, u.profile_img
+		       u.username, COALESCE(u.profile_img, '')
 		FROM lfg_posts p
 		JOIN games g ON p.game_id = g.id
-		JOIN users u ON p.author_id = u.uuid  -- Join with users table to get author details
+		JOIN users u ON p.author_id = u.uuid
 		WHERE g.slug = $1
 		ORDER BY p.created_at DESC
 	`
@@ -197,9 +197,9 @@ func GetAllLFGPosts(ctx context.Context, limit int, offset int) ([]*model.LFGPos
 	// Modified SQL query to include limit and offset for pagination
 	query := `
 		SELECT p.id, p.game_id, p.title, p.description, p.author_id, p.requirements, p.tags, p.created_at::TEXT, p.expires_at::TEXT,
-		       u.username, u.profile_img
+		       u.username, COALESCE(u.profile_img, '')
 		FROM lfg_posts p
-		JOIN users u ON p.author_id = u.uuid  -- Join with users table to get author details
+		JOIN users u ON p.author_id = u.uuid
 		ORDER BY p.created_at DESC
 		LIMIT $1 OFFSET $2
 	`
@@ -250,7 +250,7 @@ func GetUserLFGPosts(ctx context.Context, limit int, offset int) ([]*model.LFGPo
 
 	query := `
 		SELECT p.id, p.game_id, p.title, p.description, p.author_id, p.requirements, p.tags, p.created_at::TEXT, p.expires_at::TEXT,
-		       u.username, u.profile_img
+		       u.username, COALESCE(u.profile_img, '')
 		FROM lfg_posts p
 		JOIN users u ON p.author_id = u.uuid
 		WHERE p.author_id = $1

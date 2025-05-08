@@ -72,7 +72,7 @@ const LfgForm: React.FC<LfgFormProps> = ({ initialData, onClose }) => {
     e.preventDefault();
     setError("");
 
-    // console.log(formData.gameId);
+    // console.log(formData);
 
     // Check for required fields validation (all except expirationHour)
     if (!formData.gameId || !formData.title || !formData.description) {
