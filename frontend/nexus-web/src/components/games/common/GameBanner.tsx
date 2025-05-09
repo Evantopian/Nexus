@@ -19,7 +19,7 @@ const GameBanner = ({
   tabs,
   isFollowed,
 }: GameBannerProps) => {
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(isFollowed);
 
   useEffect(() => {
     setIsFollowing(isFollowed);

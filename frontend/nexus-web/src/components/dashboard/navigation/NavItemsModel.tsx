@@ -1,8 +1,7 @@
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import ChatIcon from "@mui/icons-material/Chat";
 import GroupsIcon from "@mui/icons-material/Groups";
-import RivalsIcon from "@/assets/pages/games/MarvelRivals/MarvelRivalsIcon.jpg"
-
+import RivalsIcon from "@/assets/pages/games/MarvelRivals/MarvelRivalsIcon.jpg";
 
 export interface NavItem {
   icon: React.ReactNode;
@@ -14,7 +13,13 @@ export interface NavItem {
 // Section 1: Followed Games
 export const followedGames: NavItem[] = [
   {
-    icon: <img src={RivalsIcon} alt="Marvel Rivals Icon" style={{ width: 34, height: 32, borderRadius: '10px'}} />,
+    icon: (
+      <img
+        src={RivalsIcon}
+        alt="Marvel Rivals Icon"
+        style={{ width: 34, height: 32, borderRadius: "10px" }}
+      />
+    ),
     href: "/games/marvel-rivals",
     tooltip: "Marvel Rivals",
     label: "Marvel Rivals",
