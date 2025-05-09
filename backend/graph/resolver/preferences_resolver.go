@@ -17,45 +17,52 @@ const (
 	Casual      Playstyle = "CASUAL"
 )
 
-func UpdatePreference(ctx context.Context, region *string, playstyle *model.Playstyle) (*model.Preferences, error) {
+func UpdatePreference(ctx context.Context, region *string, playstyle *model.Playstyle, favoritePlatform *model.Platform, favoriteGameGenre *model.GameGenre) (*model.User, error) {
 	uuid, exists := ctx.Value(contextkey.UserUUIDKey).(string)
 	if !exists || uuid == "" {
 		return nil, fmt.Errorf("authorization token missing or invalid from resolver")
 	}
 
-	// Check if user exists before updating
-	var check bool
-	checkQuery := "SELECT EXISTS (SELECT 1 FROM users WHERE uuid=$1)"
-	err := postgres.DB.QueryRow(ctx, checkQuery, uuid).Scan(&check)
-	if err != nil {
-		return nil, fmt.Errorf("error checking user existence: %v", err)
-	}
-	if !check {
-		return nil, fmt.Errorf("user not found")
-	}
-
-	// Prepare the query to update preferences stored as JSONB in the 'preferences' column
-	query := `UPDATE users 
-						SET preferences = COALESCE(preferences, '{}'::jsonb) || jsonb_build_object(
-								'region', COALESCE($1, preferences->>'region'), 
-								'playstyle', COALESCE($2, preferences->>'playstyle')
-						)
-						WHERE uuid = $3
-						RETURNING preferences`
-
-	var updatedPrefs model.Preferences
-
-	// default playstyle value
+	// Set default values if no value provided
 	playstyleValue := "CASUAL"
 	if playstyle != nil {
 		playstyleValue = string(*playstyle)
 	}
 
-	// Execute the query and scan the preferences JSONB column into updatedPrefs
-	err = postgres.DB.QueryRow(ctx, query, region, playstyleValue, uuid).Scan(&updatedPrefs)
+	platformValue := "PC"
+	if favoritePlatform != nil {
+		platformValue = string(*favoritePlatform)
+	}
+
+	gameGenreValue := "RPG"
+	if favoriteGameGenre != nil {
+		gameGenreValue = string(*favoriteGameGenre)
+	}
+
+	// SQL query to update the user's preferences
+	query := `UPDATE users 
+		SET preferences = COALESCE(preferences, '{}'::jsonb) || jsonb_build_object(
+			'region', COALESCE($1, preferences->>'region'),
+			'playstyle', COALESCE($2, preferences->>'playstyle'),
+			'favoritePlatform', COALESCE($3, preferences->>'favoritePlatform'),
+			'favoriteGameGenre', COALESCE($4, preferences->>'favoriteGameGenre')
+		)
+		WHERE uuid = $5
+		RETURNING uuid, username, rank, profile_message, preferences`
+
+	var updatedUser model.User
+
+	// Execute the query and scan the result into updatedUser
+	err := postgres.DB.QueryRow(ctx, query, region, playstyleValue, platformValue, gameGenreValue, uuid).Scan(
+		&updatedUser.UUID,
+		&updatedUser.Username,
+		&updatedUser.Rank,
+		&updatedUser.ProfileMessage,
+		&updatedUser.Preferences,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error updating preferences: %v", err)
 	}
 
-	return &updatedPrefs, nil
+	return &updatedUser, nil
 }

@@ -13,8 +13,14 @@ import (
 )
 
 // UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string) (*model.User, error) {
-	return resolver.UpdateUser(ctx, username, email, password, profileImg, profileMessage, status, rank)
+func (r *mutationResolver) UpdateUser(ctx context.Context, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string, age *int32) (*model.User, error) {
+	var ageInt32 *int32
+	if age != nil {
+		convertedAge := int32(*age) // Convert int to int32
+		ageInt32 = &convertedAge
+	}
+
+	return resolver.UpdateUser(ctx, username, email, password, profileImg, profileMessage, status, rank, ageInt32)
 }
 
 // DeleteUser is the resolver for the deleteUser field.
@@ -28,8 +34,8 @@ func (r *mutationResolver) AdjustRep(ctx context.Context, amount int32) (bool, e
 }
 
 // UpdatePreference is the resolver for the updatePreference field.
-func (r *mutationResolver) UpdatePreference(ctx context.Context, region *string, playstyle *model.Playstyle) (*model.Preferences, error) {
-	return resolver.UpdatePreference(ctx, region, playstyle)
+func (r *mutationResolver) UpdatePreference(ctx context.Context, region *string, playstyle *model.Playstyle, favoritePlatform *model.Platform, favoriteGameGenre *model.GameGenre) (*model.User, error) {
+	return resolver.UpdatePreference(ctx, region, playstyle, favoritePlatform, favoriteGameGenre)
 }
 
 // FollowGame is the resolver for the followGame field.
