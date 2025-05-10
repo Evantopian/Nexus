@@ -2,7 +2,6 @@ import { useLocation } from "react-router-dom";
 import { followedGames, chatItems, serverItems } from "./NavItemsModel";
 import NavItem from "./NavItem";
 import SectionHeader from "./SectionHeader";
-// import { useFollowedGames } from "@/contexts/FollowedGamesContext";
 
 interface SidebarContentProps {
   expanded: boolean;
@@ -10,7 +9,6 @@ interface SidebarContentProps {
 
 const SidebarContent = ({ expanded }: SidebarContentProps) => {
   const location = useLocation();
-  // const { followedGames } = useFollowedGames();
 
   return (
     <div className="w-full overflow-hidden">
@@ -18,9 +16,9 @@ const SidebarContent = ({ expanded }: SidebarContentProps) => {
       <div className="mb-6 w-full">
         <SectionHeader title="GAMES" expanded={expanded} />
         <div className="space-y-1">
-          {followedGames.map((item, index) => (
+          {followedGames.map((item, i) => (
             <NavItem
-              key={`game-${index}`}
+              key={`game-${i}`}
               icon={item.icon}
               href={item.href}
               tooltip={item.tooltip}
@@ -36,14 +34,14 @@ const SidebarContent = ({ expanded }: SidebarContentProps) => {
       <div className="mb-6 w-full">
         <SectionHeader title="CHATS" expanded={expanded} />
         <div className="space-y-1">
-          {chatItems.map((item, index) => (
+          {chatItems.map((item, i) => (
             <NavItem
-              key={`chat-${index}`}
+              key={`chat-${i}`}
               icon={item.icon}
               href={item.href}
               tooltip={item.tooltip}
               label={item.label}
-              active={location.pathname === item.href}
+              active={location.pathname.startsWith(item.href)}
               expanded={expanded}
             />
           ))}
@@ -54,9 +52,9 @@ const SidebarContent = ({ expanded }: SidebarContentProps) => {
       <div className="mb-6 w-full">
         <SectionHeader title="SERVERS" expanded={expanded} />
         <div className="space-y-1">
-          {serverItems.map((item, index) => (
+          {serverItems.map((item, i) => (
             <NavItem
-              key={`server-${index}`}
+              key={`server-${i}`}
               icon={item.icon}
               href={item.href}
               tooltip={item.tooltip}

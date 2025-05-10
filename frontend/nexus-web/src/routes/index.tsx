@@ -68,7 +68,9 @@ const routes: RouteObject[] = [
         path: "chat",
         element: <ChatLayout />,
         children: [
-          { path: ":roomId/:channelId", element: <ChatArea /> },
+          
+          { path: "direct/:contact", element: <ChatArea /> },
+          { path: "groups/:contact", element: <ChatArea /> },
           {
             index: true,
             element: (
