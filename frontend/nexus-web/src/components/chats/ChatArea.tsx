@@ -1,171 +1,120 @@
+// ChatArea.tsx
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Socket } from "phoenix";
 import { MessageStorage } from "@/data/messageStorage";
 import { useDebouncedCallback } from "use-debounce";
 
-interface Message {
-  user: string;
-  body: string;
-}
+interface Message { user: string; body: string; }
 
-const ChatArea = () => {
-  const { roomId, channelId } = useParams();
-  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>(
-    MessageStorage.load()
-  );
-  const [socket, setSocket] = useState<Socket | null>(null);
+const ChatArea: React.FC = () => {
+  const { roomId, channelId } = useParams<{ roomId: string; channelId: string }>();
+  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>(MessageStorage.load());
   const [channel, setChannel] = useState<any>(null);
   const [message, setMessage] = useState("");
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
-
   const usernameRef = useRef(`User${Math.floor(1000 + Math.random() * 9000)}`);
   const username = usernameRef.current;
 
   useEffect(() => {
     if (!roomId || !channelId) return;
-
-    const newSocket = new Socket("ws://localhost:4000/socket", {
-      params: { token: "dummy_token", username },
-    });
-    newSocket.connect();
-    setSocket(newSocket);
-
     const topic = `room:${roomId}:${channelId}`;
-    const newChannel = newSocket.channel(topic, {});
-    setChannel(newChannel);
+    const socket = new Socket("ws://localhost:4000/socket", { params: { username } });
+    socket.connect();
 
-    newChannel
-      .join()
+    const ch = socket.channel(topic);
+    ch.join()
       .receive("ok", () => console.log(`Joined ${topic}`))
-      .receive("error", (err: any) =>
-        console.error(`Failed to join ${topic}`, err)
-      );
+      .receive("error", (err: unknown) => console.error(`Failed to join ${topic}`, err));
 
-    // Message receiving
-    newChannel.on("message:new", (payload: Message) => {
-      const topic = `room:${roomId}:${channelId}`;
-
+    ch.on("message:new", (payload: Message) => {
       setMessagesMap((prev) => {
-        const currentMessages = prev[topic] || [];
-        const updatedMessages = [...currentMessages, payload];
-        if (updatedMessages.length > 50) {
-          updatedMessages.shift(); // queue size of 50, lim it
-        }
-        const newMap = { ...prev, [topic]: updatedMessages };
-        MessageStorage.save(newMap);
-        return newMap;
+        const msgs = prev[topic] || [];
+        const next = [...msgs, payload].slice(-100);
+        const map = { ...prev, [topic]: next };
+        MessageStorage.save(map);
+        return map;
       });
     });
 
-    newChannel.on("typing:start", (payload: { user: string }) => {
-      setTypingUsers((prev) => {
-        if (!prev.includes(payload.user)) {
-          return [...prev, payload.user];
-        }
-        return prev;
-      });
-    });
+    ch.on("typing:start", ({ user }) =>
+      setTypingUsers((prev) => (prev.includes(user) ? prev : [...prev, user]))
+    );
 
-    newChannel.on("typing:stop", (payload: { user: string }) => {
-      setTypingUsers((prev) => prev.filter((u) => u !== payload.user));
-    });
+    ch.on("typing:stop", ({ user }) =>
+      setTypingUsers((prev) => prev.filter((u) => u !== user))
+    );
 
-    return () => {
-      newChannel.leave();
-      newSocket.disconnect();
-      setChannel(null);
-      setSocket(null);
-    };
-  }, [roomId, channelId]);
+    setChannel(ch);
+    return () => { ch.leave(); socket.disconnect(); };
+  }, [roomId, channelId, username]);
 
   useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messagesMap, roomId, channelId]);
 
   const sendMessage = () => {
-    if (channel && message.trim() !== "") {
+    if (channel && message.trim()) {
       channel.push("message:new", { user: username, body: message });
       setMessage("");
     }
   };
 
-  // using debounce (read, it's best practice) to avoid sending too many typing events
   const handleTyping = useDebouncedCallback(() => {
     if (!channel) return;
-
-    setTypingUsers((prev) => {
-      if (!prev.includes(username)) {
-        return [...prev, username];
-      }
-      return prev;
-    });
-
     channel.push("typing:start", { user: username });
-
-    if (typingTimeout.current) {
-      clearTimeout(typingTimeout.current);
-    }
-
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
     typingTimeout.current = setTimeout(() => {
-      setTypingUsers((prev) => prev.filter((u) => u !== username));
       channel.push("typing:stop", { user: username });
-    }, 3000); // 3s
-  }, 300);
+    }, 2000);
+  }, 200);
 
   const topic = `room:${roomId}:${channelId}`;
   const currentMessages = messagesMap[topic] || [];
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#1E1E2F] text-white rounded-lg overflow-hidden">
-      <div className="flex items-center justify-between p-4 bg-[#2C2C3E] shadow-md">
-        <div className="text-lg font-bold">
-          {roomId?.toUpperCase() ?? "Unknown Room"} / #
-          {channelId?.replace("-", " ") ?? "Unknown Channel"}
-        </div>
-      </div>
+    <div className="flex-1 flex flex-col h-full bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <header className="px-6 py-4 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-xl font-semibold">
+          {roomId?.toUpperCase()} / <span className="text-blue-600 dark:text-blue-400">#{channelId}</span>
+        </h3>
+      </header>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <main className="flex-1 overflow-y-auto px-6 py-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-700">
         {currentMessages.map((msg, idx) => (
-          <div
-            key={idx}
-            className="p-3 bg-[#2C2C3E] rounded-lg shadow-md hover:bg-[#3A3A4E] transition"
-          >
-            <strong className="text-blue-400">{msg.user}:</strong> {msg.body}
+          <div key={idx} className="p-4 bg-gray-100 dark:bg-gray-800 rounded-xl shadow-sm">
+            <div className="font-medium text-blue-600 dark:text-blue-400">{msg.user}</div>
+            <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{msg.body}</p>
           </div>
         ))}
+
         {typingUsers.length > 0 && (
-          <div className="px-4 text-sm text-gray-400">
-            {typingUsers.join(", ")} {typingUsers.length > 1 ? "are" : "is"}{" "}
-            typing...
+          <div className="text-sm italic text-gray-500 dark:text-gray-400">
+            {typingUsers.join(', ')} {typingUsers.length > 1 ? 'are' : 'is'} typing...
           </div>
         )}
-        <div ref={bottomRef} />
-      </div>
 
-      <div className="p-4 bg-[#2C2C3E] flex items-center gap-3">
+        <div ref={bottomRef} />
+      </main>
+
+      <footer className="sticky bottom-0 px-6 py-4 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex items-center gap-4">
         <input
           type="text"
-          className="flex-1 p-3 rounded bg-[#1E1E2F] border border-gray-600 focus:outline-none focus:border-blue-500"
           value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-            handleTyping();
-          }}
-          placeholder="Type your message..."
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          onChange={(e) => { setMessage(e.target.value); handleTyping(); }}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+          placeholder="Type a message..."
+          className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <button
           onClick={sendMessage}
-          className="px-5 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold"
+          className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
         >
           Send
         </button>
-      </div>
+      </footer>
     </div>
   );
 };
