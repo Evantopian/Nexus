@@ -3,11 +3,11 @@ defmodule ChatSystemWeb.UserSocket do
 
   # channels
   channel "room:*", ChatSystemWeb.RoomChannel
+  channel "dm:*",   ChatSystemWeb.RoomChannel
 
-  # tmp, adding in tokens later in the future
   def connect(%{"username" => username}, socket, _connect_info) do
     {:ok, assign(socket, :username, username)}
   end
-  
+
   def id(_socket), do: nil
 end

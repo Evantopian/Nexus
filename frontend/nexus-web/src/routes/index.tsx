@@ -14,6 +14,8 @@ import Profile from "@/components/profile/Profile";
 import ChatLayout from "@/layouts/ChatLayout";
 import ChatArea from "@/components/chats/ChatArea";
 import Lfg from "@/components/lfg/LFG";
+import FindFriends from "@/components/chats/FindFriends";
+import ChatIndexPage from "@/components/chats/ChatIndexPage";
 
 const routes: RouteObject[] = [
   {
@@ -68,17 +70,10 @@ const routes: RouteObject[] = [
         path: "chat",
         element: <ChatLayout />,
         children: [
-          
+          { index: true, element: <ChatIndexPage /> },
+          { path: "find", element: <FindFriends /> },
           { path: "direct/:contact", element: <ChatArea /> },
           { path: "groups/:contact", element: <ChatArea /> },
-          {
-            index: true,
-            element: (
-              <div className="p-4 text-gray-400">
-                Select a room and a channel to start messaging.
-              </div>
-            ),
-          },
         ],
       },
       {

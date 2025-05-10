@@ -1,12 +1,21 @@
 defmodule ChatSystemWeb.RoomChannel do
   use Phoenix.Channel
 
-  def join("room:" <> _rest, _params, socket) do
+  def join("room:" <> _room_name, _params, socket) do
+    {:ok, socket}
+  end
+
+  def join("dm:" <> _username, _params, socket) do
     {:ok, socket}
   end
 
   def handle_in("message:new", %{"user" => user, "body" => body}, socket) do
-    broadcast!(socket, "message:new", %{user: user, body: body})
+    broadcast!(socket, "message:new", %{
+      user: user,
+      body: body,
+      timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
+    })
+
     {:noreply, socket}
   end
 

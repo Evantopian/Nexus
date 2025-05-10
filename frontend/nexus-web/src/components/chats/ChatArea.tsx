@@ -1,26 +1,27 @@
+// src/components/chats/ChatArea.tsx
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Socket } from "phoenix";
-import { MessageStorage } from "@/data/messageStorage";
+import { MessageStorage, Message } from "@/data/messageStorage";
 import { useDebouncedCallback } from "use-debounce";
 import TabBar from "./TabBar";
-import { Message } from "@/types/chat";
 
-const CONTACT_NAMES = ["Alice", "Bob", "Charlie"];
+const tabs = ["Direct Messages", "Group Chats"];
 
 const ChatArea: React.FC = () => {
-  const { contact, groupId } = useParams<{
-    contact?: string;
-    groupId?: string;
-  }>();
+  const { contact } = useParams<{ contact: string }>();
   const navigate = useNavigate();
-  const tabs = ["Direct Messages", "Group Chats"];
-  const [activeTab, setActiveTab] = useState(tabs[0]);
-  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>(
-    MessageStorage.load()
-  );
+  const location = useLocation();
+
+  // Determine initial active tab from URL
+  const initialTab = location.pathname.includes("/chat/groups/")
+    ? tabs[1]
+    : tabs[0];
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
+
+  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>(MessageStorage.load());
   const [channel, setChannel] = useState<any>(null);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string>("");
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -28,74 +29,44 @@ const ChatArea: React.FC = () => {
     `User${Math.floor(1000 + Math.random() * 9000)}`
   ).current;
 
-  // Determine if there is any direct-conversation content
-  const msgsMap = MessageStorage.load();
-  const hasContent = CONTACT_NAMES.some(
-    (name) => (msgsMap[`dm:${name}`] || []).length > 0
-  );
-
-  // Auto-redirect if needed
-  useEffect(() => {
-    if (activeTab === tabs[0] && !contact && hasContent) {
-      const lastList = CONTACT_NAMES.map((name) => {
-        const arr = msgsMap[`dm:${name}`] || [];
-        const ts = arr.length
-          ? new Date(arr[arr.length - 1].timestamp!).getTime()
-          : 0;
-        return { name, ts };
-      })
-        .sort((a, b) => b.ts - a.ts)
-        .map((x) => x.name);
-      navigate(`/chat/direct/${lastList[0]}`, { replace: true });
+  // Handle tab changes by navigating
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === tabs[0]) {
+      navigate(`/chat/direct/${contact}`, { replace: true });
+    } else {
+      navigate(`/chat/groups/${contact}`, { replace: true });
     }
-    if (activeTab === tabs[1] && !groupId) {
-      navigate(`/chat/groups/general`, { replace: true });
-    }
-  }, [activeTab, contact, groupId, navigate, hasContent, msgsMap]);
+  };
 
-  // If no content and no contact selected, show placeholder
-  if (activeTab === tabs[0] && !contact && !hasContent) {
-    return (
-      <div className="flex-1 flex items-center justify-center text-gray-500">
-        No conversations. Add friends to start chatting.
-      </div>
-    );
-  }
-
-  // Phoenix channel setup
+  // Subscribe to Phoenix channel
   useEffect(() => {
-    const topic =
-      activeTab === tabs[0]
-        ? contact
-          ? `dm:${contact}`
-          : null
-        : `group:${groupId || "general"}`;
-    if (!topic) return;
-
+    if (!contact) return;
+    const topic = activeTab === tabs[0] ? `dm:${contact}` : `room:${contact}`;
     const socket = new Socket("ws://localhost:4000/socket", {
       params: { username },
     });
     socket.connect();
 
     const ch = socket.channel(topic);
-    ch.join();
+    ch.join()
+      .receive("error", (err: any) => console.error("Channel join failed", err));
+
     ch.on("message:new", (msg: Message) => {
-      setMessagesMap((prev) => {
+      setMessagesMap(prev => {
         const arr = prev[topic] || [];
-        const next = [
-          ...arr,
-          { ...msg, timestamp: msg.timestamp || new Date().toISOString() },
-        ].slice(-200);
+        const next = [...arr, msg].slice(-200);
         const updated = { ...prev, [topic]: next };
         MessageStorage.save(updated);
         return updated;
       });
     });
+
     ch.on("typing:start", ({ user }) =>
-      setTypingUsers((p) => (p.includes(user) ? p : [...p, user]))
+      setTypingUsers(p => (p.includes(user) ? p : [...p, user]))
     );
     ch.on("typing:stop", ({ user }) =>
-      setTypingUsers((p) => p.filter((u) => u !== user))
+      setTypingUsers(p => p.filter(u => u !== user))
     );
 
     setChannel(ch);
@@ -103,24 +74,22 @@ const ChatArea: React.FC = () => {
       ch.leave();
       socket.disconnect();
     };
-  }, [activeTab, contact, groupId, username]);
+  }, [activeTab, contact, username]);
 
-  // Scroll to bottom on new messages
+  // Auto-scroll on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messagesMap, activeTab]);
+  }, [messagesMap, activeTab, contact]);
 
-  // Send & typing handlers
+  // Send message
   const sendMessage = () => {
     if (channel && message.trim()) {
-      channel.push("message:new", {
-        user: username,
-        body: message,
-        timestamp: new Date().toISOString(),
-      });
+      channel.push("message:new", { user: username, body: message });
       setMessage("");
     }
   };
+
+  // Typing indicator
   const handleTyping = useDebouncedCallback(() => {
     if (!channel) return;
     channel.push("typing:start", { user: username });
@@ -130,17 +99,18 @@ const ChatArea: React.FC = () => {
     }, 2000);
   }, 200);
 
+  // Determine messages to display
   const topicKey =
-    activeTab === tabs[0] ? `dm:${contact}` : `group:${groupId || "general"}`;
+    activeTab === tabs[0] ? `dm:${contact}` : `room:${contact}`;
   const currentMessages = messagesMap[topicKey] || [];
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md overflow-hidden min-h-0">
-      <TabBar tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+      <TabBar tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {activeTab === tabs[0] ? contact : groupId || "general"}
+          {contact}
         </h2>
       </div>
 
@@ -156,10 +126,7 @@ const ChatArea: React.FC = () => {
                   {msg.user}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {new Date(msg.timestamp!).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {new Date(msg.timestamp!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
               <p className="mt-1 text-gray-700 dark:text-gray-300">{msg.body}</p>
@@ -180,23 +147,12 @@ const ChatArea: React.FC = () => {
         <textarea
           rows={1}
           value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-            handleTyping();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              sendMessage();
-            }
-          }}
+          onChange={e => { setMessage(e.target.value); handleTyping(); }}
+          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
           placeholder="Type a message…"
           className="flex-1 resize-none bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-gray-100"
         />
-        <button
-          onClick={sendMessage}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm transition"
-        >
+        <button onClick={sendMessage} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm transition">
           Send
         </button>
       </div>
