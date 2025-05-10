@@ -25,14 +25,14 @@ export const PROFILE_QUERY = gql`
 
 export const UPDATE_USER = gql`
   mutation updateUser(
-    $email: String
+    $username: String
     $profileImg: String
     $profileMessage: String
     $rank: String
     $age: Int
   ) {
     updateUser(
-      email: $email
+      username: $username
       profileImg: $profileImg
       profileMessage: $profileMessage
       rank: $rank

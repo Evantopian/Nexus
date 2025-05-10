@@ -4,11 +4,14 @@ import NexusDragon from "@/assets/Nexus_Dragon.svg";
 import TopNavigation from "./TopNavigation";
 import SidebarContent from "./SidebarContent";
 import ProfileMenu from "./ProfileMenu";
-import cinnamoroll from "@/assets/dummydata/cinnamoroll.jpg"
+import cinnamoroll from "@/assets/dummydata/cinnamoroll.jpg";
+import { useAuth } from "@/contexts/AuthContext";
+import { User } from "lucide-react";
 
 const DashboardSidebar = () => {
+  const { user } = useAuth();
   const [expanded, setExpanded] = useState(true);
-  const [showTopNav, setShowTopNav] = useState(true); 
+  const [showTopNav, setShowTopNav] = useState(true);
   const [lastClickTime, setLastClickTime] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -24,7 +27,7 @@ const DashboardSidebar = () => {
       }
     };
 
-    handleResize(); 
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -71,7 +74,7 @@ const DashboardSidebar = () => {
         <div
           className={cn(
             "w-16 h-16 flex items-center justify-center",
-            !expanded && "border-r border-gray-600", 
+            !expanded && "border-r border-gray-600"
           )}
         >
           <img
@@ -117,7 +120,7 @@ const DashboardSidebar = () => {
           expanded ? "w-56" : "w-16",
           showTopNav ? "top-16" : "top-0",
           isMobile && !expanded && "-left-16",
-          isMobile && expanded && "shadow-lg",
+          isMobile && expanded && "shadow-lg"
         )}
       >
         {/* Top section - logo spacer */}
@@ -136,7 +139,7 @@ const DashboardSidebar = () => {
       {expanded && (
         <div className="fixed left-16 bottom-0 z-50 h-16 flex items-center transition-all duration-200 ease-in-out">
           <span className="text-sm font-medium truncate text-gray-800 dark:text-gray-200">
-            Tamothy
+            {user?.username}
           </span>
         </div>
       )}

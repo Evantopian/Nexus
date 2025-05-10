@@ -1,8 +1,17 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_LFG_POSTS, GET_USER_LFG_POSTS } from "@/graphql/lfgQueries";
-import LFGPosts from "../common/LFGPosts";
 import UserLfgPosts from "./UserLFGPosts";
+import AllLFGPosts from "./AllLFGPosts";
+
+export type LFGPostFormData = {
+  gameId: string;
+  title: string;
+  description: string;
+  requirements: string[];
+  tags: string[];
+  expirationHour: number;
+};
 
 // Reorganize which lfgpost component is used (lfgpost for side & lfgpost for user view, all view, and game view)
 
@@ -78,7 +87,7 @@ const Lfg = () => {
             Error fetching posts: {allPostsError.message}
           </p>
         ) : (
-          <LFGPosts posts={allPosts} />
+          <AllLFGPosts posts={allPosts} />
         )}
       </div>
     </div>

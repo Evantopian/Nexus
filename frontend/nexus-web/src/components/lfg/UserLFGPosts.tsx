@@ -2,31 +2,23 @@ import { useMutation } from "@apollo/client";
 import { DELETE_LFG_POST } from "@/graphql/lfgQueries";
 import LFGForm from "./LFGForm";
 import { useState } from "react";
+import { LFGPostFormData } from "./LFG";
 
-export type LFGPostFormData = {
-  gameId: string;
-  title: string;
-  description: string;
-  requirements: string[];
-  tags: string[];
-  expirationHour: number;
-};
-
-interface LfgPost extends LFGPostFormData {
+interface LFGPost extends LFGPostFormData {
   id: string;
 }
 
-interface UserLfgPostsProps {
-  posts: LfgPost[];
+interface UserLFGPostsProps {
+  posts: LFGPost[];
   refetch: () => void;
 }
 
-const UserLfgPosts: React.FC<UserLfgPostsProps> = ({ posts, refetch }) => {
+const UserLfgPosts: React.FC<UserLFGPostsProps> = ({ posts, refetch }) => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleteLfgPost] = useMutation(DELETE_LFG_POST);
 
   const [showForm, setShowForm] = useState(false);
-  const [editData, setEditData] = useState<LfgPost | null>(null);
+  const [editData, setEditData] = useState<LFGPost | null>(null);
   const [canEdit, setCanEdit] = useState(false);
 
   const confirmDelete = async () => {
@@ -36,7 +28,7 @@ const UserLfgPosts: React.FC<UserLfgPostsProps> = ({ posts, refetch }) => {
     refetch();
   };
 
-  const handleEditClick = (post: LfgPost) => {
+  const handleEditClick = (post: LFGPost) => {
     setEditData(post);
     setShowForm(true);
   };

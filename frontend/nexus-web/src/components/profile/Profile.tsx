@@ -19,6 +19,8 @@ const Profile = () => {
   const { user, refreshUser } = useAuth();
   const [updateUser] = useMutation(UPDATE_USER);
   const [updatePreference] = useMutation(UPDATE_PREFERENCE);
+  const [username, setUsername] = useState(user?.username || "");
+  const [age, setAge] = useState(user?.age || "");
   const [editMode, setEditMode] = useState(false);
   const [profileMessage, setProfileMessage] = useState(
     user?.profileMessage || ""
@@ -37,6 +39,8 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
+      setUsername(user.username || "");
+      setAge(user.age || "");
       setProfileMessage(user.profileMessage || "");
       setRank(user.rank || "Bronze");
       setRegion(user.preferences?.region || "NA");
@@ -56,6 +60,8 @@ const Profile = () => {
     try {
       await updateUser({
         variables: {
+          username,
+          age: Number(age),
           profileMessage,
           rank,
         },
@@ -94,22 +100,53 @@ const Profile = () => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 mt-12">
       {/* Header */}
-      <div className="flex flex-col items-center mb-8">
+      <div className="flex flex-col items-center mb-10">
         <img
           src={user.profileImg || "/default-avatar.png"}
           alt={user.username}
-          className="w-24 h-24 rounded-full border-2 border-gray-200 dark:border-gray-600 mb-6"
+          className="w-24 h-24 rounded-full border-2 border-gray-300 dark:border-gray-600 mb-4"
         />
-        <div className="text-center">
-          <h2 className="text-3xl font-semibold text-gray-900 dark:text-white mb-3">
-            {user.username}
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-1">
-            @{user.username}
+        <div className="text-center space-y-1">
+          {editMode ? (
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="text-2xl font-bold text-center text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 rounded px-3 py-1"
+            />
+          ) : (
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+              {user.username}
+            </h2>
+          )}
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            @{user.email}
           </p>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Status: {user.status || "offline"}
-          </p>
+          <div className="flex flex-col sm:flex-row sm:justify-center sm:space-x-4 text-gray-600 dark:text-gray-400 text-sm mt-2">
+            <span className="flex items-center gap-1">
+              Status:{" "}
+              <span className="font-medium">{user.status || "Offline"}</span>
+            </span>
+            <span className="flex items-center gap-1">
+              Age:{" "}
+              {editMode ? (
+                <input
+                  type="number"
+                  min={1}
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="w-16 text-center bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded px-2 py-1"
+                />
+              ) : (
+                <span className="font-medium">{user.age || "N/A"}</span>
+              )}
+            </span>
+          </div>
+          {user.profileMessage && (
+            <p className="mt-3 text-md text-gray-700 dark:text-gray-300 italic">
+              "{user.profileMessage}"
+            </p>
+          )}
         </div>
       </div>
 

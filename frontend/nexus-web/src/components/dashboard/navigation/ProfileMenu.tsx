@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import cinnamoroll from "@/assets/dummydata/cinnamoroll.jpg";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProfileMenuProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ interface ProfileMenuProps {
 
 const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -58,10 +60,10 @@ const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
           </div>
           <div>
             <h3 className="font-medium text-gray-800 dark:text-gray-100">
-              @Tamothy
+              {user?.username}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Level 21 • Okayish Gamer
+              @{user?.email}
             </p>
           </div>
         </div>
