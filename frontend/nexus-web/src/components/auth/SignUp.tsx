@@ -87,10 +87,10 @@ const SignUp = () => {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-6">Sign Up to Nexus</h2>
+            <h2 className="text-2xl font-bold mb-6 dark:text-gray-700">Sign Up to Nexus</h2>
 
             <div className="space-y-6">
-              <div>
+              <div className="text-gray-700">
                 <label
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700 mb-1"
@@ -106,7 +106,7 @@ const SignUp = () => {
                 />
               </div>
 
-              <div>
+              <div className="text-gray-700">
                 <label
                   htmlFor="password"
                   className="block text-sm font-medium text-gray-700 mb-1"
@@ -126,7 +126,7 @@ const SignUp = () => {
                 </p>
               </div>
 
-              <div>
+              <div className="text-gray-700">
                 <label
                   htmlFor="username"
                   className="block text-sm font-medium text-gray-700 mb-1"
