@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import client from "@/lib/apollo-client";
-import { PROFILE_QUERY } from "@/graphql/profileQueries";
+import { PROFILE_QUERY } from "@/graphql/userQueries";
 
 type User = {
   uuid: string;
@@ -17,9 +17,10 @@ type User = {
 };
 
 interface Preferences {
-  gameType: string;
-  playStyle: string;
+  playstyle: string;
   region: string;
+  favoritePlatform: string;
+  favoriteGameGenre: string;
 }
 
 export interface AuthContextType {
@@ -28,6 +29,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (username: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -42,9 +44,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .query<{ profile: User }>({ query: PROFILE_QUERY })
       .then((res) => {
         setUser(res.data.profile);
-        console.log("Fetched User:", res.data.profile); // Log user after fetching profile
+        // console.log("Fetched User:", res.data.profile);
       })
-      .catch((err) => console.error("Profile fetch failed", err))
+      .catch((err) => {
+        console.error("Profile fetch failed", err);
+        setUser(null); // Clear user on error
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -70,6 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = response.data.token;
     // Store the token in localStorage or in state
     localStorage.setItem("authToken", token);
+    // console.log("Login response", response.a);
     await refreshUser(); // Update user state after login
   };
 
@@ -108,7 +114,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, signup, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

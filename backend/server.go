@@ -18,6 +18,7 @@ func init() {
 
 func main() {
 	postgres.ConnectPostgres()
+	defer postgres.ClosePostgres()
 
 	// Set up new gin router
 	r := handler.SetUpHandler()

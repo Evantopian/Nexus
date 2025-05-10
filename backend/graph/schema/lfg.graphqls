@@ -5,14 +5,17 @@ type LFGPost {
   title: String!
   description: String!
   authorId: UUID!
+  author: User!
   requirements: [String!]!
   tags: [String!]!
   createdAt: String!
-  expiresAt: String
+  expiresAt: String!
 }
 
 extend type Query {
   getLFGPosts(slug: String!): [LFGPost]!
+  getAllLFGPosts(limit: Int, offset: Int): [LFGPost]!
+  getUserLFGPosts(limit: Int, offset: Int): [LFGPost]!
 }
 
 extend type Mutation {

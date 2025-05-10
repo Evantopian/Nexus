@@ -1,6 +1,8 @@
+// import { useQuery } from "@apollo/client";
 import FeaturedGames from "./FeaturedGames";
 import MainContent from "./MainContent";
 import Sidebar from "./SideBar";
+// import { GET_ALL_LFG_POSTS } from "@/graphql/lfgQueries";
 
 // temporary data, waiting for backend APIs to be built, then we will fetch.
 const Dashboard = () => {

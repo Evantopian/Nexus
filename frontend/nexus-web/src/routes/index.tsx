@@ -13,6 +13,7 @@ import AuthRedirect from "@/components/auth/AuthRedirect";
 import Profile from "@/components/profile/Profile";
 import ChatLayout from "@/layouts/ChatLayout";
 import ChatArea from "@/components/chats/ChatArea";
+import Lfg from "@/components/lfg/LFG";
 
 const routes: RouteObject[] = [
   {
@@ -39,15 +40,7 @@ const routes: RouteObject[] = [
     children: [
       { path: "dashboard", element: <Dashboard /> },
       { path: "browse", element: <GamesList /> },
-      {
-        path: "lfg",
-        element: (
-          <WorkInProgress
-            title="LFG Feature"
-            message="The Looking For Group feature is currently under development. Check back soon to find teammates for your favorite games!"
-          />
-        ),
-      },
+      { path: "lfg", element: <Lfg /> },
       {
         path: "players",
         element: (
@@ -85,7 +78,7 @@ const routes: RouteObject[] = [
             ),
           },
         ],
-      },      
+      },
       {
         path: "*",
         element: (

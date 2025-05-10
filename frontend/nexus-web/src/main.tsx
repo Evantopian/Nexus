@@ -8,6 +8,8 @@ import { ApolloProvider } from "@apollo/client";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
+import { GameProvider } from "./contexts/GameContext.tsx";
+import { FollowedGamesProvider } from "./contexts/FollowedGamesContext.tsx";
 
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -16,9 +18,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <ThemeProvider>
       <AuthProvider>
         <ApolloProvider client={client}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <GameProvider>
+            <FollowedGamesProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </FollowedGamesProvider>
+          </GameProvider>
         </ApolloProvider>
       </AuthProvider>
     </ThemeProvider>

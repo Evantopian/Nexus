@@ -23,24 +23,21 @@ type FriendRequestsList struct {
 }
 
 type Game struct {
-	ID               string     `json:"id"`
-	Slug             string     `json:"slug"`
-	Title            string     `json:"title"`
-	Description      *string    `json:"description,omitempty"`
-	ShortDescription *string    `json:"shortDescription,omitempty"`
-	Image            *string    `json:"image,omitempty"`
-	Banner           *string    `json:"banner,omitempty"`
-	Logo             *string    `json:"logo,omitempty"`
-	Players          *string    `json:"players,omitempty"`
-	ReleaseDate      *string    `json:"releaseDate,omitempty"`
-	Developer        *string    `json:"developer,omitempty"`
-	Publisher        *string    `json:"publisher,omitempty"`
-	Platforms        []string   `json:"platforms,omitempty"`
-	Tags             []string   `json:"tags,omitempty"`
-	Rating           *float64   `json:"rating,omitempty"`
-	Servers          []*Server  `json:"servers,omitempty"`
-	TopPlayers       []*User    `json:"topPlayers,omitempty"`
-	LfgPosts         []*LFGPost `json:"lfgPosts,omitempty"`
+	ID               uuid.UUID `json:"id"`
+	Slug             string    `json:"slug"`
+	Title            string    `json:"title"`
+	Description      *string   `json:"description,omitempty"`
+	ShortDescription *string   `json:"shortDescription,omitempty"`
+	Image            *string   `json:"image,omitempty"`
+	Banner           *string   `json:"banner,omitempty"`
+	Logo             *string   `json:"logo,omitempty"`
+	Players          *string   `json:"players,omitempty"`
+	ReleaseDate      *string   `json:"releaseDate,omitempty"`
+	Developer        *string   `json:"developer,omitempty"`
+	Publisher        *string   `json:"publisher,omitempty"`
+	Platforms        []string  `json:"platforms,omitempty"`
+	Tags             []string  `json:"tags,omitempty"`
+	Rating           *float64  `json:"rating,omitempty"`
 }
 
 type LFGPost struct {
@@ -49,18 +46,21 @@ type LFGPost struct {
 	Title        string    `json:"title"`
 	Description  string    `json:"description"`
 	AuthorID     uuid.UUID `json:"authorId"`
+	Author       *User     `json:"author"`
 	Requirements []string  `json:"requirements"`
 	Tags         []string  `json:"tags"`
 	CreatedAt    string    `json:"createdAt"`
-	ExpiresAt    *string   `json:"expiresAt,omitempty"`
+	ExpiresAt    string    `json:"expiresAt"`
 }
 
 type Mutation struct {
 }
 
 type Preferences struct {
-	Region    string    `json:"region"`
-	Playstyle Playstyle `json:"playstyle"`
+	Region            *string    `json:"region,omitempty"`
+	Playstyle         *Playstyle `json:"playstyle,omitempty"`
+	FavoritePlatform  *Platform  `json:"favoritePlatform,omitempty"`
+	FavoriteGameGenre *GameGenre `json:"favoriteGameGenre,omitempty"`
 }
 
 type Query struct {
@@ -86,7 +86,103 @@ type User struct {
 	Reputation     int32        `json:"reputation"`
 	Rank           *string      `json:"rank,omitempty"`
 	CreatedAt      *string      `json:"createdAt,omitempty"`
+	Age            *int32       `json:"age,omitempty"`
 	Preferences    *Preferences `json:"preferences,omitempty"`
+	FollowingGames []*Game      `json:"followingGames"`
+}
+
+type GameGenre string
+
+const (
+	GameGenreRpg        GameGenre = "RPG"
+	GameGenreFps        GameGenre = "FPS"
+	GameGenreMoba       GameGenre = "MOBA"
+	GameGenreStrategy   GameGenre = "STRATEGY"
+	GameGenreAction     GameGenre = "ACTION"
+	GameGenreAdventure  GameGenre = "ADVENTURE"
+	GameGenreSimulation GameGenre = "SIMULATION"
+)
+
+var AllGameGenre = []GameGenre{
+	GameGenreRpg,
+	GameGenreFps,
+	GameGenreMoba,
+	GameGenreStrategy,
+	GameGenreAction,
+	GameGenreAdventure,
+	GameGenreSimulation,
+}
+
+func (e GameGenre) IsValid() bool {
+	switch e {
+	case GameGenreRpg, GameGenreFps, GameGenreMoba, GameGenreStrategy, GameGenreAction, GameGenreAdventure, GameGenreSimulation:
+		return true
+	}
+	return false
+}
+
+func (e GameGenre) String() string {
+	return string(e)
+}
+
+func (e *GameGenre) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GameGenre(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GameGenre", str)
+	}
+	return nil
+}
+
+func (e GameGenre) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Platform string
+
+const (
+	PlatformPc      Platform = "PC"
+	PlatformConsole Platform = "CONSOLE"
+	PlatformMobile  Platform = "MOBILE"
+)
+
+var AllPlatform = []Platform{
+	PlatformPc,
+	PlatformConsole,
+	PlatformMobile,
+}
+
+func (e Platform) IsValid() bool {
+	switch e {
+	case PlatformPc, PlatformConsole, PlatformMobile:
+		return true
+	}
+	return false
+}
+
+func (e Platform) String() string {
+	return string(e)
+}
+
+func (e *Platform) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Platform(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Platform", str)
+	}
+	return nil
+}
+
+func (e Platform) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type Playstyle string

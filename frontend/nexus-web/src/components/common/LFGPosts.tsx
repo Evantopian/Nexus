@@ -15,6 +15,8 @@ interface LFGPostsProps {
 }
 
 const LFGPosts = ({ posts }: LFGPostsProps) => {
+  console.log(posts);
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
       <h3 className="font-bold text-lg mb-4 flex items-center text-gray-900 dark:text-white">
@@ -46,7 +48,9 @@ const LFGPosts = ({ posts }: LFGPostsProps) => {
               {post.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className={`bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 text-xs px-2 py-1 rounded-full ${index > 0 ? "ml-1" : ""}`}
+                  className={`bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 text-xs px-2 py-1 rounded-full ${
+                    index > 0 ? "ml-1" : ""
+                  }`}
                 >
                   {tag}
                 </span>

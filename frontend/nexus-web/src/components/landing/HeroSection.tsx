@@ -36,9 +36,7 @@ const HeroSection = ({
             <span
               className={`animate-pulse mr-2 h-2 w-2 rounded-full ${palette.accent}`}
             ></span>
-            <span className="text-sm font-medium">
-              Some Alpha/Beta Text
-            </span>
+            <span className="text-sm font-medium">Some Alpha/Beta Text</span>
           </div>
 
           {/* Hero title */}
@@ -85,7 +83,7 @@ const HeroSection = ({
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
-              borderRadius: "15px", 
+              borderRadius: "15px",
             }}
           ></div>
         </div>

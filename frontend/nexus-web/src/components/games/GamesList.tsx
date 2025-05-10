@@ -1,20 +1,20 @@
 import { useState } from "react";
-import { getAllGames } from "@/data/DummyGameData";
 import SearchFilters from "./lists/SearchFilters";
 import GameGrid from "./lists/GameGrid";
+import { useGames } from "@/contexts/GameContext";
 
 const GamesList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
   // Get all games from data model
-  const games = getAllGames();
+  const { games } = useGames();
 
   // Filter games based on search term and active filter
   const filteredGames = games.filter((game) => {
     const matchesSearch =
       game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      game.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      game.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       game.tags.some((tag) =>
         tag.toLowerCase().includes(searchTerm.toLowerCase())
       );

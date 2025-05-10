@@ -152,7 +152,7 @@ const SignUp = () => {
 
           <Button
             type="submit"
-            className="w-full bg-black text-white py-3 rounded-md flex items-center justify-center transition-all duration-300 transform hover:scale-105"
+            className="w-full bg-black text-white py-3 rounded-md flex items-center justify-center transition-all duration-300 transform hover:bg-gray-700 hover:scale-105"
           >
             Continue{" "}
             <ArrowRightAltIcon className="ml-2" sx={{ fontSize: 16 }} />

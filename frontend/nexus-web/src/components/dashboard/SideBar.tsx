@@ -1,6 +1,6 @@
 import Leaderboard from "./side/Leaderboard";
 import Tournaments from "./side/Tournaments";
-import LFGPosts from "./side/LFGPosts";
+import LFGPosts from "../common/LFGPosts";
 
 interface SidebarProps {
   leaderboardData: any[];

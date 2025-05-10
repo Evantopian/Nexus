@@ -1,13 +1,29 @@
-import { useRef } from "react";
+import { useQuery } from "@apollo/client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { GameServer } from "@/data/DummyGameData";
+import { useRef } from "react";
+import { GET_SERVERS_WITH_SLUG } from "@/graphql/serverQueries"; // GraphQL query to get servers
 
-interface GameServersProps {
-  servers: GameServer[];
+interface Server {
+  id: string;
+  name: string;
+  description?: string;
+  image: string;
+  members: number;
 }
 
-const GameServers = ({ servers }: GameServersProps) => {
+interface GameServersProps {
+  gameName: string; // Assuming the slug is passed down to this component
+}
+
+const GameServers = ({ gameName }: GameServersProps) => {
   const serversScrollRef = useRef<HTMLDivElement>(null);
+
+  // Fetch servers for the game using a GraphQL query
+  const { data, loading, error } = useQuery(GET_SERVERS_WITH_SLUG, {
+    variables: { slug: gameName },
+  });
+
+  // console.log(data);
 
   const scrollServers = (direction: "left" | "right") => {
     if (serversScrollRef.current) {
@@ -23,6 +39,9 @@ const GameServers = ({ servers }: GameServersProps) => {
       });
     }
   };
+
+  if (loading) return <div>Loading servers...</div>;
+  if (error) return <div>Error loading servers: {error.message}</div>;
 
   return (
     <div className="mb-8 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-900/30 dark:to-cyan-900/30 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -50,7 +69,7 @@ const GameServers = ({ servers }: GameServersProps) => {
         ref={serversScrollRef}
         className="flex overflow-x-auto pb-4 space-x-4 hide-scrollbar max-w-full"
       >
-        {servers.map((server) => (
+        {data?.getServersForGame?.map((server: Server) => (
           <div
             key={server.id}
             className="flex-shrink-0 w-76 bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:translate-y-[-2px]"
