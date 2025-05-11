@@ -11,9 +11,10 @@ interface LFGPostProps {
 
 interface AllLFGPostsProps {
   posts: LFGPostProps[];
+  refetch: () => void;
 }
 
-const AllLFGPosts = ({ posts }: AllLFGPostsProps) => {
+const AllLFGPosts = ({ posts, refetch }: AllLFGPostsProps) => {
   return (
     <div className="space-y-6">
       <div className="space-y-4">

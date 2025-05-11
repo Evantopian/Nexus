@@ -6,7 +6,6 @@ import SidebarContent from "./SidebarContent";
 import ProfileMenu from "./ProfileMenu";
 import cinnamoroll from "@/assets/dummydata/cinnamoroll.jpg";
 import { useAuth } from "@/contexts/AuthContext";
-import { User } from "lucide-react";
 
 const DashboardSidebar = () => {
   const { user } = useAuth();

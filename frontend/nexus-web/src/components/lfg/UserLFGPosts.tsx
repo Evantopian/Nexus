@@ -11,9 +11,14 @@ interface LFGPost extends LFGPostFormData {
 interface UserLFGPostsProps {
   posts: LFGPost[];
   refetch: () => void;
+  refetchAll: () => void;
 }
 
-const UserLfgPosts: React.FC<UserLFGPostsProps> = ({ posts, refetch }) => {
+const UserLFGPosts: React.FC<UserLFGPostsProps> = ({
+  posts,
+  refetch,
+  refetchAll,
+}) => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleteLfgPost] = useMutation(DELETE_LFG_POST);
 
@@ -26,6 +31,7 @@ const UserLfgPosts: React.FC<UserLFGPostsProps> = ({ posts, refetch }) => {
     await deleteLfgPost({ variables: { postId: confirmDeleteId } });
     setConfirmDeleteId(null); // close modal
     refetch();
+    refetchAll();
   };
 
   const handleEditClick = (post: LFGPost) => {
@@ -140,4 +146,4 @@ const UserLfgPosts: React.FC<UserLFGPostsProps> = ({ posts, refetch }) => {
   );
 };
 
-export default UserLfgPosts;
+export default UserLFGPosts;

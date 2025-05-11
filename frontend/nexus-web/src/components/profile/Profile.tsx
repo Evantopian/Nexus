@@ -25,6 +25,7 @@ const Profile = () => {
   const [profileMessage, setProfileMessage] = useState(
     user?.profileMessage || ""
   );
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [rank, setRank] = useState(user?.rank || "Bronze");
   const [region, setRegion] = useState(user?.preferences?.region || "NA");
   const [playstyle, setPlaystyle] = useState<Playstyle>(
@@ -56,14 +57,50 @@ const Profile = () => {
 
   if (!user) return <div>Loading...</div>;
 
+  const handleUpload = async () => {
+    if (!imageFile) return; // If no file is selected, return early
+
+    try {
+      // Prepare the form data
+      const formData = new FormData();
+      formData.append("file", imageFile);
+      formData.append("upload_preset", "q3r1cqiy"); // Your Cloudinary upload preset
+
+      // Upload the image to Cloudinary
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/dqeimqap8/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await res.json();
+
+      // Get the image URL from the response
+      return data.secure_url; // Return the uploaded image URL
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return null; // Return null if there's an error
+    }
+  };
+
   const handleSave = async () => {
     try {
+      let uploadedImageUrl = user.profileImg; // Default to the current image
+
+      // If a new image is selected, upload it and get the URL
+      if (imageFile) {
+        uploadedImageUrl = await handleUpload();
+      }
+
+      // Update the user's profile
       await updateUser({
         variables: {
           username,
           age: Number(age),
           profileMessage,
           rank,
+          profileImg: uploadedImageUrl, // Use the uploaded image URL
         },
       });
 
@@ -76,10 +113,10 @@ const Profile = () => {
         },
       });
 
-      await refreshUser();
-      setEditMode(false);
+      await refreshUser(); // Refresh the user data to reflect changes
+      setEditMode(false); // Exit edit mode
     } catch (err) {
-      console.error("Error updating user:", err);
+      console.error("Error saving user profile:", err);
     }
   };
 
@@ -106,6 +143,24 @@ const Profile = () => {
           alt={user.username}
           className="w-24 h-24 rounded-full border-2 border-gray-300 dark:border-gray-600 mb-4"
         />
+        {editMode && (
+          <div className="mt-4 flex justify-center">
+            <label className="cursor-pointer bg-indigo-600 text-white px-4 py-2 mb-4 rounded-md hover:bg-indigo-700">
+              Choose File
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    setImageFile(e.target.files[0]);
+                  }
+                }}
+                className="hidden" // Hide the actual file input
+              />
+            </label>
+          </div>
+        )}
+
         <div className="text-center space-y-1">
           {editMode ? (
             <input

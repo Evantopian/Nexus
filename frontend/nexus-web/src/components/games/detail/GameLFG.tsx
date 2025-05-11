@@ -1,4 +1,3 @@
-import { Plus } from "lucide-react";
 import { useQuery } from "@apollo/client";
 import { GET_LFG_POSTS_BY_SLUG } from "@/graphql/lfgQueries";
 
@@ -11,11 +10,9 @@ const GameLFG = ({ gameName }: GameLFGProps) => {
     variables: { slug: gameName }, // Pass gameName as the slug variable
   });
 
-  console.log(gameName);
-
   const lfgPosts = data?.getLFGPosts || [];
 
-  console.log(lfgPosts);
+  // console.log(lfgPosts);
 
   return (
     <div className="mt-8 bg-gradient-to-r from-green-500/10 to-emerald-500/10 dark:from-green-900/30 dark:to-emerald-900/30 p-6 rounded-lg border border-green-200 dark:border-green-800">
@@ -23,9 +20,6 @@ const GameLFG = ({ gameName }: GameLFGProps) => {
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
           Looking For Group
         </h2>
-        <button className="bg-indigo-600 dark:bg-indigo-700 text-white px-3 py-1 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 flex items-center">
-          <Plus className="h-4 w-4 mr-1" /> Create LFG
-        </button>
       </div>
 
       {lfgPosts && lfgPosts.length > 0 ? (
