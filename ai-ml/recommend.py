@@ -17,11 +17,11 @@ load_dotenv()
 
 url = URL.create(
     drivername="postgresql+psycopg2",
-    username="u884r9mrvm6ekc",
+    username=os.getenv("NEXUSUSERNAME"),
     password=os.getenv("NEXUSPASSWORD"),
-    host="c229h9evb9laqg.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com",
+    host=os.getenv("NEXUSHOST"),
     port=5432,
-    database="d1irq87fhoflma"
+    database=os.getenv("NEXUSDATABASE")
 )
 
 engine = create_engine(url)
@@ -47,6 +47,16 @@ friends_df = pd.read_sql_query("""
 """, engine)
 
 df = pd.merge(df, friends_df, how='left', left_on='uuid', right_on='user_id')
+
+df.fillna({
+    'region': 'UNKNOWN',
+    'playstyle': 'UNKNOWN',
+    'platform': 'UNKNOWN',
+    'genre': 'UNKNOWN',
+    'rank': 'UNRANKED',
+    'reputation': 0,
+    'age': 13,
+}, inplace=True)
 
 default_weights = {
     'region': 0.6,
