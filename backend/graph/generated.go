@@ -121,6 +121,7 @@ type ComplexityRoot struct {
 		Body      func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Pinned    func(childComplexity int) int
+		ReplyTo   func(childComplexity int) int
 		Sender    func(childComplexity int) int
 		Timestamp func(childComplexity int) int
 	}
@@ -149,9 +150,9 @@ type ComplexityRoot struct {
 		PinMessage          func(childComplexity int, messageID uuid.UUID) int
 		RejectFriendRequest func(childComplexity int, senderID uuid.UUID) int
 		RemoveFriend        func(childComplexity int, friendID uuid.UUID) int
-		SendChannelMessage  func(childComplexity int, channelID uuid.UUID, body string) int
+		SendChannelMessage  func(childComplexity int, channelID uuid.UUID, body string, replyToID *uuid.UUID) int
 		SendFriendRequest   func(childComplexity int, receiverID uuid.UUID) int
-		SendMessage         func(childComplexity int, conversationID uuid.UUID, body string) int
+		SendMessage         func(childComplexity int, conversationID uuid.UUID, body string, replyToID *uuid.UUID) int
 		StartConversation   func(childComplexity int, participantIds []uuid.UUID) int
 		UnfollowGame        func(childComplexity int, slug string) int
 		UnpinMessage        func(childComplexity int, messageID uuid.UUID) int
@@ -233,7 +234,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	SendMessage(ctx context.Context, conversationID uuid.UUID, body string) (*model.Message, error)
+	SendMessage(ctx context.Context, conversationID uuid.UUID, body string, replyToID *uuid.UUID) (*model.Message, error)
 	StartConversation(ctx context.Context, participantIds []uuid.UUID) (*model.Conversation, error)
 	CreateServer(ctx context.Context, name string) (*model.Server, error)
 	JoinServer(ctx context.Context, serverID uuid.UUID) (bool, error)
@@ -244,7 +245,7 @@ type MutationResolver interface {
 	LeaveChannel(ctx context.Context, channelID uuid.UUID) (bool, error)
 	PinMessage(ctx context.Context, messageID uuid.UUID) (bool, error)
 	UnpinMessage(ctx context.Context, messageID uuid.UUID) (bool, error)
-	SendChannelMessage(ctx context.Context, channelID uuid.UUID, body string) (*model.Message, error)
+	SendChannelMessage(ctx context.Context, channelID uuid.UUID, body string, replyToID *uuid.UUID) (*model.Message, error)
 	AssignRole(ctx context.Context, userID uuid.UUID, serverID uuid.UUID, roleID uuid.UUID) (bool, error)
 	CreateRole(ctx context.Context, serverID uuid.UUID, name string, permissions []string) (*model.Role, error)
 	DeleteRole(ctx context.Context, roleID uuid.UUID) (bool, error)
@@ -662,6 +663,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Message.Pinned(childComplexity), true
 
+	case "Message.replyTo":
+		if e.complexity.Message.ReplyTo == nil {
+			break
+		}
+
+		return e.complexity.Message.ReplyTo(childComplexity), true
+
 	case "Message.sender":
 		if e.complexity.Message.Sender == nil {
 			break
@@ -957,7 +965,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SendChannelMessage(childComplexity, args["channelId"].(uuid.UUID), args["body"].(string)), true
+		return e.complexity.Mutation.SendChannelMessage(childComplexity, args["channelId"].(uuid.UUID), args["body"].(string), args["replyToId"].(*uuid.UUID)), true
 
 	case "Mutation.sendFriendRequest":
 		if e.complexity.Mutation.SendFriendRequest == nil {
@@ -981,7 +989,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SendMessage(childComplexity, args["conversationId"].(uuid.UUID), args["body"].(string)), true
+		return e.complexity.Mutation.SendMessage(childComplexity, args["conversationId"].(uuid.UUID), args["body"].(string), args["replyToId"].(*uuid.UUID)), true
 
 	case "Mutation.startConversation":
 		if e.complexity.Mutation.StartConversation == nil {
@@ -2574,6 +2582,11 @@ func (ec *executionContext) field_Mutation_sendChannelMessage_args(ctx context.C
 		return nil, err
 	}
 	args["body"] = arg1
+	arg2, err := ec.field_Mutation_sendChannelMessage_argsReplyToID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["replyToId"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Mutation_sendChannelMessage_argsChannelID(
@@ -2599,6 +2612,19 @@ func (ec *executionContext) field_Mutation_sendChannelMessage_argsBody(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_sendChannelMessage_argsReplyToID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("replyToId"))
+	if tmp, ok := rawArgs["replyToId"]; ok {
+		return ec.unmarshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal *uuid.UUID
 	return zeroVal, nil
 }
 
@@ -2638,6 +2664,11 @@ func (ec *executionContext) field_Mutation_sendMessage_args(ctx context.Context,
 		return nil, err
 	}
 	args["body"] = arg1
+	arg2, err := ec.field_Mutation_sendMessage_argsReplyToID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["replyToId"] = arg2
 	return args, nil
 }
 func (ec *executionContext) field_Mutation_sendMessage_argsConversationID(
@@ -2663,6 +2694,19 @@ func (ec *executionContext) field_Mutation_sendMessage_argsBody(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_sendMessage_argsReplyToID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("replyToId"))
+	if tmp, ok := rawArgs["replyToId"]; ok {
+		return ec.unmarshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal *uuid.UUID
 	return zeroVal, nil
 }
 
@@ -4013,6 +4057,8 @@ func (ec *executionContext) fieldContext_Channel_messages(_ context.Context, fie
 				return ec.fieldContext_Message_timestamp(ctx, field)
 			case "pinned":
 				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
@@ -4066,6 +4112,8 @@ func (ec *executionContext) fieldContext_Channel_lastMessage(_ context.Context, 
 				return ec.fieldContext_Message_timestamp(ctx, field)
 			case "pinned":
 				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
@@ -4427,6 +4475,8 @@ func (ec *executionContext) fieldContext_Conversation_messages(_ context.Context
 				return ec.fieldContext_Message_timestamp(ctx, field)
 			case "pinned":
 				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
@@ -4480,6 +4530,8 @@ func (ec *executionContext) fieldContext_Conversation_lastMessage(_ context.Cont
 				return ec.fieldContext_Message_timestamp(ctx, field)
 			case "pinned":
 				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
@@ -6133,6 +6185,61 @@ func (ec *executionContext) fieldContext_Message_pinned(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Message_replyTo(ctx context.Context, field graphql.CollectedField, obj *model.Message) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Message_replyTo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ReplyTo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Message)
+	fc.Result = res
+	return ec.marshalOMessage2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Message_replyTo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Message",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Message_id(ctx, field)
+			case "sender":
+				return ec.fieldContext_Message_sender(ctx, field)
+			case "body":
+				return ec.fieldContext_Message_body(ctx, field)
+			case "timestamp":
+				return ec.fieldContext_Message_timestamp(ctx, field)
+			case "pinned":
+				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_sendMessage(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_sendMessage(ctx, field)
 	if err != nil {
@@ -6147,7 +6254,7 @@ func (ec *executionContext) _Mutation_sendMessage(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SendMessage(rctx, fc.Args["conversationId"].(uuid.UUID), fc.Args["body"].(string))
+		return ec.resolvers.Mutation().SendMessage(rctx, fc.Args["conversationId"].(uuid.UUID), fc.Args["body"].(string), fc.Args["replyToId"].(*uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6182,6 +6289,8 @@ func (ec *executionContext) fieldContext_Mutation_sendMessage(ctx context.Contex
 				return ec.fieldContext_Message_timestamp(ctx, field)
 			case "pinned":
 				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
@@ -6816,7 +6925,7 @@ func (ec *executionContext) _Mutation_sendChannelMessage(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SendChannelMessage(rctx, fc.Args["channelId"].(uuid.UUID), fc.Args["body"].(string))
+		return ec.resolvers.Mutation().SendChannelMessage(rctx, fc.Args["channelId"].(uuid.UUID), fc.Args["body"].(string), fc.Args["replyToId"].(*uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6851,6 +6960,8 @@ func (ec *executionContext) fieldContext_Mutation_sendChannelMessage(ctx context
 				return ec.fieldContext_Message_timestamp(ctx, field)
 			case "pinned":
 				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
@@ -7091,6 +7202,8 @@ func (ec *executionContext) fieldContext_Mutation_editMessage(ctx context.Contex
 				return ec.fieldContext_Message_timestamp(ctx, field)
 			case "pinned":
 				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
@@ -8476,6 +8589,8 @@ func (ec *executionContext) fieldContext_Query_getMessages(ctx context.Context, 
 				return ec.fieldContext_Message_timestamp(ctx, field)
 			case "pinned":
 				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
@@ -8752,6 +8867,8 @@ func (ec *executionContext) fieldContext_Query_getChannelMessages(ctx context.Co
 				return ec.fieldContext_Message_timestamp(ctx, field)
 			case "pinned":
 				return ec.fieldContext_Message_pinned(ctx, field)
+			case "replyTo":
+				return ec.fieldContext_Message_replyTo(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
@@ -13397,6 +13514,8 @@ func (ec *executionContext) _Message(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "replyTo":
+			out.Values[i] = ec._Message_replyTo(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

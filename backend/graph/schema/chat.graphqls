@@ -35,6 +35,7 @@ type Message {
   body: String!
   timestamp: String!
   pinned: Boolean!
+  replyTo: Message
 }
 
 # DM or group chat session
@@ -94,7 +95,7 @@ extend type Query {
 
 # Mutations for chat interactions, server/channel management, role handling
 extend type Mutation {
-  sendMessage(conversationId: UUID!, body: String!): Message!
+  sendMessage(conversationId: UUID!, body: String!, replyToId: UUID): Message!
   startConversation(participantIds: [UUID!]!): Conversation!
 
   createServer(name: String!): Server!
@@ -109,7 +110,7 @@ extend type Mutation {
   pinMessage(messageId: UUID!): Boolean!
   unpinMessage(messageId: UUID!): Boolean!
 
-  sendChannelMessage(channelId: UUID!, body: String!): Message!
+  sendChannelMessage(channelId: UUID!, body: String!, replyToId: UUID): Message!
 
   assignRole(userId: UUID!, serverId: UUID!, roleId: UUID!): Boolean!
   createRole(serverId: UUID!, name: String!, permissions: [String!]!): Role!

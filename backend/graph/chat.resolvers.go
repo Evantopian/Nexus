@@ -6,31 +6,16 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Evantopian/Nexus/graph/model"
-	"github.com/google/uuid"
 	"github.com/Evantopian/Nexus/graph/resolver/chat"
-
+	"github.com/google/uuid"
 )
 
 // SendMessage is the resolver for the sendMessage field.
-func (r *mutationResolver) SendMessage(ctx context.Context, conversationID uuid.UUID, body string) (*model.Message, error) {
+func (r *mutationResolver) SendMessage(ctx context.Context, conversationID uuid.UUID, body string, replyToID *uuid.UUID) (*model.Message, error) {
 	return chat.SendMessage(ctx, conversationID, body)
-
 }
-
-// EditMessage is the resolver for the editMessage field.
-func (r *mutationResolver) EditMessage(ctx context.Context, messageID uuid.UUID, body string) (*model.Message, error) {
-	return chat.EditMessage(ctx, messageID, body)
-
-}
-
-// DeleteMessage is the resolver for the deleteMessage field.
-func (r *mutationResolver) DeleteMessage(ctx context.Context, messageID uuid.UUID) (bool, error) {
-	return chat.DeleteMessage(ctx, messageID)
-}
-
 
 // StartConversation is the resolver for the startConversation field.
 func (r *mutationResolver) StartConversation(ctx context.Context, participantIds []uuid.UUID) (*model.Conversation, error) {
@@ -59,47 +44,58 @@ func (r *mutationResolver) DeleteServer(ctx context.Context, serverID uuid.UUID)
 
 // CreateChannel is the resolver for the createChannel field.
 func (r *mutationResolver) CreateChannel(ctx context.Context, serverID uuid.UUID, name string, typeArg model.ChannelType, categoryID *uuid.UUID) (*model.Channel, error) {
-	panic(fmt.Errorf("not implemented: CreateChannel - createChannel"))
+	return chat.CreateChannel(ctx, serverID, name, typeArg, categoryID)
 }
 
 // DeleteChannel is the resolver for the deleteChannel field.
 func (r *mutationResolver) DeleteChannel(ctx context.Context, channelID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteChannel - deleteChannel"))
+	return chat.DeleteChannel(ctx, channelID)
 }
 
 // LeaveChannel is the resolver for the leaveChannel field.
 func (r *mutationResolver) LeaveChannel(ctx context.Context, channelID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: LeaveChannel - leaveChannel"))
+	return chat.LeaveChannel(ctx, channelID)
 }
 
 // PinMessage is the resolver for the pinMessage field.
 func (r *mutationResolver) PinMessage(ctx context.Context, messageID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: PinMessage - pinMessage"))
+	return chat.PinMessage(ctx, messageID)
 }
 
 // UnpinMessage is the resolver for the unpinMessage field.
 func (r *mutationResolver) UnpinMessage(ctx context.Context, messageID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: UnpinMessage - unpinMessage"))
+	return chat.UnpinMessage(ctx, messageID)
 }
 
 // SendChannelMessage is the resolver for the sendChannelMessage field.
-func (r *mutationResolver) SendChannelMessage(ctx context.Context, channelID uuid.UUID, body string) (*model.Message, error) {
-	panic(fmt.Errorf("not implemented: SendChannelMessage - sendChannelMessage"))
+func (r *mutationResolver) SendChannelMessage(ctx context.Context, channelID uuid.UUID, body string, replyToId *uuid.UUID) (*model.Message, error) {
+	return chat.SendChannelMessage(ctx, channelID, body, replyToId)
 }
+
 
 // AssignRole is the resolver for the assignRole field.
 func (r *mutationResolver) AssignRole(ctx context.Context, userID uuid.UUID, serverID uuid.UUID, roleID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: AssignRole - assignRole"))
+	return chat.AssignRole(ctx, userID, serverID, roleID)
 }
 
 // CreateRole is the resolver for the createRole field.
 func (r *mutationResolver) CreateRole(ctx context.Context, serverID uuid.UUID, name string, permissions []string) (*model.Role, error) {
-	panic(fmt.Errorf("not implemented: CreateRole - createRole"))
+	return chat.CreateRole(ctx, serverID, name, permissions)
 }
 
 // DeleteRole is the resolver for the deleteRole field.
 func (r *mutationResolver) DeleteRole(ctx context.Context, roleID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteRole - deleteRole"))
+	return chat.DeleteRole(ctx, roleID)
+}
+
+// EditMessage is the resolver for the editMessage field.
+func (r *mutationResolver) EditMessage(ctx context.Context, messageID uuid.UUID, body string) (*model.Message, error) {
+	return chat.EditMessage(ctx, messageID, body)
+}
+
+// DeleteMessage is the resolver for the deleteMessage field.
+func (r *mutationResolver) DeleteMessage(ctx context.Context, messageID uuid.UUID) (bool, error) {
+	return chat.DeleteMessage(ctx, messageID)
 }
 
 // GetConversations is the resolver for the getConversations field.
@@ -109,7 +105,7 @@ func (r *queryResolver) GetConversations(ctx context.Context) ([]*model.Conversa
 
 // GetMessages is the resolver for the getMessages field.
 func (r *queryResolver) GetMessages(ctx context.Context, conversationID uuid.UUID) ([]*model.Message, error) {
-	panic(fmt.Errorf("not implemented: GetMessages - getMessages"))
+	return chat.GetMessages(ctx, conversationID)
 }
 
 // GetServers is the resolver for the getServers field.
@@ -124,13 +120,22 @@ func (r *queryResolver) GetServer(ctx context.Context, id uuid.UUID) (*model.Ser
 
 // GetChannels is the resolver for the getChannels field.
 func (r *queryResolver) GetChannels(ctx context.Context, serverID uuid.UUID) ([]*model.Channel, error) {
-	panic(fmt.Errorf("not implemented: GetChannels - getChannels"))
+	return chat.GetChannels(ctx, serverID)
 }
 
 // GetChannelMessages is the resolver for the getChannelMessages field.
 func (r *queryResolver) GetChannelMessages(ctx context.Context, channelID uuid.UUID) ([]*model.Message, error) {
-	panic(fmt.Errorf("not implemented: GetChannelMessages - getChannelMessages"))
+	return chat.GetChannelMessages(ctx, channelID)
 }
+
+func (r *queryResolver) GetPinnedMessagesByChannel(ctx context.Context, channelID uuid.UUID) ([]*model.Message, error) {
+	return chat.GetPinnedMessagesByChannel(ctx, channelID)
+}
+func (r *queryResolver) GetPinnedMessagesByConversation(ctx context.Context, conversationID uuid.UUID) ([]*model.Message, error) {
+	return chat.GetPinnedMessagesByConversation(ctx, conversationID)
+}
+
+
 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
@@ -140,3 +145,5 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+ 

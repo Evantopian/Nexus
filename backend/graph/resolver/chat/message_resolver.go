@@ -122,3 +122,136 @@ func DeleteMessage(ctx context.Context, messageID uuid.UUID) (bool, error) {
 
 	return true, nil
 }
+
+func SendChannelMessage(ctx context.Context, channelID uuid.UUID, body string, replyToID *uuid.UUID) (*model.Message, error) {
+	userStr, ok := ctx.Value(contextkey.UserUUIDKey).(string)
+	if !ok || userStr == "" {
+		return nil, fmt.Errorf("unauthorized: user ID missing")
+	}
+	userUUID, err := uuid.Parse(userStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user UUID")
+	}
+
+	messageID := uuid.New()
+	timestamp := time.Now().UTC().Format(time.RFC3339)
+	insert := `INSERT INTO messages (id, channel_id, sender_id, body, created_at, reply_to) VALUES ($1, $2, $3, $4, $5, $6)`
+	_, err = postgres.DB.Exec(ctx, insert, messageID, channelID, userUUID, body, timestamp, replyToID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send channel message: %v", err)
+	}
+
+	return &model.Message{
+		ID:        messageID,
+		Body:      body,
+		Timestamp: timestamp,
+		Pinned:    false,
+		Sender:    &model.ChatUser{ID: userUUID},
+	}, nil
+}
+
+
+func GetMessages(ctx context.Context, conversationID uuid.UUID) ([]*model.Message, error) {
+	query := `SELECT id, sender_id, body, created_at FROM messages WHERE conversation_id = $1 ORDER BY created_at ASC`
+	rows, err := postgres.DB.Query(ctx, query, conversationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get messages: %v", err)
+	}
+	defer rows.Close()
+
+	var messages []*model.Message
+	for rows.Next() {
+		var msg model.Message
+		var senderID uuid.UUID
+		var ts time.Time
+		err := rows.Scan(&msg.ID, &senderID, &msg.Body, &ts)
+		if err != nil {
+			return nil, err
+		}
+		msg.Timestamp = ts.Format(time.RFC3339)
+		msg.Sender = &model.ChatUser{ID: senderID}
+		messages = append(messages, &msg)
+	}
+	return messages, nil
+}
+
+
+func PinMessage(ctx context.Context, messageID uuid.UUID) (bool, error) {
+	userStr, ok := ctx.Value(contextkey.UserUUIDKey).(string)
+	if !ok || userStr == "" {
+		return false, fmt.Errorf("unauthorized: user ID missing")
+	}
+
+	query := `UPDATE messages SET pinned = true WHERE id = $1`
+	res, err := postgres.DB.Exec(ctx, query, messageID)
+	if err != nil {
+		return false, fmt.Errorf("failed to pin message: %v", err)
+	}
+	return res.RowsAffected() > 0, nil
+}
+
+func UnpinMessage(ctx context.Context, messageID uuid.UUID) (bool, error) {
+	userStr, ok := ctx.Value(contextkey.UserUUIDKey).(string)
+	if !ok || userStr == "" {
+		return false, fmt.Errorf("unauthorized: user ID missing")
+	}
+
+	query := `UPDATE messages SET pinned = false WHERE id = $1`
+	res, err := postgres.DB.Exec(ctx, query, messageID)
+	if err != nil {
+		return false, fmt.Errorf("failed to unpin message: %v", err)
+	}
+	return res.RowsAffected() > 0, nil
+}
+
+
+
+func GetPinnedMessagesByChannel(ctx context.Context, channelID uuid.UUID) ([]*model.Message, error) {
+	query := `SELECT id, sender_id, body, created_at FROM messages WHERE channel_id = $1 AND pinned = true ORDER BY created_at ASC`
+	rows, err := postgres.DB.Query(ctx, query, channelID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get pinned messages for channel: %v", err)
+	}
+	defer rows.Close()
+
+	var messages []*model.Message
+	for rows.Next() {
+		var msg model.Message
+		var senderID uuid.UUID
+		var ts time.Time
+		err := rows.Scan(&msg.ID, &senderID, &msg.Body, &ts)
+		if err != nil {
+			return nil, err
+		}
+		msg.Timestamp = ts.Format(time.RFC3339)
+		msg.Pinned = true
+		msg.Sender = &model.ChatUser{ID: senderID}
+		messages = append(messages, &msg)
+	}
+	return messages, nil
+}
+
+func GetPinnedMessagesByConversation(ctx context.Context, conversationID uuid.UUID) ([]*model.Message, error) {
+	query := `SELECT id, sender_id, body, created_at FROM messages WHERE conversation_id = $1 AND pinned = true ORDER BY created_at ASC`
+	rows, err := postgres.DB.Query(ctx, query, conversationID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get pinned messages for conversation: %v", err)
+	}
+	defer rows.Close()
+
+	var messages []*model.Message
+	for rows.Next() {
+		var msg model.Message
+		var senderID uuid.UUID
+		var ts time.Time
+		err := rows.Scan(&msg.ID, &senderID, &msg.Body, &ts)
+		if err != nil {
+			return nil, err
+		}
+		msg.Timestamp = ts.Format(time.RFC3339)
+		msg.Pinned = true
+		msg.Sender = &model.ChatUser{ID: senderID}
+		messages = append(messages, &msg)
+	}
+	return messages, nil
+}

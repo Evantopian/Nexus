@@ -85,6 +85,7 @@ type Message struct {
 	Body      string    `json:"body"`
 	Timestamp string    `json:"timestamp"`
 	Pinned    bool      `json:"pinned"`
+	ReplyTo   *Message  `json:"replyTo,omitempty"`
 }
 
 type Mutation struct {
