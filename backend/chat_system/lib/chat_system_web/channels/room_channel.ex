@@ -43,10 +43,14 @@ defmodule ChatSystemWeb.RoomChannel do
     case Chat.create_message(attrs) do
       {:ok, msg} ->
         broadcast!(socket, "message:new", %{
-          user_id: msg.user_id,
+          id: msg.id,
           body: msg.body,
+          user_id: msg.user_id,
+          conversation_id: msg.conversation_id,
+          channel_id: msg.channel_id,
           timestamp: msg.inserted_at
         })
+
 
       {:error, changeset} ->
         IO.inspect(changeset, label: "Message insert failed")
