@@ -59,7 +59,7 @@ defmodule ChatSystem.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:absinthe_plug, "~> 1.5"},
-      {:jason, "~> 1.0"},
+      {:joken, "~> 2.6.2"},
       ]
   end
 
