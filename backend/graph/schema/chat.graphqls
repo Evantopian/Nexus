@@ -114,4 +114,6 @@ extend type Mutation {
   assignRole(userId: UUID!, serverId: UUID!, roleId: UUID!): Boolean!
   createRole(serverId: UUID!, name: String!, permissions: [String!]!): Role!
   deleteRole(roleId: UUID!): Boolean!
+  editMessage(messageID: UUID!, body: String!): Message!
+  deleteMessage(messageID: UUID!): Boolean!
 }

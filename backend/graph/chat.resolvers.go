@@ -10,12 +10,27 @@ import (
 
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/google/uuid"
+	"github.com/Evantopian/Nexus/graph/resolver/chat"
+
 )
 
 // SendMessage is the resolver for the sendMessage field.
 func (r *mutationResolver) SendMessage(ctx context.Context, conversationID uuid.UUID, body string) (*model.Message, error) {
-	panic(fmt.Errorf("not implemented: SendMessage - sendMessage"))
+	return chat.SendMessage(ctx, conversationID, body)
+
 }
+
+// EditMessage is the resolver for the editMessage field.
+func (r *mutationResolver) EditMessage(ctx context.Context, messageID uuid.UUID, body string) (*model.Message, error) {
+	return chat.EditMessage(ctx, messageID, body)
+
+}
+
+// DeleteMessage is the resolver for the deleteMessage field.
+func (r *mutationResolver) DeleteMessage(ctx context.Context, messageID uuid.UUID) (bool, error) {
+	return chat.DeleteMessage(ctx, messageID)
+}
+
 
 // StartConversation is the resolver for the startConversation field.
 func (r *mutationResolver) StartConversation(ctx context.Context, participantIds []uuid.UUID) (*model.Conversation, error) {
