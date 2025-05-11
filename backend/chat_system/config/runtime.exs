@@ -27,6 +27,12 @@ if config_env() == :prod do
       environment variable DATABASE_URL is missing.
       For example: ecto://USER:PASS@HOST/DATABASE
       """
+    jwt_secret =
+    System.get_env("JWT_SECRET_KEY") ||
+      raise "JWT_SECRET_KEY is missing. Make sure it's set in your env."
+
+  config :chat_system, jwt_secret_key: jwt_secret
+
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
