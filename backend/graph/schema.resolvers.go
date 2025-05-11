@@ -29,8 +29,8 @@ func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
 }
 
 // AdjustRep is the resolver for the adjustRep field.
-func (r *mutationResolver) AdjustRep(ctx context.Context, amount int32) (bool, error) {
-	return resolver.AdjustRep(ctx, int(amount))
+func (r *mutationResolver) AdjustRep(ctx context.Context, userID uuid.UUID, amount int32) (bool, error) {
+	return resolver.AdjustRep(ctx, userID, int(amount))
 }
 
 // UpdatePreference is the resolver for the updatePreference field.
@@ -51,6 +51,11 @@ func (r *mutationResolver) UnfollowGame(ctx context.Context, slug string) (bool,
 // Profile is the resolver for the profile field.
 func (r *queryResolver) Profile(ctx context.Context) (*model.User, error) {
 	return resolver.Profile(ctx)
+}
+
+// GetUser is the resolver for the getUser field.
+func (r *queryResolver) GetUser(ctx context.Context, userID uuid.UUID) (*model.User, error) {
+	return resolver.GetUser(ctx, userID)
 }
 
 // GetUserFollowedGames is the resolver for the getUserFollowedGames field.

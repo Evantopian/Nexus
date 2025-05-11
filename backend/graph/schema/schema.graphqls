@@ -53,6 +53,7 @@ type Preferences {
 # Root Query type (Protected Query)
 type Query {
   profile: User! # Get the user's profile
+  getUser(userId: UUID!): User!
   getUserFollowedGames(userId: UUID!): [Game!]!
   isUserFollowingGame(userId: UUID!, gameId: UUID!): Boolean!
 }
@@ -71,7 +72,7 @@ type Mutation {
   ): User!
 
   deleteUser: Boolean! # Delete the user and their related data (friends, friend requests)
-  adjustRep(amount: Int!): Boolean!
+  adjustRep(userId: UUID!, amount: Int!): Boolean!
 
   updatePreference(
     region: String

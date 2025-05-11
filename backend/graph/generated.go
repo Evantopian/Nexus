@@ -93,7 +93,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AcceptFriendRequest func(childComplexity int, senderID uuid.UUID) int
-		AdjustRep           func(childComplexity int, amount int32) int
+		AdjustRep           func(childComplexity int, userID uuid.UUID, amount int32) int
 		CreateGame          func(childComplexity int, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) int
 		CreateLFGPost       func(childComplexity int, gameID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) int
 		CreateServer        func(childComplexity int, gameID *uuid.UUID, name string, image *string, description *string) int
@@ -129,6 +129,7 @@ type ComplexityRoot struct {
 		GetGame              func(childComplexity int, slug string) int
 		GetLFGPosts          func(childComplexity int, slug string) int
 		GetServers           func(childComplexity int, slug string) int
+		GetUser              func(childComplexity int, userID uuid.UUID) int
 		GetUserFollowedGames func(childComplexity int, userID uuid.UUID) int
 		GetUserLFGPosts      func(childComplexity int, limit *int32, offset *int32) int
 		IsUserFollowingGame  func(childComplexity int, userID uuid.UUID, gameID uuid.UUID) int
@@ -164,7 +165,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	UpdateUser(ctx context.Context, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string, age *int32) (*model.User, error)
 	DeleteUser(ctx context.Context) (bool, error)
-	AdjustRep(ctx context.Context, amount int32) (bool, error)
+	AdjustRep(ctx context.Context, userID uuid.UUID, amount int32) (bool, error)
 	UpdatePreference(ctx context.Context, region *string, playstyle *model.Playstyle, favoritePlatform *model.Platform, favoriteGameGenre *model.GameGenre) (*model.User, error)
 	FollowGame(ctx context.Context, slug string) (bool, error)
 	UnfollowGame(ctx context.Context, slug string) (bool, error)
@@ -185,6 +186,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Profile(ctx context.Context) (*model.User, error)
+	GetUser(ctx context.Context, userID uuid.UUID) (*model.User, error)
 	GetUserFollowedGames(ctx context.Context, userID uuid.UUID) ([]*model.Game, error)
 	IsUserFollowingGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (bool, error)
 	GetFriends(ctx context.Context) ([]*model.User, error)
@@ -455,7 +457,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AdjustRep(childComplexity, args["amount"].(int32)), true
+		return e.complexity.Mutation.AdjustRep(childComplexity, args["userId"].(uuid.UUID), args["amount"].(int32)), true
 
 	case "Mutation.createGame":
 		if e.complexity.Mutation.CreateGame == nil {
@@ -764,6 +766,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetServers(childComplexity, args["slug"].(string)), true
+
+	case "Query.getUser":
+		if e.complexity.Query.GetUser == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetUser(childComplexity, args["userId"].(uuid.UUID)), true
 
 	case "Query.getUserFollowedGames":
 		if e.complexity.Query.GetUserFollowedGames == nil {
@@ -1094,13 +1108,31 @@ func (ec *executionContext) field_Mutation_acceptFriendRequest_argsSenderID(
 func (ec *executionContext) field_Mutation_adjustRep_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Mutation_adjustRep_argsAmount(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_adjustRep_argsUserID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["amount"] = arg0
+	args["userId"] = arg0
+	arg1, err := ec.field_Mutation_adjustRep_argsAmount(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["amount"] = arg1
 	return args, nil
 }
+func (ec *executionContext) field_Mutation_adjustRep_argsUserID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+	if tmp, ok := rawArgs["userId"]; ok {
+		return ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_adjustRep_argsAmount(
 	ctx context.Context,
 	rawArgs map[string]any,
@@ -2581,6 +2613,29 @@ func (ec *executionContext) field_Query_getUserLFGPosts_argsOffset(
 	}
 
 	var zeroVal *int32
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_getUser_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_getUser_argsUserID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["userId"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Query_getUser_argsUserID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+	if tmp, ok := rawArgs["userId"]; ok {
+		return ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
 	return zeroVal, nil
 }
 
@@ -4242,7 +4297,7 @@ func (ec *executionContext) _Mutation_adjustRep(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AdjustRep(rctx, fc.Args["amount"].(int32))
+		return ec.resolvers.Mutation().AdjustRep(rctx, fc.Args["userId"].(uuid.UUID), fc.Args["amount"].(int32))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5610,6 +5665,89 @@ func (ec *executionContext) fieldContext_Query_profile(_ context.Context, field 
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUser(rctx, fc.Args["userId"].(uuid.UUID))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "uuid":
+				return ec.fieldContext_User_uuid(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "profileImg":
+				return ec.fieldContext_User_profileImg(ctx, field)
+			case "profileMessage":
+				return ec.fieldContext_User_profileMessage(ctx, field)
+			case "status":
+				return ec.fieldContext_User_status(ctx, field)
+			case "reputation":
+				return ec.fieldContext_User_reputation(ctx, field)
+			case "rank":
+				return ec.fieldContext_User_rank(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "age":
+				return ec.fieldContext_User_age(ctx, field)
+			case "preferences":
+				return ec.fieldContext_User_preferences(ctx, field)
+			case "followingGames":
+				return ec.fieldContext_User_followingGames(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -9818,6 +9956,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_profile(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getUser":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getUser(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
