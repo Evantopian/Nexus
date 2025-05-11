@@ -62,12 +62,3 @@ func (r *queryResolver) GetUserFollowedGames(ctx context.Context, userID uuid.UU
 func (r *queryResolver) IsUserFollowingGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (bool, error) {
 	return resolver.IsUserFollowingGame(ctx, userID, gameID)
 }
-
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }

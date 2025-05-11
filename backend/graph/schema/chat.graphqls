@@ -1,6 +1,4 @@
 # Scalar for UUID-based identifiers (Postgres-compatible)
-scalar UUID
-
 # Supported types of channels
 enum ChannelType {
   TEXT
@@ -85,7 +83,7 @@ type Channel {
 }
 
 # Queries for fetching conversations, servers, channels, messages
-type Query {
+extend type Query {
   getConversations: [Conversation]!
   getMessages(conversationId: UUID!): [Message]!
   getServers: [Server]!
@@ -95,7 +93,7 @@ type Query {
 }
 
 # Mutations for chat interactions, server/channel management, role handling
-type Mutation {
+extend type Mutation {
   sendMessage(conversationId: UUID!, body: String!): Message!
   startConversation(participantIds: [UUID!]!): Conversation!
 

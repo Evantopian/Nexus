@@ -10,6 +10,32 @@ import (
 	"github.com/google/uuid"
 )
 
+type Channel struct {
+	ID              uuid.UUID   `json:"id"`
+	Name            string      `json:"name"`
+	Type            ChannelType `json:"type"`
+	ServerID        uuid.UUID   `json:"serverId"`
+	Participants    []*ChatUser `json:"participants"`
+	Messages        []*Message  `json:"messages"`
+	LastMessage     *Message    `json:"lastMessage,omitempty"`
+	Topic           *string     `json:"topic,omitempty"`
+	SlowModeSeconds *int32      `json:"slowModeSeconds,omitempty"`
+	CategoryID      *uuid.UUID  `json:"categoryId,omitempty"`
+}
+
+type ChatUser struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+}
+
+type Conversation struct {
+	ID           uuid.UUID   `json:"id"`
+	Participants []*ChatUser `json:"participants"`
+	Messages     []*Message  `json:"messages"`
+	LastMessage  *Message    `json:"lastMessage,omitempty"`
+	IsGroup      bool        `json:"isGroup"`
+}
+
 type FriendRequest struct {
 	Sender      uuid.UUID `json:"sender"`
 	Receiver    uuid.UUID `json:"receiver"`
@@ -53,6 +79,14 @@ type LFGPost struct {
 	ExpiresAt    string    `json:"expiresAt"`
 }
 
+type Message struct {
+	ID        uuid.UUID `json:"id"`
+	Sender    *ChatUser `json:"sender"`
+	Body      string    `json:"body"`
+	Timestamp string    `json:"timestamp"`
+	Pinned    bool      `json:"pinned"`
+}
+
 type Mutation struct {
 }
 
@@ -66,13 +100,32 @@ type Preferences struct {
 type Query struct {
 }
 
-type Server struct {
+type Role struct {
 	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
-	Members     []*User   `json:"members"`
-	Image       *string   `json:"image,omitempty"`
-	Description *string   `json:"description,omitempty"`
-	CreatedAt   string    `json:"createdAt"`
+	Permissions []string  `json:"permissions"`
+}
+
+type Server struct {
+	ID         uuid.UUID         `json:"id"`
+	Name       string            `json:"name"`
+	OwnerID    uuid.UUID         `json:"ownerId"`
+	IconURL    *string           `json:"iconUrl,omitempty"`
+	Members    []*ServerMember   `json:"members"`
+	Roles      []*Role           `json:"roles"`
+	Channels   []*Channel        `json:"channels"`
+	Categories []*ServerCategory `json:"categories"`
+}
+
+type ServerCategory struct {
+	ID         uuid.UUID   `json:"id"`
+	Name       string      `json:"name"`
+	ChannelIds []uuid.UUID `json:"channelIds"`
+}
+
+type ServerMember struct {
+	User    *ChatUser   `json:"user"`
+	RoleIds []uuid.UUID `json:"roleIds"`
 }
 
 type User struct {
@@ -89,6 +142,49 @@ type User struct {
 	Age            *int32       `json:"age,omitempty"`
 	Preferences    *Preferences `json:"preferences,omitempty"`
 	FollowingGames []*Game      `json:"followingGames"`
+}
+
+type ChannelType string
+
+const (
+	ChannelTypeText         ChannelType = "TEXT"
+	ChannelTypeVoice        ChannelType = "VOICE"
+	ChannelTypeAnnouncement ChannelType = "ANNOUNCEMENT"
+)
+
+var AllChannelType = []ChannelType{
+	ChannelTypeText,
+	ChannelTypeVoice,
+	ChannelTypeAnnouncement,
+}
+
+func (e ChannelType) IsValid() bool {
+	switch e {
+	case ChannelTypeText, ChannelTypeVoice, ChannelTypeAnnouncement:
+		return true
+	}
+	return false
+}
+
+func (e ChannelType) String() string {
+	return string(e)
+}
+
+func (e *ChannelType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ChannelType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ChannelType", str)
+	}
+	return nil
+}
+
+func (e ChannelType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type GameGenre string
