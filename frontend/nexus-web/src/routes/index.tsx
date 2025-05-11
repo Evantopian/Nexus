@@ -13,9 +13,9 @@ import AuthRedirect from "@/components/auth/AuthRedirect";
 import Profile from "@/components/profile/Profile";
 import ChatLayout from "@/layouts/ChatLayout";
 import ChatArea from "@/components/chats/ChatArea";
+import NoMessagesFallback from "@/components/chats/NoMessagesFallback";
 import Lfg from "@/components/lfg/LFG";
-import FindFriends from "@/components/chats/FindFriends";
-import ChatIndexPage from "@/components/chats/ChatIndexPage";
+ 
 
 const routes: RouteObject[] = [
   {
@@ -70,8 +70,7 @@ const routes: RouteObject[] = [
         path: "chat",
         element: <ChatLayout />,
         children: [
-          { index: true, element: <ChatIndexPage /> },
-          { path: "find", element: <FindFriends /> },
+          { index: true, element: <NoMessagesFallback /> },
           { path: "direct/:contact", element: <ChatArea /> },
           { path: "groups/:groupId", element: <ChatArea /> },
         ],

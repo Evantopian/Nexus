@@ -1,12 +1,11 @@
-import React from "react";
-
-interface TabBarProps {
+// src/components/chats/ChatTabs.tsx
+interface ChatTabsProps {
   tabs: string[];
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onTabChange }) => (
+const ChatTabs: React.FC<ChatTabsProps> = ({ tabs, activeTab, onTabChange }) => (
   <div className="flex space-x-4 bg-gray-100 dark:bg-gray-800 px-4 py-2">
     {tabs.map((tab) => (
       <button
@@ -25,4 +24,4 @@ const TabBar: React.FC<TabBarProps> = ({ tabs, activeTab, onTabChange }) => (
   </div>
 );
 
-export default TabBar;
+export default ChatTabs;

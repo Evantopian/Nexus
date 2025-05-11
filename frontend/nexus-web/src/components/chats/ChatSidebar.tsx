@@ -1,148 +1,67 @@
-import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
-import ContextMenu, { ContextMenuOption } from "./ContextMenu";
-import { MessageStorage, Message } from "@/data/messageStorage";
+// src/components/chats/ChatSidebar.tsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery, gql } from "@apollo/client";
 
-interface Contact {
-  name: string;
-  avatarUrl?: string;
-  status: "online" | "away" | "offline";
-}
+const TEST_UUID = "d18e2a5b-1af8-4180-8270-f4104c73668b";
 
-const INITIAL_CONTACTS: Contact[] = [
-  { name: "Alice", avatarUrl: "/avatars/alice.png", status: "online" },
-  { name: "Bob", avatarUrl: "/avatars/bob.png", status: "away" },
-  { name: "Charlie", status: "offline" },
-];
-
-const statusColor = {
-  online: "bg-green-500",
-  away: "bg-yellow-500",
-  offline: "bg-gray-500",
-} as const;
+const GET_CONVERSATIONS = gql`
+  query GetConversations {
+    getConversations {
+      id
+      isGroup
+    }
+  }
+`;
 
 const ChatSidebar: React.FC = () => {
-  const { contact: active } = useParams<{ contact: string }>();
-  const [contacts, setContacts] = useState<Contact[]>(INITIAL_CONTACTS);
-  const [sortedContacts, setSortedContacts] = useState<
-    (Contact & { lastTimestamp: number })[]
-  >([]);
-  const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const { data, loading, error } = useQuery(GET_CONVERSATIONS);
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
-  // Recompute sortedContacts whenever contacts list or messages change
-  useEffect(() => {
-    const msgsMap = MessageStorage.load();
-    const withTimestamps = contacts.map((contact) => {
-      const topic = `dm:${contact.name}`;
-      const msgs: Message[] = msgsMap[topic] || [];
-      const lastTimestamp = msgs.length
-        ? new Date(msgs[msgs.length - 1].timestamp || 0).getTime()
-        : 0;
-      return { ...contact, lastTimestamp };
-    });
-    withTimestamps.sort((a, b) =>
-      b.lastTimestamp !== a.lastTimestamp
-        ? b.lastTimestamp - a.lastTimestamp
-        : a.name.localeCompare(b.name)
-    );
-    setSortedContacts(withTimestamps);
-  }, [contacts]);
+  // Get all DMs (non-group conversations)
+  const apiConversations = data?.getConversations?.filter((c: any) => !c.isGroup) || [];
 
-  const handleContext = (e: React.MouseEvent<HTMLLIElement>) => {
-    e.preventDefault();
-    const name = e.currentTarget.dataset.name!;
-    setSelected(name);
-    setMenuPos({ x: e.clientX, y: e.clientY });
-  };
+  // Always include TEST_UUID if it's not already in the API data
+  const uniqueConversations = [
+    ...apiConversations,
+    ...(apiConversations.some((c: any) => c.id === TEST_UUID)
+      ? []
+      : [{ id: TEST_UUID, isGroup: false }])
+  ];
 
-  const contextOptions: ContextMenuOption[] = selected
-    ? [
-        {
-          label: `Create group chat with ${selected}`,
-          onClick: () => alert(`Create group chat with ${selected}`),
-        },
-      ]
-    : [];
-
-  const handleAddFriend = () => {
-    const name = prompt("Enter username to add as friend:");
-    if (name && !contacts.find((c) => c.name === name)) {
-      setContacts((prev) => [...prev, { name, status: "offline" }]);
-    }
-  };
+  // Apply search filter
+  const filtered = uniqueConversations.filter((c: any) =>
+    c.id.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <aside className="w-64 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col p-4 overflow-y-auto min-h-0">
-      <button
-        onClick={handleAddFriend}
-        className="mb-4 w-full text-sm font-medium text-indigo-600 hover:underline"
-      >
-        + Add Friend
-      </button>
-
+    <aside className="w-72 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 flex flex-col">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Chats</h2>
       <input
         type="text"
-        placeholder="Search or start new chat"
-        className="w-full px-3 py-2 mb-4 bg-gray-200 dark:bg-gray-700 rounded text-sm placeholder-gray-500 focus:outline-none"
+        placeholder="Search DMs..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full mb-4 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
-
-      <h2 className="text-xs font-semibold uppercase mb-2 text-gray-600 dark:text-gray-400">
-        Direct Messages
-      </h2>
-
-      {sortedContacts.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center text-gray-500">
-          No friends yet. Add one to start chatting.
-        </div>
-      ) : (
-        <ul className="flex-1 divide-y divide-gray-200 dark:divide-gray-700 relative">
-          {sortedContacts.map((c) => (
-            <li
-              key={c.name}
-              data-name={c.name}
-              onContextMenu={handleContext}
-              className="py-2"
+      <div className="flex-1 overflow-y-auto space-y-1">
+        {loading ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
+        ) : error ? (
+          <p className="text-sm text-red-500">Failed to load.</p>
+        ) : (
+          filtered.map((c: any) => (
+            <button
+              key={c.id}
+              onClick={() => navigate(`/chat/direct/${c.id}`)}
+              className="w-full text-left px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-200 hover:bg-indigo-100 dark:hover:bg-indigo-800 transition"
             >
-              <Link
-                to={`/chat/direct/${c.name}`}
-                className={`relative flex items-center space-x-3 px-2 py-1 rounded transition-colors ${
-                  active === c.name
-                    ? "bg-indigo-600 text-white"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                }`}
-              >
-                <div className="relative">
-                  {c.avatarUrl ? (
-                    <img
-                      src={c.avatarUrl}
-                      alt={c.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gray-400 dark:bg-gray-600 flex items-center justify-center text-white font-medium">
-                      {c.name[0]}
-                    </div>
-                  )}
-                  <span
-                    className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white dark:border-gray-900 ${statusColor[c.status]}`}
-                  />
-                </div>
-                <span className="flex-1 truncate">{c.name}</span>
-              </Link>
-            </li>
-          ))}
-
-          {menuPos && selected && (
-            <ContextMenu
-              x={menuPos.x}
-              y={menuPos.y}
-              options={contextOptions}
-              onClose={() => setMenuPos(null)}
-            />
-          )}
-        </ul>
-      )}
+              {c.id === TEST_UUID ? "Dev Contact" : c.id.slice(0, 8)}
+            </button>
+          ))
+        )}
+      </div>
     </aside>
   );
 };

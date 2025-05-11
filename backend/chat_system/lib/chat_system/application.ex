@@ -9,7 +9,7 @@ defmodule ChatSystem.Application do
   def start(_type, _args) do
     children = [
       ChatSystemWeb.Telemetry,
-      #ChatSystem.Repo,
+      ChatSystem.Repo,
       {DNSCluster, query: Application.get_env(:chat_system, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: ChatSystem.PubSub},
       # Start the Finch HTTP client for sending emails

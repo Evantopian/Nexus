@@ -25,14 +25,14 @@ defmodule ChatSystemWeb.RoomChannel do
         "dm:" <> conversation_id ->
           %{
             body: body,
-            user_id: user_id,
+            sender_id: user_id,
             conversation_id: conversation_id
           }
 
         "room:" <> channel_id ->
           %{
             body: body,
-            user_id: user_id,
+            sender_id: user_id,
             channel_id: channel_id
           }
 
@@ -45,12 +45,10 @@ defmodule ChatSystemWeb.RoomChannel do
         broadcast!(socket, "message:new", %{
           id: msg.id,
           body: msg.body,
-          user_id: msg.user_id,
+          user_id: msg.sender_id,
           conversation_id: msg.conversation_id,
-          channel_id: msg.channel_id,
-          timestamp: msg.inserted_at
+          channel_id: msg.channel_id
         })
-
 
       {:error, changeset} ->
         IO.inspect(changeset, label: "Message insert failed")
