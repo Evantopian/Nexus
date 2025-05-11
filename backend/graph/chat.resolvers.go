@@ -34,7 +34,7 @@ func (r *mutationResolver) DeleteMessage(ctx context.Context, messageID uuid.UUI
 
 // StartConversation is the resolver for the startConversation field.
 func (r *mutationResolver) StartConversation(ctx context.Context, participantIds []uuid.UUID) (*model.Conversation, error) {
-	panic(fmt.Errorf("not implemented: StartConversation - startConversation"))
+	return chat.StartConversation(ctx, participantIds)
 }
 
 // CreateServer is the resolver for the createServer field.
@@ -104,7 +104,7 @@ func (r *mutationResolver) DeleteRole(ctx context.Context, roleID uuid.UUID) (bo
 
 // GetConversations is the resolver for the getConversations field.
 func (r *queryResolver) GetConversations(ctx context.Context) ([]*model.Conversation, error) {
-	panic(fmt.Errorf("not implemented: GetConversations - getConversations"))
+	return chat.GetConversations(ctx)
 }
 
 // GetMessages is the resolver for the getMessages field.
