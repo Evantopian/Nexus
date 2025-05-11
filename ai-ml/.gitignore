@@ -10,3 +10,5 @@ package/
 recommendation.zip
 
 lambda-env
+*.temp-env
+*.zip

@@ -171,3 +171,13 @@ def get_recommendations_ml(player_index, num_recommendations=5, weighted_matrix=
 
 
 handler = Mangum(app)
+
+'''
+cd ..
+python3 -m venv temp-env
+source temp-env/bin/activate
+mkdir fastapi-lambda-build
+cd fastapi-lambda-build
+pip install fastapi mangum python-dotenv pandas numpy scikit-learn psycopg2-binary -t .
+cp ../your_project/recommendation.py .
+'''
