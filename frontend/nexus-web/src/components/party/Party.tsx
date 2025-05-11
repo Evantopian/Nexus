@@ -50,18 +50,35 @@ const Party = () => {
     },
   ];
 
+  const handleHonor = (userId: string) => {
+    console.log(userId);
+  };
+
+  const handleDislike = (userId: string) => {
+    console.log(userId);
+  };
+
+  const handleViewProfile = (userId: string) => {
+    console.log(userId);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-start p-4">
+    <div className="min-h-screen flex flex-col items-center justify-start p-4 mt-8">
       {/* Main Layout */}
-      <div className="flex items-center justify-center gap-16 w-full max-w-[1440px]">
+      <div className="flex items-start gap-2 w-4/5 max-w-[1440px]">
         {/* Carousel / Profile Cards */}
-        <div className="flex-1 flex justify-center">
+        <div className="flex-2">
           <PlayerRecommendation recommendedPlayers={recommendedPlayers} />
         </div>
 
         {/* Current Party Sidebar */}
-        <div className="w-[300px]">
-          <PartyList partyMembers={partyMembers} />
+        <div className="flex-1">
+          <PartyList
+            partyMembers={partyMembers}
+            onHonor={handleHonor}
+            onDislike={handleDislike}
+            onViewProfile={handleViewProfile}
+          />
         </div>
       </div>
     </div>

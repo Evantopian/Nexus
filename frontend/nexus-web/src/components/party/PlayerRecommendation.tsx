@@ -57,7 +57,7 @@ const PlayerRecommendation = ({
 
       {recommendedPlayers.length > 0 ? (
         <div
-          className="relative w-full overflow-hidden"
+          className="relative w-full overflow-hidden rounded-xl"
           style={{
             maxWidth: `${containerMaxWidth}px`, // Max width based on calculated card width
             height: `${cardHeight}px`, // Height based on calculated card height
@@ -66,9 +66,9 @@ const PlayerRecommendation = ({
           {/* Prev Button */}
           <button
             onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 z-20"
+            className="absolute left-0 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white dark:bg-gray-700 shadow-md hover:bg-gray-100 dark:hover:bg-gray-600 z-20"
           >
-            <ChevronLeft className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <ChevronLeft className="w-6 h-6 dark:text-gray-300" />
           </button>
 
           {/* Cards */}
@@ -99,7 +99,7 @@ const PlayerRecommendation = ({
                 </span>
 
                 {/* Profile Image */}
-                <div className="flex items-center justify-center flex-grow">
+                <div className="flex items-center justify-center flex-grow min-h-[100px]">
                   <img
                     src={p.profileImg || "/default-avatar.png"}
                     alt={p.username}
@@ -118,9 +118,9 @@ const PlayerRecommendation = ({
           {/* Next Button */}
           <button
             onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 z-20"
+            className="absolute right-0 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white dark:bg-gray-700 shadow-md hover:bg-gray-100 dark:hover:bg-gray-600 z-20"
           >
-            <ChevronRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            <ChevronRight className="w-6 h-6 dark:text-gray-300" />
           </button>
         </div>
       ) : (
