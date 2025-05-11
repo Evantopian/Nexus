@@ -73,7 +73,7 @@ const routes: RouteObject[] = [
           { index: true, element: <ChatIndexPage /> },
           { path: "find", element: <FindFriends /> },
           { path: "direct/:contact", element: <ChatArea /> },
-          { path: "groups/:contact", element: <ChatArea /> },
+          { path: "groups/:groupId", element: <ChatArea /> },
         ],
       },
       {
