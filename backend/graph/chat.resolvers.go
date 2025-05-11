@@ -39,22 +39,22 @@ func (r *mutationResolver) StartConversation(ctx context.Context, participantIds
 
 // CreateServer is the resolver for the createServer field.
 func (r *mutationResolver) CreateServer(ctx context.Context, name string) (*model.Server, error) {
-	panic(fmt.Errorf("not implemented: CreateServer - createServer"))
+	return chat.CreateServer(ctx, name)
 }
 
 // JoinServer is the resolver for the joinServer field.
 func (r *mutationResolver) JoinServer(ctx context.Context, serverID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: JoinServer - joinServer"))
+	return chat.JoinServer(ctx, serverID)
 }
 
 // LeaveServer is the resolver for the leaveServer field.
 func (r *mutationResolver) LeaveServer(ctx context.Context, serverID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: LeaveServer - leaveServer"))
+	return chat.LeaveServer(ctx, serverID)
 }
 
 // DeleteServer is the resolver for the deleteServer field.
 func (r *mutationResolver) DeleteServer(ctx context.Context, serverID uuid.UUID) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteServer - deleteServer"))
+	return chat.DeleteServer(ctx, serverID)
 }
 
 // CreateChannel is the resolver for the createChannel field.
@@ -114,12 +114,12 @@ func (r *queryResolver) GetMessages(ctx context.Context, conversationID uuid.UUI
 
 // GetServers is the resolver for the getServers field.
 func (r *queryResolver) GetServers(ctx context.Context) ([]*model.Server, error) {
-	panic(fmt.Errorf("not implemented: GetServers - getServers"))
+	return chat.GetServers(ctx)
 }
 
 // GetServer is the resolver for the getServer field.
 func (r *queryResolver) GetServer(ctx context.Context, id uuid.UUID) (*model.Server, error) {
-	panic(fmt.Errorf("not implemented: GetServer - getServer"))
+	return chat.GetServer(ctx, id)
 }
 
 // GetChannels is the resolver for the getChannels field.
