@@ -7,9 +7,14 @@ import PlayerCard from "../../components/Cards/PlayerCard";
 import GroupCard from "../../components/Cards/GroupCard";
 
 export default function FilterBox({ topPadding }) {
-  const [selectedCategory, setSelectedCategory] = useState("Guilds");
+  const [selectedCategory, setSelectedCategory] = useState("Games");
   const [searchQuery, setSearchQuery] = useState("");
   const gamesList = getAllGames();
+
+  const games = gamesList.flatMap((game) => game.games || []).map((game) => ({
+    id: game.id,
+    name: game.name,
+  }));
 
   const guilds = gamesList.flatMap((game) => game.servers || []);
   const players = gamesList.flatMap((game) => game.topPlayers || []);
@@ -17,6 +22,7 @@ export default function FilterBox({ topPadding }) {
 
   const getData = () => {
     let data = [];
+    if (selectedCategory === "Games") data = games;
     if (selectedCategory === "Guilds") data = guilds;
     if (selectedCategory === "Players") data = players;
     if (selectedCategory === "Groups") data = groups;
@@ -33,6 +39,7 @@ export default function FilterBox({ topPadding }) {
     if (selectedCategory === "Guilds") return <GuildCard server={item} />;
     if (selectedCategory === "Players") return <PlayerCard player={item} />;
     if (selectedCategory === "Groups") return <GroupCard group={item} />;
+    if (selectedCategory === "Games") return <Text style={styles.gameText}>{item.name}</Text>; // Render game name
     return null;
   };
 
@@ -49,6 +56,22 @@ export default function FilterBox({ topPadding }) {
       </View>
 
       <View style={styles.filterBox}>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            selectedCategory === "Games" && styles.activeFilterButton,
+          ]}
+          onPress={() => setSelectedCategory("Games")}
+        >
+          <Text
+            style={[
+              styles.filterText,
+              selectedCategory === "Games" && styles.activeFilterText,
+            ]}
+          >
+            Games
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.filterButton,
@@ -168,5 +191,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#888",
     marginTop: 20,
+  },
+  gameText: {
+    fontSize: 16,
+    color: "#333",
+    padding: 10,
   },
 });

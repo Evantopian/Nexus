@@ -1,27 +1,25 @@
 import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput, Alert } from "react-native";
-import { validateEmail, validatePassword, validateUsername } from "../utils/validator";
+import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from "react-native";
+import { useAuth } from "../context/AuthContext";
 
 export default function Signup({ navigation }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [username, setUsername] = useState("");
+    const [error, setError] = useState("");
+    const { signup } = useAuth();
 
-    const handleSignup = () => {
-        const emailError = validateEmail(email);
-        const passwordError = validatePassword(password);
-        const usernameError = validateUsername(username);
-
-        if (emailError || passwordError || usernameError) {
-            Alert.alert("Invalid Input", emailError || passwordError || usernameError);
-            return;
-        }
-
-        //Temp placeholder
-        console.log("Signup successful with:", { email, password, username });
-        navigation.navigate("Main Content");
-    };
+    const handleSubmit = async () => {
+        setError("");
+        try {
+            await signup(username, email, password);
+            navigation.navigate("Main Content");
+        }   catch (err) {
+            console.error("Signup error:", err.response);
+        setError("Invalid email or password.");
+    }
+  };
 
     return (
         <LinearGradient
@@ -65,9 +63,15 @@ export default function Signup({ navigation }) {
                 Can only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen.
             </Text>
 
-            <TouchableOpacity style={styles.button} onPress={handleSignup}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Continue</Text>
             </TouchableOpacity>
+
+            {error && (
+                <Text style={{ color: "red", fontSize: 14, textAlign: "center", marginBottom: 16 }}>
+                    {error}
+                </Text>
+            )}
 
             <View style={styles.signInContainer}>
                 <Text style={styles.signInText}>Already have an account?</Text>

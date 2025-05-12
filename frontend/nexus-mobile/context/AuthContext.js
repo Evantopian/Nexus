@@ -1,12 +1,40 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { PROFILE_QUERY } from "../graphql/userQueries"; // Adjust path if needed
+import client from "../lib/apollo-client";
+import AsyncStorage from "@react-native-async-storage/async-storage"; 
+import { PROFILE_QUERY } from "../graphql/userQueries";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    client
+      .query({
+        query: PROFILE_QUERY,
+      })
+      .then((res) => {
+        setUser(res.data.profile);
+        // console.log("Fetched User:", res.data.profile);
+     })
+      .catch((err) => console.error("Profile fetch failed", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const refreshUser = async () => {
+    try {
+      const res = await client.query({
+        query: PROFILE_QUERY,
+        fetchPolicy: "no-cache", // Ensures fresh data
+      });
+      setUser(res.data.profile); // Update user state
+      console.log("User info:", res.data.profile); // Log the updated user data
+    } catch (err) {
+      console.error("Refresh failed", err);
+    }
+  };
 
   const login = async (email, password) => {
     const response = await axios.post(
@@ -15,7 +43,7 @@ export const AuthProvider = ({ children }) => {
       { withCredentials: true }
     );
     const token = response.data.token;
-    await localStorage.setItem("authToken", token);
+    await AsyncStorage.setItem("authToken", token);
     await refreshUser();
   };
 
@@ -26,12 +54,12 @@ export const AuthProvider = ({ children }) => {
       { withCredentials: true }
     );
     const token = response.data.token;
-    await localStorage.setItem("authToken", token);
+    await AsyncStorage.setItem("authToken", token); // Use AsyncStorage here
     await refreshUser();
   };
 
   const logout = async () => {
-    const token = await localStorage.getItem("authToken");
+    const token = await AsyncStorage.getItem("authToken"); // Use AsyncStorage here
 
     try {
       await axios.post(
@@ -46,7 +74,7 @@ export const AuthProvider = ({ children }) => {
       );
       console.log("logged out");
       setUser(null);
-      await AsyncStorage.removeItem("authToken");
+      await AsyncStorage.removeItem("authToken"); // Use AsyncStorage here
     } catch (error) {
       console.error("Logout failed", error);
     }

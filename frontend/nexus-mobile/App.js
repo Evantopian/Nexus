@@ -2,7 +2,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { AuthProvider } from "./context/AuthContext";
-import Config from "react-native-config";
+import Constants from 'expo-constants';
 import axios from "axios";
 
 import Landing from "./routes/Landing";
@@ -13,9 +13,9 @@ import BottomNav from "./navigation/BottomNav";
 import Dashboard from './components/Dashboard';
 
 const Stack = createStackNavigator();
+const { API_BASE_URL } = Constants.expoConfig.extra;
 
-axios.defaults.baseURL = Config.API_BASE_URL;
-console.log("API Base URL:", Config.API_BASE_URL);
+axios.defaults.baseURL = API_BASE_URL;
 
 export default function App() {
   return (

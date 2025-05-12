@@ -1,57 +1,62 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet, SafeAreaView, } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, SafeAreaView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import {
-  User,
-  Settings,
-  LogOut,
-  HelpCircle,
-  Bell,
-} from "lucide-react-native";
+import { Ionicons } from "@expo/vector-icons";
 import cinnamoroll from "../../assets/cinnamoroll.jpg";
+import { useAuth } from "../../context/AuthContext";
 
-export default function ProfileSettings ({topPadding}){
+export default function ProfileSettings({ topPadding }) {
   const navigation = useNavigation();
+  const { user } = useAuth();
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <View style={styles.header}>
-        <Image source={cinnamoroll} style={styles.avatar} />
+        <Image 
+          src={user.profileImg || "/default-avatar.png"} // Default avatar if none exists
+          alt={user.username || "User Avatar"} 
+          style={styles.avatar} 
+        />
         <View>
-          <Text style={styles.username}>@Tamothy</Text>
-          <Text style={styles.level}>Level 21 • Okayish Gamer</Text>
+          <Text style={styles.username}>{user.username || "User Name"}</Text>
+          <Text style={styles.userTag}>@{user.username || "username"}</Text>
+          <Text style={styles.level}>Status: {user.status || "offline"}</Text>
         </View>
       </View>
 
       <View style={styles.menu}>
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Profile")}>
-          <User size={20} color="#888" />
+          <Ionicons name="person-outline" size={20} color="#888" />
           <Text style={styles.menuText}>Profile</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Settings")}>
-          <Settings size={20} color="#888" />
+          <Ionicons name="settings-outline" size={20} color="#888" />
           <Text style={styles.menuText}>Settings</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Notifications")}>
-          <Bell size={20} color="#888" />
+          <Ionicons name="notifications-outline" size={20} color="#888" />
           <Text style={styles.menuText}>Notifications</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Help")}>
-          <HelpCircle size={20} color="#888" />
+          <Ionicons name="help-circle-outline" size={20} color="#888" />
           <Text style={styles.menuText}>Help & Support</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={[styles.menuItem, styles.logout]} onPress={() => navigation.navigate("Login")}>
-          <LogOut size={20} color="#E53E3E" />
+          <Ionicons name="log-out-outline" size={20} color="#E53E3E" />
           <Text style={[styles.menuText, { color: "#E53E3E" }]}>Logout</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -72,8 +77,12 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   username: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: "bold",
+  },
+  userTag: {
+    fontSize: 14,
+    color: "#888",
   },
   level: {
     fontSize: 14,

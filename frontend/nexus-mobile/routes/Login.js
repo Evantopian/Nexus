@@ -1,26 +1,20 @@
 import React, { useState } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { View, Text, Image, TouchableOpacity, StyleSheet, TextInput } from "react-native";
-import { validateLogin } from "../utils/validator";
-import { Alert } from "react-native";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login({ navigation }) {
-
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setError("");
     try {
       await login(email, password);
-      Alert.alert("Works");
       navigation.navigate("Main Content");
     } catch (err) {
-      console.error("Login Error:", err.response?.data || err.message);
       setError("Invalid email or password.");
     }
   };
@@ -64,14 +58,17 @@ export default function Login({ navigation }) {
         </TouchableOpacity>
 
         {/* Continue Button */}
-        <TouchableOpacity style={styles.button} onPress={() => handleSubmit(email, password)}>
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
 
+        {/* Error Message */}
         {error && (
-          <div className="text-red-400 text-sm text-center mb-4">{error}</div>
+          <Text style={{ color: "red", fontSize: 14, textAlign: "center", marginBottom: 16 }}>
+            {error}
+          </Text>
         )}
-    
+
         {/* Sign Up Link */}
         <View style={styles.signUpContainer}>
             <Text style={styles.signUpText}>Don’t have an account?</Text>
