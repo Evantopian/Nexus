@@ -2,8 +2,8 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, SafeAreaView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import cinnamoroll from "../../assets/cinnamoroll.jpg";
 import { useAuth } from "../../context/AuthContext";
+import defaultAvatar from "../../assets/cinnamoroll.jpg";
 
 export default function ProfileSettings({ topPadding }) {
   const navigation = useNavigation();
@@ -15,44 +15,83 @@ export default function ProfileSettings({ topPadding }) {
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
+      {/* Settings Icon */}
+      <TouchableOpacity
+        style={styles.settingsIcon}
+        onPress={() => navigation.navigate("Settings")}
+      >
+        <Ionicons name="settings-outline" size={24} color="#007BFF" />
+      </TouchableOpacity>
+
       <View style={styles.header}>
-        <Image 
-          src={user.profileImg || "/default-avatar.png"} // Default avatar if none exists
-          alt={user.username || "User Avatar"} 
-          style={styles.avatar} 
+        <Image
+          source={user.profileImg || defaultAvatar} 
+          alt={user.username || "User Avatar"}
+          style={styles.avatar}
         />
         <View>
           <Text style={styles.username}>{user.username || "User Name"}</Text>
           <Text style={styles.userTag}>@{user.username || "username"}</Text>
           <Text style={styles.level}>Status: {user.status || "offline"}</Text>
         </View>
+
+        {/* Edit Profile Button */}
+        <TouchableOpacity
+          style={styles.editProfileButton}
+          onPress={() => navigation.navigate("EditProfile")}
+        >
+          <Ionicons name="pencil-outline" size={16} color="#007BFF" />
+          <Text style={styles.editProfileText}>Edit Profile</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.menu}>
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Profile")}>
-          <Ionicons name="person-outline" size={20} color="#888" />
-          <Text style={styles.menuText}>Profile</Text>
-        </TouchableOpacity>
+      {/* Bio Section */}
+      <View style={styles.bioContainer}>
+        <Text style={styles.bioHeader}>Bio</Text>
+        <Text style={styles.bioText}>
+          {user.profileMessage || "No bio available"}
+        </Text>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Settings")}>
-          <Ionicons name="settings-outline" size={20} color="#888" />
-          <Text style={styles.menuText}>Settings</Text>
-        </TouchableOpacity>
+        <View style={styles.bioDetails}>
+          <View style={styles.bioDetailItem}>
+            <Text style={styles.bioDetailLabel}>Reputation</Text>
+            <Text style={styles.bioDetailValue}>{user.reputation || "0"}</Text>
+          </View>
+          <View style={styles.bioDetailItem}>
+            <Text style={styles.bioDetailLabel}>Rank</Text>
+            <Text style={styles.bioDetailValue}>{user.rank || "N/A"}</Text>
+          </View>
+        </View>
+      </View>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Notifications")}>
-          <Ionicons name="notifications-outline" size={20} color="#888" />
-          <Text style={styles.menuText}>Notifications</Text>
-        </TouchableOpacity>
+      {/* Recent Activity Section */}
+      <View style={styles.activityContainer}>
+        <View style={styles.activityHeader}>
+          <Text style={styles.activityTitle}>Recent Activity</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Activity")}>
+            <Text style={styles.seeMore}>See more →</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate("Help")}>
-          <Ionicons name="help-circle-outline" size={20} color="#888" />
-          <Text style={styles.menuText}>Help & Support</Text>
-        </TouchableOpacity>
+        <View style={styles.activityItem}>
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color="#888"
+            style={styles.activityIcon}
+          />
+          <Text style={styles.activityText}>{user.username} liked your post.</Text>
+        </View>
+        <View style={styles.activityItem}>
+          <Ionicons
+            name="person-outline"
+            size={20}
+            color="#888"
+            style={styles.activityIcon}
+          />
+          <Text style={styles.activityText}>{user.username} commented on your photo.</Text>
+        </View>
 
-        <TouchableOpacity style={[styles.menuItem, styles.logout]} onPress={() => navigation.navigate("Login")}>
-          <Ionicons name="log-out-outline" size={20} color="#E53E3E" />
-          <Text style={[styles.menuText, { color: "#E53E3E" }]}>Logout</Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -64,11 +103,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 10,
   },
+  settingsIcon: {
+    position: "absolute",
+    top: 30,
+    right: 10,
+    zIndex: 1,
+    backgroundColor: "#f4f4f4",
+    padding: 10,
+    borderRadius: 50,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
-    marginBottom: 30,
+    marginTop: 50, // Adjusted to make space for the settings icon
+    marginBottom: 10,
   },
   avatar: {
     width: 80,
@@ -88,24 +141,83 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
-  menu: {
-    width: "100%",
-  },
-  menuItem: {
+  editProfileButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    backgroundColor: "#f0f8ff",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    marginLeft: "auto",
   },
-  menuText: {
-    fontSize: 16,
-    marginLeft: 15,
+  editProfileText: {
+    fontSize: 14,
+    color: "#007BFF",
+    marginLeft: 5,
   },
-  logout: {
-    marginTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#ddd",
+  bioContainer: {
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  bioHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  bioText: {
+    fontSize: 14,
+    color: "#444",
+    fontStyle: "italic",
+    marginBottom: 10,
+  },
+  bioDetails: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  bioDetailItem: {
+    alignItems: "center",
+  },
+  bioDetailLabel: {
+    fontSize: 12,
+    color: "#888",
+  },
+  bioDetailValue: {
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  activityContainer: {
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  activityHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  activityTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  seeMore: {
+    fontSize: 14,
+    color: "#007BFF",
+  },
+  activityItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  activityIcon: {
+    marginRight: 10,
+  },
+  activityText: {
+    fontSize: 14,
+    color: "#333",
+  },
+  noActivityText: {
+    fontSize: 14,
+    color: "#888",
+    fontStyle: "italic",
   },
 });

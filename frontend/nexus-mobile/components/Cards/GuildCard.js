@@ -8,23 +8,23 @@ const GuildCard = ({ server }) => {
 
   return (
     <View style={styles.card}>
-        {isSvg ? (
-            <SvgUri uri={ server.image } style={styles.image} />
-        ) : (
-            <Image source={{ uri: server.image }} style={styles.image} />
-        )}
-        <View style={styles.infoContainer}>
-            <Text style={styles.title}>{server.name}</Text>
-            <Text style={styles.label}>Description:</Text>
-            <Text style={styles.description}>{server.description}</Text>
-            <View style={styles.memberRow}>
-                <Ionicons name="people" size={18} color="#90ee90" />
-                <Text style={styles.memberCount}>{server.members}</Text>
-            </View>
-            <TouchableOpacity style={styles.joinButton}>
-                <Text style={styles.joinText}>+ Request to Join</Text>
-            </TouchableOpacity>
+      {isSvg ? (
+        <SvgUri uri={server.image} style={styles.image} />
+      ) : (
+        <Image source={{ uri: server.image }} style={styles.image} />
+      )}
+      <View style={styles.infoContainer}>
+        <Text style={styles.title}>{server.name}</Text>
+        <Text style={styles.label}>Description:</Text>
+        <Text style={styles.description}>{server.description}</Text>
+        <View style={styles.memberRow}>
+          <Ionicons name="people" size={18} color="#90ee90" />
+          <Text style={styles.memberCount}>{server.members}</Text>
         </View>
+        <TouchableOpacity style={styles.joinButton}>
+          <Text style={styles.joinText}>+ Request to Join</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

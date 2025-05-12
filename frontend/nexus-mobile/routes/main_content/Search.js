@@ -1,31 +1,23 @@
 import React, { useState } from "react";
 import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput } from "react-native";
-import { getAllGames } from "../../data/DummyGameData";
 import { Ionicons } from "@expo/vector-icons";
+import GameCard from "../../components/Cards/GameCard";
 import GuildCard from "../../components/Cards/GuildCard";
 import PlayerCard from "../../components/Cards/PlayerCard";
 import GroupCard from "../../components/Cards/GroupCard";
+import { useGames } from "../../context/GameContext";
 
 export default function FilterBox({ topPadding }) {
   const [selectedCategory, setSelectedCategory] = useState("Games");
   const [searchQuery, setSearchQuery] = useState("");
-  const gamesList = getAllGames();
-
-  const games = gamesList.flatMap((game) => game.games || []).map((game) => ({
-    id: game.id,
-    name: game.name,
-  }));
-
-  const guilds = gamesList.flatMap((game) => game.servers || []);
-  const players = gamesList.flatMap((game) => game.topPlayers || []);
-  const groups = gamesList.flatMap((game) => game.lfgPosts || []);
+  const { games } = useGames();
 
   const getData = () => {
     let data = [];
     if (selectedCategory === "Games") data = games;
-    if (selectedCategory === "Guilds") data = guilds;
-    if (selectedCategory === "Players") data = players;
-    if (selectedCategory === "Groups") data = groups;
+    if (selectedCategory === "Guilds") data = games.flatMap((game) => game.servers || []);
+    if (selectedCategory === "Players") data = games.flatMap((game) => game.topPlayers || []);
+    if (selectedCategory === "Groups") data = games.flatMap((game) => game.lfgPosts || []);
 
     if (searchQuery.trim() !== "") {
       return data.filter((item) =>
@@ -36,10 +28,10 @@ export default function FilterBox({ topPadding }) {
   };
 
   const renderItem = ({ item }) => {
+    if (selectedCategory === "Games") return <GameCard game={item} />;
     if (selectedCategory === "Guilds") return <GuildCard server={item} />;
     if (selectedCategory === "Players") return <PlayerCard player={item} />;
     if (selectedCategory === "Groups") return <GroupCard group={item} />;
-    if (selectedCategory === "Games") return <Text style={styles.gameText}>{item.name}</Text>; // Render game name
     return null;
   };
 

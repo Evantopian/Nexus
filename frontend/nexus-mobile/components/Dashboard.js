@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions, ImageBackground, StatusBar, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  useWindowDimensions,
+  ImageBackground,
+  StatusBar,
+  Platform,
+} from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import { getGameByTitle } from '../data/DummyGameData';
 import GuildsRoute from './DashboardContent/GuildsRoute';
 import PlayersRoute from './DashboardContent/PlayersRoute';
 import LFGRoute from './DashboardContent/LFGRoute';
 
 export default function Dashboard({ route }) {
   const layout = useWindowDimensions();
-  const { gameTitle } = route.params;
+  const { game } = route.params;
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: 'guilds', title: 'Guilds' },
@@ -16,13 +23,12 @@ export default function Dashboard({ route }) {
     { key: 'lfg', title: 'LFG' },
   ]);
 
-  const gameData = getGameByTitle(gameTitle);
-  const backgroundImage = gameData?.image;
+  const backgroundImage = game?.banner || game?.image;
 
   const renderScene = SceneMap({
-    guilds: () => <GuildsRoute gameData={gameData} />,
-    players: () => <PlayersRoute gameData={gameData} />,
-    lfg: () => <LFGRoute gameData={gameData} />,
+    guilds: () => <GuildsRoute gameData={game} />,
+    players: () => <PlayersRoute gameData={game} />,
+    lfg: () => <LFGRoute gameData={game} />,
   });
 
   return (
@@ -37,14 +43,14 @@ export default function Dashboard({ route }) {
         style={styles.gameTitleBackground}
         resizeMode="cover"
       >
-        <Text style={styles.gameTitle}>{gameTitle}</Text>
+        <Text style={styles.gameTitle}>{game.title}</Text>
       </ImageBackground>
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={{ width: layout.width }}
-        renderTabBar={props => (
+        renderTabBar={(props) => (
           <TabBar
             {...props}
             indicatorStyle={{ backgroundColor: '#4f46e5' }}
