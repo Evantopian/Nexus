@@ -58,6 +58,16 @@ func (r *queryResolver) GetUser(ctx context.Context, userID uuid.UUID) (*model.U
 	return resolver.GetUser(ctx, userID)
 }
 
+// GetRandomUsers is the resolver for the getRandomUsers field.
+func (r *queryResolver) GetRandomUsers(ctx context.Context) ([]*model.User, error) {
+	return resolver.GetRandomUsers(ctx)
+}
+
+// SearchUser is the resolver for the searchUser field.
+func (r *queryResolver) SearchUser(ctx context.Context, search string) ([]*model.User, error) {
+	return resolver.SearchUser(ctx, search)
+}
+
 // GetUserFollowedGames is the resolver for the getUserFollowedGames field.
 func (r *queryResolver) GetUserFollowedGames(ctx context.Context, userID uuid.UUID) ([]*model.Game, error) {
 	return resolver.GetUserFollowedGames(ctx, userID)

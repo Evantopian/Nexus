@@ -54,6 +54,10 @@ type Preferences {
 extend type Query {
   profile: User! # Get the user's profile
   getUser(userId: UUID!): User!
+  getRandomUsers: [User!]!
+
+  searchUser(search: String!): [User!]!
+
   getUserFollowedGames(userId: UUID!): [Game!]!
   isUserFollowingGame(userId: UUID!, gameId: UUID!): Boolean!
 }
