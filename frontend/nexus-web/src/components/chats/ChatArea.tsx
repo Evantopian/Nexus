@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react"
 import { Socket, Channel } from "phoenix"
 import { useParams, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
-import { USER_IDS } from "@/data/ChatAccounts"
+import { useChat } from "@/contexts/ChatContext"
 
 import ChatHeader from "@/components/chats/ChatHeader"
 import MessageList from "@/components/chats/MessageList"
@@ -25,11 +25,11 @@ const ChatArea: React.FC = () => {
   const { contact: paramContact, groupId } = useParams<{ contact?: string; groupId?: string }>()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const isGroup = !!groupId
+  const { addOrUpdateConversation } = useChat()
 
-  const defaultUserId = Object.values(USER_IDS)[0]
+  const isGroup = !!groupId
   const myId = user?.uuid
-  const otherId = paramContact ?? defaultUserId
+  const otherId = paramContact ?? ""
 
   const [socket, setSocket] = useState<Socket | null>(null)
   const [channel, setChannel] = useState<Channel | null>(null)
@@ -44,10 +44,10 @@ const ChatArea: React.FC = () => {
   }, [user])
 
   useEffect(() => {
-    if (!paramContact && !groupId) {
-      navigate(`/chat/direct/${defaultUserId}`, { replace: true })
+    if (!paramContact && !groupId && user?.uuid) {
+      navigate(`/chat/direct/${user.uuid}`, { replace: true })
     }
-  }, [paramContact, groupId, navigate, defaultUserId])
+  }, [paramContact, groupId, navigate, user])
 
   useEffect(() => {
     if (!myId) return
@@ -65,7 +65,7 @@ const ChatArea: React.FC = () => {
   }, [myId])
 
   useEffect(() => {
-    if (!socket) return
+    if (!socket || !otherId) return
 
     const channelId = isGroup ? `group:${groupId}` : `dm:${otherId}`
     const chan = socket.channel(channelId, {})
@@ -84,21 +84,37 @@ const ChatArea: React.FC = () => {
         setMessages([])
       })
 
-  chan.on("message:new", (msg: Message & { client_id?: string }) => {
-    setMessages((prev) => {
-      if (msg.client_id) {
-        const idx = prev.findIndex((m) => m.id === msg.client_id || m.id === msg.id)
-        if (idx !== -1) {
-          const updated = [...prev]
-          updated[idx] = { ...msg, timestamp: msg.created_at, pending: false }
-          return updated
+    chan.on("message:new", (msg: Message & { client_id?: string }) => {
+      setMessages((prev) => {
+        let updated: Message[]
+
+        if (msg.client_id) {
+          const idx = prev.findIndex((m) => m.id === msg.client_id || m.id === msg.id)
+          if (idx !== -1) {
+            updated = [...prev]
+            updated[idx] = { ...msg, timestamp: msg.created_at, pending: false }
+          } else {
+            updated = [...prev, { ...msg, timestamp: msg.created_at }]
+          }
+        } else {
+          updated = [...prev, { ...msg, timestamp: msg.created_at }]
         }
-      }
 
-      return [...prev, { ...msg, timestamp: msg.created_at }]
+        if (!isGroup) {
+          addOrUpdateConversation({
+            id: `dm:${[myId, otherId].sort().join("-")}`,
+            user: {
+              id: otherId,
+              username: otherId, // You may replace this with actual name if available
+            },
+            lastMessage: msg.body,
+            lastActive: msg.created_at,
+          })
+        }
+
+        return updated
+      })
     })
-  })
-
 
     chan.on("user:typing", ({ user_id }: { user_id: string }) => {
       if (user_id !== myId) {
@@ -117,7 +133,7 @@ const ChatArea: React.FC = () => {
       chan.leave()
       setChannel(null)
     }
-  }, [socket, otherId, groupId, isGroup])
+  }, [socket, otherId, groupId, isGroup, myId, addOrUpdateConversation])
 
   const sendMessage = () => {
     if (!channel || !draft.trim()) return
@@ -127,7 +143,7 @@ const ChatArea: React.FC = () => {
       id: tempId,
       body: draft,
       user_id: myId!,
-      conversation_id: "", // not needed for display
+      conversation_id: "",
       created_at: new Date().toISOString(),
       timestamp: new Date().toISOString(),
       pending: true,
@@ -141,7 +157,6 @@ const ChatArea: React.FC = () => {
       .push("message:new", { body, client_id: tempId })
       .receive("error", (err: unknown) => {
         console.error("Failed to send:", err)
-        // Optionally show UI feedback
         setMessages((prev) => prev.filter((m) => m.id !== tempId))
       })
   }
@@ -156,14 +171,9 @@ const ChatArea: React.FC = () => {
     return <div className="p-4 text-gray-500 dark:text-[#8a92b2]">Loading user…</div>
   }
 
-  const getUserName = (id: string) => {
-    const entry = Object.entries(USER_IDS).find(([, value]) => value === id)
-    return entry ? entry[0] : id
-  }
-
   const chatTitle = isGroup
     ? `Group ${groupId}`
-    : `Chat with ${getUserName(otherId)}`
+    : `Chat with ${otherId}`
 
   return (
     <div className="flex flex-col flex-1 bg-white dark:bg-[#121a2f] overflow-hidden">

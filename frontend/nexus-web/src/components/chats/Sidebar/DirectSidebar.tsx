@@ -1,41 +1,28 @@
+// components/chats/Sidebar/DirectSidebar.tsx
 "use client"
 
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Search, X } from "lucide-react"
-import { useDirectConversations } from "@/hooks/useDirectConversations"
+import { useChat } from "@/contexts/ChatContext"
 
 interface DirectSidebarProps {
   activeContactId?: string
 }
 
-interface DirectConversation {
-  id: string
-  user: {
-    id: string
-    username: string
-  }
-  lastMessage: string
-  lastActive: string
-}
-
-
 const DirectSidebar: React.FC<DirectSidebarProps> = ({ activeContactId }) => {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState("")
 
-  const { conversations, loading, error } = useDirectConversations()
+  const { conversations } = useChat()
 
-  const filtered = (conversations as DirectConversation[]).filter((conv) =>
-
+  const filtered = conversations.filter((conv) =>
     conv.user.username.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const sorted = [...filtered].sort(
-  (a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
-)
-
-
+    (a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
+  )
 
   return (
     <aside className="w-64 bg-gray-100 dark:bg-[#0e1525] flex flex-col h-full border-r border-gray-200 dark:border-[#1e2a45] overflow-hidden">
@@ -63,11 +50,7 @@ const DirectSidebar: React.FC<DirectSidebarProps> = ({ activeContactId }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto chat-scrollbar-hide px-2 py-2">
-        {loading ? (
-          <div className="text-center py-4 text-gray-500 dark:text-[#8a92b2] text-sm">Loading...</div>
-        ) : error ? (
-          <div className="text-center py-4 text-red-500 text-sm">Error loading conversations</div>
-        ) : filtered.length > 0 ? (
+        {filtered.length > 0 ? (
           sorted.map((conv) => (
             <button
               key={`${conv.id}-${conv.user.id}`}
