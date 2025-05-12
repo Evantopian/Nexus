@@ -131,3 +131,6 @@ dist
 
 # air temp file
 tmp
+
+# gqlgen generated file
+backend/graph/generated.go
