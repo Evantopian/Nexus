@@ -3,7 +3,10 @@ package resolver
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
 	"time"
 
 	"github.com/Evantopian/Nexus/graph/model"
@@ -310,4 +313,65 @@ func SearchUser(ctx context.Context, search string) ([]*model.User, error) {
 	}
 
 	return users, nil
+}
+
+func GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendations int) ([]*model.UserRecommendation, error) {
+	baseURL := os.Getenv("RECOMMENDER_BASE_URL")
+	if baseURL == "" {
+		return nil, fmt.Errorf("RECOMMENDER_BASE_URL is not set")
+	}
+
+	url := fmt.Sprintf("%s/recommendations/%s?num_recommendations=%d", baseURL, userID.String(), numRecommendations)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to call recommendation service: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("recommendation service returned status: %v", resp.Status)
+	}
+
+	var rawRecs []struct {
+		UUID       string  `json:"uuid"`
+		Username   string  `json:"username"`
+		Region     string  `json:"region"`
+		Genre      string  `json:"genre"`
+		Platform   string  `json:"platform"`
+		Playstyle  string  `json:"playstyle"`
+		Rank       string  `json:"rank"`
+		Reputation float64 `json:"reputation"`
+		Age        float64 `json:"age"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&rawRecs); err != nil {
+		return nil, fmt.Errorf("failed to decode recommendation response: %v", err)
+	}
+
+	recommendations := make([]*model.UserRecommendation, 0, len(rawRecs))
+
+	for _, rec := range rawRecs {
+		uid, err := uuid.Parse(rec.UUID)
+		if err != nil {
+			continue // skip invalid UUIDs
+		}
+
+		rep := int32(rec.Reputation)
+		age := int32(rec.Age)
+
+		recommendations = append(recommendations, &model.UserRecommendation{
+			UUID:       uid,
+			Username:   &rec.Username,
+			Region:     &rec.Region,
+			Genre:      &rec.Genre,
+			Platform:   &rec.Platform,
+			Playstyle:  &rec.Playstyle,
+			Rank:       &rec.Rank,
+			Reputation: &rep,
+			Age:        &age,
+		})
+	}
+
+	return recommendations, nil
 }

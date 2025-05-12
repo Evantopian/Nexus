@@ -145,6 +145,18 @@ type User struct {
 	FollowingGames []*Game      `json:"followingGames"`
 }
 
+type UserRecommendation struct {
+	UUID       uuid.UUID `json:"uuid"`
+	Username   *string   `json:"username,omitempty"`
+	Region     *string   `json:"region,omitempty"`
+	Genre      *string   `json:"genre,omitempty"`
+	Platform   *string   `json:"platform,omitempty"`
+	Playstyle  *string   `json:"playstyle,omitempty"`
+	Rank       *string   `json:"rank,omitempty"`
+	Reputation *int32    `json:"reputation,omitempty"`
+	Age        *int32    `json:"age,omitempty"`
+}
+
 type ChannelType string
 
 const (

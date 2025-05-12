@@ -63,6 +63,11 @@ func (r *queryResolver) GetRandomUsers(ctx context.Context) ([]*model.User, erro
 	return resolver.GetRandomUsers(ctx)
 }
 
+// GetRecommendations is the resolver for the getRecommendations field.
+func (r *queryResolver) GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendations int32) ([]*model.UserRecommendation, error) {
+	return resolver.GetRecommendations(ctx, userID, int(numRecommendations))
+}
+
 // SearchUser is the resolver for the searchUser field.
 func (r *queryResolver) SearchUser(ctx context.Context, search string) ([]*model.User, error) {
 	return resolver.SearchUser(ctx, search)
