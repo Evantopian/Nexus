@@ -55,13 +55,15 @@ defmodule ChatSystem.MixProject do
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
-      {:jason, "~> 1.2"},
+      {:jason, "~> 1.4.4"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:absinthe_plug, "~> 1.5"},
       {:joken, "~> 2.6.2"},
       {:dotenv, "~> 3.1.0"},
       {:dotenv_parser, "~> 2.0.1"},
+      {:httpoison, "~> 2.2.3"},
+
       ]
   end
 

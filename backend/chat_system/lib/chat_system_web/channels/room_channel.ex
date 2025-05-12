@@ -1,72 +1,87 @@
 defmodule ChatSystemWeb.RoomChannel do
   use Phoenix.Channel
+  require Logger
 
   alias ChatSystem.Chat
+  alias Ecto.UUID
 
-  # Join a server channel (e.g., room:channel_id)
-  def join("room:" <> channel_id, _params, socket) do
-    {:ok, assign(socket, :channel_id, channel_id)}
+  # join a text-channel
+  def join("room:" <> cid, _params, socket) do
+    with {:ok, _} <- ensure_channel_exists(cid) do
+      history = Chat.list_channel_messages(cid)
+      socket  = assign(socket, :channel_id, cid)
+      {:ok, %{messages: render(history)}, socket}
+    else
+      {:error, reason} -> {:error, %{reason: reason}}
+    end
   end
 
-  # Join a DM channel (e.g., dm:conversation_id)
-  def join("dm:" <> conversation_id, _params, socket) do
-    {:ok, assign(socket, :conversation_id, conversation_id)}
+  # join a DM
+  def join("dm:" <> other_id, _params, socket) do
+    me = socket.assigns.user_id
+
+    case Chat.get_or_create_conversation(me, other_id) do
+      {:ok, bin_id} ->
+        convo_id = UUID.load!(bin_id)
+        history  = Chat.list_conversation_messages(convo_id)
+        socket   = assign(socket, :conversation_id, convo_id)
+        {:ok, %{conversation_id: convo_id, messages: render(history)}, socket}
+
+      {:error, _} ->
+        Logger.error("DM join failed: #{me} ↔ #{other_id}")
+        {:error, %{reason: "cannot start DM"}}
+    end
   end
 
-  # Handle new messages
+  # handle new messages for both rooms & DMs
   def handle_in("message:new", %{"body" => body}, socket) do
-    user_id = socket.assigns.user_id
-
-    # Determine type of channel
-    topic = socket.topic
-
     attrs =
-      case topic do
-        "dm:" <> conversation_id ->
-          %{
-            body: body,
-            sender_id: user_id,
-            conversation_id: conversation_id
-          }
-
-        "room:" <> channel_id ->
-          %{
-            body: body,
-            sender_id: user_id,
-            channel_id: channel_id
-          }
-
-        _ ->
-          %{}
+      case socket.topic do
+        "room:" <> cid -> %{body: body, sender_id: socket.assigns.user_id, channel_id: cid}
+        "dm:"   <> cn  -> %{body: body, sender_id: socket.assigns.user_id, conversation_id: cn}
       end
 
     case Chat.create_message(attrs) do
       {:ok, msg} ->
         broadcast!(socket, "message:new", %{
-          id: msg.id,
-          body: msg.body,
-          user_id: msg.sender_id,
+          id:              msg.id,
+          body:            msg.body,
+          user_id:         msg.sender_id,
+          channel_id:      msg.channel_id,
           conversation_id: msg.conversation_id,
-          channel_id: msg.channel_id
+          created_at:      msg.created_at
         })
 
-      {:error, changeset} ->
-        IO.inspect(changeset, label: "Message insert failed")
+        {:noreply, socket}
+
+      {:error, cs} ->
+        push(socket, "message:error", %{errors: Ecto.Changeset.traverse_errors(cs, & &1)})
+        {:noreply, socket}
     end
-
-    {:noreply, socket}
   end
 
-  # Handle typing indicators
-  def handle_in("typing:start", %{}, socket) do
-    user_id = socket.assigns.user_id
-    broadcast_from!(socket, "typing:start", %{user_id: user_id})
-    {:noreply, socket}
+  # helper: rescue when a channel id isn’t found
+  defp ensure_channel_exists(cid) do
+    try do
+      Chat.get_channel!(cid)
+      {:ok, cid}
+    rescue
+      Ecto.NoResultsError -> {:error, "channel not found"}
+    end
   end
 
-  def handle_in("typing:stop", %{}, socket) do
-    user_id = socket.assigns.user_id
-    broadcast_from!(socket, "typing:stop", %{user_id: user_id})
-    {:noreply, socket}
+  # render your messages, returning created_at (instead of inserted_at)
+  defp render(messages) do
+    for m <- messages do
+      %{
+        id:              m.id,
+        body:            m.body,
+        user_id:         m.sender_id,
+        channel_id:      m.channel_id,
+        conversation_id: m.conversation_id,
+        created_at:      m.created_at,
+        pinned:          m.pinned
+      }
+    end
   end
 end

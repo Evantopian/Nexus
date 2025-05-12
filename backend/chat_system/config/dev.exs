@@ -13,7 +13,7 @@ config :chat_system, ChatSystem.Repo,
   port: 5432,
   ssl: true,
   ssl_opts: [verify: :verify_none],
-  pool_size: 10
+  pool_size: 5  
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

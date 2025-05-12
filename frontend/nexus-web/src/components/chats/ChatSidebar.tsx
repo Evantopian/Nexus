@@ -1,67 +1,57 @@
-// src/components/chats/ChatSidebar.tsx
-import React, { useState } from "react";
+import React from "react";
+import { gql, useQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { useQuery, gql } from "@apollo/client";
 
-const TEST_UUID = "d18e2a5b-1af8-4180-8270-f4104c73668b";
+const DEV_USER_ID = "32673fee-5280-4134-a5f9-e339532bd7f9";
 
-const GET_CONVERSATIONS = gql`
-  query GetConversations {
-    getConversations {
-      id
-      isGroup
+const GET_USER = gql`
+  query GetUser($userId: UUID!) {
+    getUser(userId: $userId) {
+      uuid
+      username
+      profileImg
     }
   }
 `;
 
 const ChatSidebar: React.FC = () => {
-  const { data, loading, error } = useQuery(GET_CONVERSATIONS);
-  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  // Get all DMs (non-group conversations)
-  const apiConversations = data?.getConversations?.filter((c: any) => !c.isGroup) || [];
+  const { data, loading, error } = useQuery(GET_USER, {
+    variables: { userId: DEV_USER_ID } // ✅ correct key name
+  });
 
-  // Always include TEST_UUID if it's not already in the API data
-  const uniqueConversations = [
-    ...apiConversations,
-    ...(apiConversations.some((c: any) => c.id === TEST_UUID)
-      ? []
-      : [{ id: TEST_UUID, isGroup: false }])
-  ];
+  if (loading) {
+    return <p className="p-4 text-gray-500">Loading dev contact…</p>;
+  }
 
-  // Apply search filter
-  const filtered = uniqueConversations.filter((c: any) =>
-    c.id.toLowerCase().includes(search.toLowerCase())
-  );
+  if (error) {
+    return <p className="p-4 text-red-500">Error: {error.message}</p>;
+  }
+
+  const user = data?.getUser;
+  if (!user) {
+    return <p className="p-4 text-red-500">Dev user not found.</p>;
+  }
 
   return (
-    <aside className="w-72 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 flex flex-col">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Chats</h2>
-      <input
-        type="text"
-        placeholder="Search DMs..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full mb-4 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
-      <div className="flex-1 overflow-y-auto space-y-1">
-        {loading ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Loading…</p>
-        ) : error ? (
-          <p className="text-sm text-red-500">Failed to load.</p>
+    <aside className="w-60 border-r p-4 bg-white dark:bg-gray-900">
+      <h2 className="text-lg font-semibold mb-4">Contacts</h2>
+      <button
+        onClick={() => navigate(`/chat/direct/${user.uuid}`)}
+        className="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
+      >
+        {user.profileImg ? (
+          <img
+            src={user.profileImg}
+            alt={`${user.username}'s avatar`}
+            className="w-8 h-8 rounded-full object-cover"
+          />
         ) : (
-          filtered.map((c: any) => (
-            <button
-              key={c.id}
-              onClick={() => navigate(`/chat/direct/${c.id}`)}
-              className="w-full text-left px-3 py-2 rounded-md text-sm text-gray-800 dark:text-gray-200 hover:bg-indigo-100 dark:hover:bg-indigo-800 transition"
-            >
-              {c.id === TEST_UUID ? "Dev Contact" : c.id.slice(0, 8)}
-            </button>
-          ))
+          <div className="w-8 h-8 rounded-full bg-gray-300" />
         )}
-      </div>
+        <span className="text-sm font-medium">{user.username}</span>
+      </button>
     </aside>
   );
 };

@@ -1,80 +1,141 @@
-// src/components/chats/ChatArea.tsx
-import React, { useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Socket, Channel } from "phoenix";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useChatSocket } from "@/hooks/useChatSocket";
-import { useMessageFeed } from "@/hooks/useMessageFeed";
-import { useTypingEvents } from "@/hooks/useTypingEvents";
 
-import ChatHeader from "./ChatHeader";
-import ChatTabs from "./ChatTabs";
-import MessageList from "./MessageList";
-import MessageInput from "./MessageInput";
-import NoMessagesFallback from "./NoMessagesFallback";
+interface Message {
+  id: string;
+  body: string;
+  user_id: string;
+  conversation_id: string;
+  created_at: string;
+}
 
-const tabs = ["Direct Messages", "Group Chats"];
+const DEV_USER_ID = "32673fee-5280-4134-a5f9-e339532bd7f9";
 
 const ChatArea: React.FC = () => {
-  const { contact } = useParams<{ contact: string }>();
+  const { contact: paramContact } = useParams<{ contact?: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
   const { user } = useAuth();
 
-  const [message, setMessage] = useState("");
-  const initialTab = location.pathname.includes("/chat/groups/")
-    ? tabs[1]
-    : tabs[0];
-  const [activeTab, setActiveTab] = useState<string>(initialTab);
+  const myId = user?.uuid;
+  const otherId = paramContact ?? DEV_USER_ID;
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    const route = tab === "Direct Messages" ? "direct" : "groups";
-    navigate(`/chat/${route}/${contact}`, { replace: true });
-  };
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [channel, setChannel] = useState<Channel | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [draft, setDraft] = useState("");
 
-  const token = localStorage.getItem("authToken");
-  const readyToConnect = !!user && !!token;
+  // Redirect if no contact param is set
+  useEffect(() => {
+    if (!paramContact) {
+      navigate(`/chat/direct/${DEV_USER_ID}`, { replace: true });
+    }
+  }, [paramContact, navigate]);
 
-  // Directly use `contact` as the topic ID
-  const topic =
-    activeTab === "Direct Messages"
-      ? contact
-        ? `dm:${contact}`
-        : null
-      : contact
-      ? `room:${contact}`
-      : null;
+  // Connect the Phoenix socket when `myId` is available
+  useEffect(() => {
+    if (!myId) return;
 
-  const { channel } = useChatSocket(topic ?? "", readyToConnect && !!topic ? token : null);
-  const { messages } = useMessageFeed(channel, topic ?? "");
-  const { typingUsers, handleTyping } = useTypingEvents(channel, user?.uuid ?? null);
+    console.log("🔌 Connecting to Phoenix with user_id:", myId);
 
-  if (!readyToConnect || !topic) {
-    return <div className="p-4 text-gray-600">Connecting to chat...</div>;
-  }
+    const sock = new Socket("ws://localhost:4000/socket", {
+      params: { user_id: myId },
+    });
+
+    sock.connect();
+ 
+
+    setSocket(sock);
+
+    return () => {
+      sock.disconnect();
+      setSocket(null);
+    };
+  }, [myId]);
+
+  // Join the direct message channel when socket + otherId change
+  useEffect(() => {
+    if (!socket || !myId || !otherId) return;
+
+    const chan = socket.channel(`dm:${otherId}`, {});
+
+    chan.join()
+      .receive("ok", ({ messages: hist }: { messages: Message[] }) => {
+        console.log("🟢 Joined DM channel. Loaded messages:", hist);
+        setMessages(hist);
+      })
+      .receive("error", (err: any) => {
+        console.error("❌ Failed to join DM channel:", err);
+      });
+
+    chan.on("message:new", (msg: Message) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
+    setChannel(chan);
+
+    return () => {
+      chan.leave();
+      setChannel(null);
+    };
+  }, [socket, myId, otherId]);
 
   const sendMessage = () => {
-    if (channel && message.trim()) {
-      channel.push("message:new", { body: message });
-      setMessage("");
+    if (channel && draft.trim()) {
+      channel.push("message:new", { body: draft });
+      setDraft("");
     }
   };
 
+  if (!myId) {
+    return <div className="p-4 text-gray-600">Loading user…</div>;
+  }
+
   return (
-    <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-800 rounded-lg shadow-md overflow-hidden min-h-0">
-      <ChatTabs tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
-      <ChatHeader title={contact ?? "Unknown"} />
-      {messages.length === 0 ? (
-        <NoMessagesFallback />
-      ) : (
-        <MessageList messages={messages} typingUsers={typingUsers} />
-      )}
-      <MessageInput
-        value={message}
-        onChange={setMessage}
-        onSend={sendMessage}
-        onTyping={handleTyping}
-      />
+    <div className="flex flex-col flex-1 bg-white rounded shadow-md overflow-hidden">
+      <header className="p-4 border-b text-sm text-gray-700">
+        Chat with <span className="font-mono text-blue-600">{otherId}</span>
+      </header>
+
+      <div className="flex-1 p-4 overflow-y-auto space-y-2">
+        {messages.map((m) => (
+          <div
+            key={m.id}
+            className={`max-w-[75%] px-3 py-2 rounded ${
+              m.user_id === myId
+                ? "bg-blue-100 ml-auto text-right"
+                : "bg-gray-100 mr-auto text-left"
+            }`}
+          >
+            <div>{m.body}</div>
+            <div className="text-xs text-gray-500 mt-1">
+              {new Date(m.created_at).toLocaleTimeString()}
+            </div>
+          </div>
+        ))}
+
+        {messages.length === 0 && (
+          <div className="text-gray-400 italic">No messages yet.</div>
+        )}
+      </div>
+
+      <div className="p-4 border-t flex gap-2">
+        <input
+          type="text"
+          className="flex-1 border rounded p-2"
+          placeholder="Type your message…"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+        <button
+          onClick={sendMessage}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
 };

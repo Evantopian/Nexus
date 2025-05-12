@@ -68,8 +68,8 @@ func (r *mutationResolver) UnpinMessage(ctx context.Context, messageID uuid.UUID
 }
 
 // SendChannelMessage is the resolver for the sendChannelMessage field.
-func (r *mutationResolver) SendChannelMessage(ctx context.Context, channelID uuid.UUID, body string, replyToId *uuid.UUID) (*model.Message, error) {
-	return chat.SendChannelMessage(ctx, channelID, body, replyToId)
+func (r *mutationResolver) SendChannelMessage(ctx context.Context, channelID uuid.UUID, body string, replyToID *uuid.UUID) (*model.Message, error) {
+	return chat.SendChannelMessage(ctx, channelID, body, replyToID)
 }
 
 
@@ -134,7 +134,6 @@ func (r *queryResolver) GetPinnedMessagesByChannel(ctx context.Context, channelI
 func (r *queryResolver) GetPinnedMessagesByConversation(ctx context.Context, conversationID uuid.UUID) ([]*model.Message, error) {
 	return chat.GetPinnedMessagesByConversation(ctx, conversationID)
 }
-
 
 
 // Mutation returns MutationResolver implementation.
