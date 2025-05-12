@@ -7,6 +7,7 @@ import { Users, User, Search, X } from "lucide-react"
 import { USER_IDS } from "@/data/ChatAccounts"
 
 
+
 const ChatSidebar: React.FC = () => {
   const navigate = useNavigate()
   const { contact: activeContactId, groupId: activeGroupId } = useParams<{
@@ -36,7 +37,7 @@ const ChatSidebar: React.FC = () => {
         // Convert USER_IDS object to array of users
         const users = Object.entries(USER_IDS).map(([key, id]) => ({
           id,
-          name: key, // Use the key as name for now
+          name: key, // Use the key as name
           status: "online", // Default status
         }))
         setUserList(users)
@@ -76,8 +77,8 @@ const ChatSidebar: React.FC = () => {
   }
 
   return (
-    <aside className="w-64 bg-gray-100 dark:bg-[#0e1525] flex flex-col h-full border-r border-gray-200 dark:border-[#1e2a45]">
-      <div className="p-3 border-b border-gray-200 dark:border-[#1e2a45]">
+    <aside className="w-64 bg-gray-100 dark:bg-[#0e1525] flex flex-col h-full border-r border-gray-200 dark:border-[#1e2a45] overflow-hidden">
+      <div className="p-3 border-b border-gray-200 dark:border-[#1e2a45] flex-shrink-0">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-gray-800 dark:text-white font-bold">Messages</h2>
         </div>
@@ -117,28 +118,30 @@ const ChatSidebar: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-2">
-          <div className="relative mb-3">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={activeTab === "direct" ? "Search contacts..." : "Search groups..."}
-              className="w-full bg-white dark:bg-[#182238] text-gray-800 dark:text-[#e0e4f0] placeholder-gray-500 dark:placeholder-[#8a92b2] rounded-md py-2 pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-[#4a65f2] border border-gray-300 dark:border-transparent"
-            />
-            {searchQuery ? (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-[#8a92b2] hover:text-gray-700 dark:hover:text-[#e0e4f0]"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            ) : (
-              <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#8a92b2]" />
-            )}
-          </div>
+      <div className="p-2 flex-shrink-0">
+        <div className="relative mb-3">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={activeTab === "direct" ? "Search contacts..." : "Search groups..."}
+            className="w-full bg-white dark:bg-[#182238] text-gray-800 dark:text-[#e0e4f0] placeholder-gray-500 dark:placeholder-[#8a92b2] rounded-md py-2 pl-3 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-[#4a65f2] border border-gray-300 dark:border-transparent"
+          />
+          {searchQuery ? (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-[#8a92b2] hover:text-gray-700 dark:hover:text-[#e0e4f0]"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          ) : (
+            <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-[#8a92b2]" />
+          )}
+        </div>
+      </div>
 
+      <div className="flex-1 overflow-y-auto chat-scrollbar-hide">
+        <div className="px-2">
           {activeTab === "direct" ? (
             <>
               {filteredUsers.length > 0 ? (
@@ -173,7 +176,9 @@ const ChatSidebar: React.FC = () => {
                           {user.name}
                         </span>
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-[#8a92b2] truncate block">{user.id}</span>
+                      <span className="text-xs text-gray-500 dark:text-[#8a92b2] truncate block">
+                        {user.id.substring(0, 8)}...
+                      </span>
                     </div>
                   </button>
                 ))

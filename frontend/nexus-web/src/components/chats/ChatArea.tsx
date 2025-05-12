@@ -21,6 +21,13 @@ interface Message {
   pending?: boolean
 }
 
+const USER_ID_TO_NAME = Object.entries(USER_IDS).reduce((acc, [name, id]) => {
+  acc[id] = name
+  return acc
+}, {} as Record<string, string>)
+
+
+
 const ChatArea: React.FC = () => {
   const { contact: paramContact, groupId } = useParams<{ contact?: string; groupId?: string }>()
   const navigate = useNavigate()
@@ -174,7 +181,7 @@ const ChatArea: React.FC = () => {
       />
 
       {messages.length > 0 ? (
-        <MessageList messages={messages} typingUsers={typingUsers} />
+        <MessageList messages={messages} typingUsers={typingUsers} userNames={USER_ID_TO_NAME}/>
       ) : (
         <NoMessagesFallback isGroup={isGroup} />
       )}
