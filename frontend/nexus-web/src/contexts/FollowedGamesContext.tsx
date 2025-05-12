@@ -21,10 +21,11 @@ export const FollowedGamesProvider = ({
   const { user } = useAuth();
   const { data, loading, error } = useQuery(GET_USER_FOLLOWED_GAMES, {
     variables: { userId: user?.uuid },
-    skip: !user?.uuid,
   });
 
   const followedGames = data?.getUserFollowedGames ?? [];
+
+  // console.log("fetched followed games", followedGames);
 
   return (
     <FollowedGamesContext.Provider value={{ followedGames, loading, error }}>

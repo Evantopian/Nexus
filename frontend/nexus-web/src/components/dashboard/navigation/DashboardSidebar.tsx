@@ -4,7 +4,6 @@ import NexusDragon from "@/assets/Nexus_Dragon.svg";
 import TopNavigation from "./TopNavigation";
 import SidebarContent from "./SidebarContent";
 import ProfileMenu from "./ProfileMenu";
-import cinnamoroll from "@/assets/dummydata/cinnamoroll.jpg";
 import { useAuth } from "@/contexts/AuthContext";
 
 const DashboardSidebar = () => {
@@ -95,7 +94,7 @@ const DashboardSidebar = () => {
         >
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-indigo-200 dark:border-indigo-700 flex-shrink-0 transition-all duration-200 hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-md">
             <img
-              src={cinnamoroll}
+              src={user?.profileImg ?? "default-image.jpg"}
               alt="Profile"
               className="w-full h-full object-cover"
             />

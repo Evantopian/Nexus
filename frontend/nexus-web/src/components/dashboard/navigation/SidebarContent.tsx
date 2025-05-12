@@ -1,8 +1,10 @@
 import { useLocation } from "react-router-dom";
-import { followedGames, chatItems, serverItems } from "./NavItemsModel";
+import { followedGamesTest, chatItems, serverItems } from "./NavItemsModel";
 import NavItem from "./NavItem";
 import SectionHeader from "./SectionHeader";
-// import { useFollowedGames } from "@/contexts/FollowedGamesContext";
+// import { useAuth } from "@/contexts/AuthContext";
+// import { useQuery } from "@apollo/client";
+// import { GET_USER_FOLLOWED_GAMES } from "@/graphql/userQueries";
 
 interface SidebarContentProps {
   expanded: boolean;
@@ -10,7 +12,14 @@ interface SidebarContentProps {
 
 const SidebarContent = ({ expanded }: SidebarContentProps) => {
   const location = useLocation();
-  // const { followedGames } = useFollowedGames();
+  // const { user } = useAuth();
+  // const { data, loading, error } = useQuery(GET_USER_FOLLOWED_GAMES, {
+  //   variables: { userId: user?.uuid },
+  // });
+
+  // const followedGames = data?.getUserFollowedGames ?? [];
+
+  // console.log("Followed Games", followedGames);
 
   return (
     <div className="w-full overflow-hidden">
@@ -18,7 +27,7 @@ const SidebarContent = ({ expanded }: SidebarContentProps) => {
       <div className="mb-6 w-full">
         <SectionHeader title="GAMES" expanded={expanded} />
         <div className="space-y-1">
-          {followedGames.map((item, index) => (
+          {followedGamesTest.map((item, index) => (
             <NavItem
               key={`game-${index}`}
               icon={item.icon}

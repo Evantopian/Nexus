@@ -11,7 +11,6 @@ import {
   Palette,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import cinnamoroll from "@/assets/dummydata/cinnamoroll.jpg";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ProfileMenuProps {
@@ -53,7 +52,7 @@ const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
         <div className="flex items-center">
           <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-200 dark:border-indigo-700 mr-3">
             <img
-              src={cinnamoroll}
+              src={user?.profileImg ?? "default-image.jpg"}
               alt="Profile"
               className="w-full h-full object-cover"
             />
