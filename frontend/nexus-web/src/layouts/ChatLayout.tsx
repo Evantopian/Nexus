@@ -1,13 +1,13 @@
-import ChatSidebar from "@/components/chats/ChatSidebar";
-import ChatArea from "@/components/chats/ChatArea";
+import { Outlet } from "react-router-dom"
+import ChatSidebar from "@/components/chats/ChatSidebar"
 
-const ChatLayout = () => {
-  return (
-    <div className="flex h-[calc(100vh-6rem)] bg-gray-50 dark:bg-gray-900">
-      <ChatSidebar />
-      <ChatArea />
-    </div>
-  );
-};
+const ChatLayout: React.FC = () => (
+  <div className="flex h-screen bg-white dark:bg-[#121a2f] overflow-hidden">
+    <ChatSidebar />
+    <main className="flex-1 flex overflow-hidden">
+      <Outlet />
+    </main>
+  </div>
+)
 
-export default ChatLayout;
+export default ChatLayout

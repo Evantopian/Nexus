@@ -1,0 +1,120 @@
+# Scalar for UUID-based identifiers (Postgres-compatible)
+# Supported types of channels
+enum ChannelType {
+  TEXT
+  VOICE
+  ANNOUNCEMENT
+}
+
+# Lightweight user reference for messaging context
+# Full user profiles are managed elsewhere
+type ChatUser {
+  id: UUID!
+  username: String!
+}
+
+# Role with permissions for access control in servers
+type Role {
+  id: UUID!
+  name: String!
+  permissions: [String!]!
+}
+
+# Association of user to roles within a server
+# Enables ownership and admin dynamics
+type ServerMember {
+  user: ChatUser!
+  roleIds: [UUID!]!
+}
+
+# Message structure used in DMs and channels
+# Includes optional pinning
+type Message {
+  id: UUID!
+  sender: ChatUser!
+  body: String!
+  timestamp: String!
+  pinned: Boolean!
+  replyTo: Message
+}
+
+# DM or group chat session
+# DMs = 2 participants, groups > 2
+type Conversation {
+  id: UUID!
+  participants: [ChatUser]!
+  messages: [Message]!
+  lastMessage: Message
+  isGroup: Boolean!
+}
+
+# Optional category grouping for channels in a server
+type ServerCategory {
+  id: UUID!
+  name: String!
+  channelIds: [UUID!]!
+}
+
+# Discord-style server (guild) with roles and members
+# Channels are contained under the server
+type Server {
+  id: UUID!
+  name: String!
+  ownerId: UUID!
+  iconUrl: String
+  members: [ServerMember]!
+  roles: [Role]!
+  channels: [Channel]!
+  categories: [ServerCategory]!
+}
+
+# A communication channel inside a server
+# Type can be TEXT, VOICE, etc.
+type Channel {
+  id: UUID!
+  name: String!
+  type: ChannelType!
+  serverId: UUID!
+  participants: [ChatUser]!
+  messages: [Message]!
+  lastMessage: Message
+  topic: String
+  slowModeSeconds: Int
+  categoryId: UUID
+}
+
+# Queries for fetching conversations, servers, channels, messages
+extend type Query {
+  getConversations: [Conversation]!
+  getMessages(conversationId: UUID!): [Message]!
+  getServers: [Server]!
+  getServer(id: UUID!): Server
+  getChannels(serverId: UUID!): [Channel]!
+  getChannelMessages(channelId: UUID!): [Message]!
+}
+
+# Mutations for chat interactions, server/channel management, role handling
+extend type Mutation {
+  sendMessage(conversationId: UUID!, body: String!, replyToId: UUID): Message!
+  startConversation(participantIds: [UUID!]!): Conversation!
+
+  createServer(name: String!): Server!
+  joinServer(serverId: UUID!): Boolean!
+  leaveServer(serverId: UUID!): Boolean!
+  deleteServer(serverId: UUID!): Boolean!
+
+  createChannel(serverId: UUID!, name: String!, type: ChannelType!, categoryId: UUID): Channel!
+  deleteChannel(channelId: UUID!): Boolean!
+  leaveChannel(channelId: UUID!): Boolean!
+
+  pinMessage(messageId: UUID!): Boolean!
+  unpinMessage(messageId: UUID!): Boolean!
+
+  sendChannelMessage(channelId: UUID!, body: String!, replyToId: UUID): Message!
+
+  assignRole(userId: UUID!, serverId: UUID!, roleId: UUID!): Boolean!
+  createRole(serverId: UUID!, name: String!, permissions: [String!]!): Role!
+  deleteRole(roleId: UUID!): Boolean!
+  editMessage(messageID: UUID!, body: String!): Message!
+  deleteMessage(messageID: UUID!): Boolean!
+}

@@ -1,15 +1,19 @@
 import Config
 
 # Configure your database
-config :chat_system, ChatSystem.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "chat_system_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
 
+
+config :chat_system, ChatSystem.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  #url: "postgres://u884r9mrvm6ekc:pb5e929632ff94150cc04ae85f7b367685cdf100b974bf8a94fc0078fde83d58f@c229h9evb9laqg.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d1irq87fhoflma",
+  username: "u884r9mrvm6ekc",
+  password: "pb5e929632ff94150cc04ae85f7b367685cdf100b974bf8a94fc0078fde83d58f",
+  database: "d1irq87fhoflma",
+  hostname: "c229h9evb9laqg.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com",
+  port: 5432,
+  ssl: true,
+  ssl_opts: [verify: :verify_none],
+  pool_size: 5  
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

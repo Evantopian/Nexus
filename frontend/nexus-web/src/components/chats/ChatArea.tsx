@@ -1,173 +1,199 @@
-import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
-import { Socket } from "phoenix";
-import { MessageStorage } from "@/data/messageStorage";
-import { useDebouncedCallback } from "use-debounce";
+"use client"
+
+import React, { useState, useEffect } from "react"
+import { Socket, Channel } from "phoenix"
+import { useParams, useNavigate } from "react-router-dom"
+import { useAuth } from "@/contexts/AuthContext"
+import { USER_IDS } from "@/data/ChatAccounts"
+
+import ChatHeader from "@/components/chats/ChatHeader"
+import MessageList from "@/components/chats/MessageList"
+import MessageInput from "@/components/chats/MessageInput"
+import NoMessagesFallback from "@/components/chats/NoMessagesFallback"
 
 interface Message {
-  user: string;
-  body: string;
+  id: string
+  body: string
+  user_id: string
+  conversation_id: string
+  created_at: string
+  timestamp: string
+  pending?: boolean
 }
 
-const ChatArea = () => {
-  const { roomId, channelId } = useParams();
-  const [messagesMap, setMessagesMap] = useState<Record<string, Message[]>>(
-    MessageStorage.load()
-  );
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [channel, setChannel] = useState<any>(null);
-  const [message, setMessage] = useState("");
-  const [typingUsers, setTypingUsers] = useState<string[]>([]);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+const USER_ID_TO_NAME = Object.entries(USER_IDS).reduce((acc, [name, id]) => {
+  acc[id] = name
+  return acc
+}, {} as Record<string, string>)
 
-  const usernameRef = useRef(`User${Math.floor(1000 + Math.random() * 9000)}`);
-  const username = usernameRef.current;
+
+
+const ChatArea: React.FC = () => {
+  const { contact: paramContact, groupId } = useParams<{ contact?: string; groupId?: string }>()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const isGroup = !!groupId
+
+  const defaultUserId = Object.values(USER_IDS)[0]
+  const myId = user?.uuid
+  const otherId = paramContact ?? defaultUserId
+
+  const [socket, setSocket] = useState<Socket | null>(null)
+  const [channel, setChannel] = useState<Channel | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [draft, setDraft] = useState("")
+  const [typingUsers, setTypingUsers] = useState<string[]>([])
 
   useEffect(() => {
-    if (!roomId || !channelId) return;
+    if (user?.uuid) {
+      localStorage.setItem("uuid", user.uuid)
+    }
+  }, [user])
 
-    const newSocket = new Socket("ws://localhost:4000/socket", {
-      params: { token: "dummy_token", username },
-    });
-    newSocket.connect();
-    setSocket(newSocket);
+  useEffect(() => {
+    if (!paramContact && !groupId) {
+      navigate(`/chat/direct/${defaultUserId}`, { replace: true })
+    }
+  }, [paramContact, groupId, navigate, defaultUserId])
 
-    const topic = `room:${roomId}:${channelId}`;
-    const newChannel = newSocket.channel(topic, {});
-    setChannel(newChannel);
+  useEffect(() => {
+    if (!myId) return
 
-    newChannel
-      .join()
-      .receive("ok", () => console.log(`Joined ${topic}`))
-      .receive("error", (err: any) =>
-        console.error(`Failed to join ${topic}`, err)
-      );
-
-    // Message receiving
-    newChannel.on("message:new", (payload: Message) => {
-      const topic = `room:${roomId}:${channelId}`;
-
-      setMessagesMap((prev) => {
-        const currentMessages = prev[topic] || [];
-        const updatedMessages = [...currentMessages, payload];
-        if (updatedMessages.length > 50) {
-          updatedMessages.shift(); // queue size of 50, lim it
-        }
-        const newMap = { ...prev, [topic]: updatedMessages };
-        MessageStorage.save(newMap);
-        return newMap;
-      });
-    });
-
-    newChannel.on("typing:start", (payload: { user: string }) => {
-      setTypingUsers((prev) => {
-        if (!prev.includes(payload.user)) {
-          return [...prev, payload.user];
-        }
-        return prev;
-      });
-    });
-
-    newChannel.on("typing:stop", (payload: { user: string }) => {
-      setTypingUsers((prev) => prev.filter((u) => u !== payload.user));
-    });
+    const sock = new Socket("ws://localhost:4000/socket", {
+      params: { user_id: myId },
+    })
+    sock.connect()
+    setSocket(sock)
 
     return () => {
-      newChannel.leave();
-      newSocket.disconnect();
-      setChannel(null);
-      setSocket(null);
-    };
-  }, [roomId, channelId]);
+      sock.disconnect()
+      setSocket(null)
+    }
+  }, [myId])
 
   useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    if (!socket) return
+
+    const channelId = isGroup ? `group:${groupId}` : `dm:${otherId}`
+    const chan = socket.channel(channelId, {})
+
+    chan
+      .join()
+      .receive("ok", ({ messages: hist }: { messages: Message[] }) => {
+        const formatted = hist.map((m) => ({
+          ...m,
+          timestamp: m.created_at,
+        }))
+        setMessages(formatted)
+      })
+      .receive("error", (err: unknown) => {
+        console.error("Channel join failed:", err)
+        setMessages([])
+      })
+
+  chan.on("message:new", (msg: Message & { client_id?: string }) => {
+    setMessages((prev) => {
+      if (msg.client_id) {
+        const idx = prev.findIndex((m) => m.id === msg.client_id || m.id === msg.id)
+        if (idx !== -1) {
+          const updated = [...prev]
+          updated[idx] = { ...msg, timestamp: msg.created_at, pending: false }
+          return updated
+        }
+      }
+
+      return [...prev, { ...msg, timestamp: msg.created_at }]
+    })
+  })
+
+
+    chan.on("user:typing", ({ user_id }: { user_id: string }) => {
+      if (user_id !== myId) {
+        setTypingUsers((prev) =>
+          prev.includes(user_id) ? prev : [...prev, user_id]
+        )
+
+        setTimeout(() => {
+          setTypingUsers((prev) => prev.filter((id) => id !== user_id))
+        }, 3000)
+      }
+    })
+
+    setChannel(chan)
+    return () => {
+      chan.leave()
+      setChannel(null)
     }
-  }, [messagesMap, roomId, channelId]);
+  }, [socket, otherId, groupId, isGroup])
 
   const sendMessage = () => {
-    if (channel && message.trim() !== "") {
-      channel.push("message:new", { user: username, body: message });
-      setMessage("");
-    }
-  };
+    if (!channel || !draft.trim()) return
 
-  // using debounce (read, it's best practice) to avoid sending too many typing events
-  const handleTyping = useDebouncedCallback(() => {
-    if (!channel) return;
-
-    setTypingUsers((prev) => {
-      if (!prev.includes(username)) {
-        return [...prev, username];
-      }
-      return prev;
-    });
-
-    channel.push("typing:start", { user: username });
-
-    if (typingTimeout.current) {
-      clearTimeout(typingTimeout.current);
+    const tempId = crypto.randomUUID()
+    const optimisticMessage: Message = {
+      id: tempId,
+      body: draft,
+      user_id: myId!,
+      conversation_id: "", // not needed for display
+      created_at: new Date().toISOString(),
+      timestamp: new Date().toISOString(),
+      pending: true,
     }
 
-    typingTimeout.current = setTimeout(() => {
-      setTypingUsers((prev) => prev.filter((u) => u !== username));
-      channel.push("typing:stop", { user: username });
-    }, 3000); // 3s
-  }, 300);
+    setMessages((prev) => [...prev, optimisticMessage])
+    const body = draft
+    setDraft("")
 
-  const topic = `room:${roomId}:${channelId}`;
-  const currentMessages = messagesMap[topic] || [];
+    channel
+      .push("message:new", { body, client_id: tempId })
+      .receive("error", (err: unknown) => {
+        console.error("Failed to send:", err)
+        // Optionally show UI feedback
+        setMessages((prev) => prev.filter((m) => m.id !== tempId))
+      })
+  }
+
+  const handleTyping = () => {
+    if (channel) {
+      channel.push("user:typing", { user_id: myId })
+    }
+  }
+
+  if (!myId) {
+    return <div className="p-4 text-gray-500 dark:text-[#8a92b2]">Loading user…</div>
+  }
+
+  const getUserName = (id: string) => {
+    const entry = Object.entries(USER_IDS).find(([, value]) => value === id)
+    return entry ? entry[0] : id
+  }
+
+  const chatTitle = isGroup
+    ? `Group ${groupId}`
+    : `Chat with ${getUserName(otherId)}`
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#1E1E2F] text-white rounded-lg overflow-hidden">
-      <div className="flex items-center justify-between p-4 bg-[#2C2C3E] shadow-md">
-        <div className="text-lg font-bold">
-          {roomId?.toUpperCase() ?? "Unknown Room"} / #
-          {channelId?.replace("-", " ") ?? "Unknown Channel"}
-        </div>
-      </div>
+    <div className="flex flex-col flex-1 bg-white dark:bg-[#121a2f] overflow-hidden">
+      <ChatHeader
+        title={chatTitle}
+        isGroup={isGroup}
+        participants={isGroup ? 5 : 0}
+      />
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {currentMessages.map((msg, idx) => (
-          <div
-            key={idx}
-            className="p-3 bg-[#2C2C3E] rounded-lg shadow-md hover:bg-[#3A3A4E] transition"
-          >
-            <strong className="text-blue-400">{msg.user}:</strong> {msg.body}
-          </div>
-        ))}
-        {typingUsers.length > 0 && (
-          <div className="px-4 text-sm text-gray-400">
-            {typingUsers.join(", ")} {typingUsers.length > 1 ? "are" : "is"}{" "}
-            typing...
-          </div>
-        )}
-        <div ref={bottomRef} />
-      </div>
+      {messages.length > 0 ? (
+        <MessageList messages={messages} typingUsers={typingUsers} userNames={USER_ID_TO_NAME}/>
+      ) : (
+        <NoMessagesFallback isGroup={isGroup} />
+      )}
 
-      <div className="p-4 bg-[#2C2C3E] flex items-center gap-3">
-        <input
-          type="text"
-          className="flex-1 p-3 rounded bg-[#1E1E2F] border border-gray-600 focus:outline-none focus:border-blue-500"
-          value={message}
-          onChange={(e) => {
-            setMessage(e.target.value);
-            handleTyping();
-          }}
-          placeholder="Type your message..."
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        />
-        <button
-          onClick={sendMessage}
-          className="px-5 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white font-semibold"
-        >
-          Send
-        </button>
-      </div>
+      <MessageInput
+        value={draft}
+        onChange={setDraft}
+        onSend={sendMessage}
+        onTyping={handleTyping}
+      />
     </div>
-  );
-};
+  )
+}
 
-export default ChatArea;
+export default ChatArea
