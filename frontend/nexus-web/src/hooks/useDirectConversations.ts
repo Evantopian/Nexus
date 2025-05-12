@@ -2,7 +2,7 @@ import { useQuery } from "@apollo/client"
 import { GET_DIRECT_CONVERSATIONS } from "@/graphql/getDirectConversations"
 
 export const useDirectConversations = (limit: number = 20, after?: string) => {
-  const { data, loading, error, fetchMore } = useQuery(GET_DIRECT_CONVERSATIONS, {
+  const { data, loading, error, refetch, fetchMore } = useQuery(GET_DIRECT_CONVERSATIONS, {
     variables: { limit, after },
     fetchPolicy: "cache-and-network",
   })
@@ -22,6 +22,7 @@ export const useDirectConversations = (limit: number = 20, after?: string) => {
     conversations: data?.getDirectConversations ?? [],
     loading,
     error,
+    refetch,
     loadMore,
   }
 }

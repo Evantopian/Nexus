@@ -2,8 +2,8 @@
 
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useQuery, gql } from "@apollo/client"
 import { Search, X } from "lucide-react"
+import { useDirectConversations } from "@/hooks/useDirectConversations"
 
 interface DirectSidebarProps {
   activeContactId?: string
@@ -20,33 +20,21 @@ interface DirectConversation {
 }
 
 
-const GET_DIRECT_CONVERSATIONS = gql`
-  query GetDirectConversations($limit: Int!, $after: Time) {
-    getDirectConversations(limit: $limit, after: $after) {
-      id
-      user {
-        id
-        username
-      }
-      lastMessage
-      lastActive
-    }
-  }
-`
-
 const DirectSidebar: React.FC<DirectSidebarProps> = ({ activeContactId }) => {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState("")
-  const { data, loading, error } = useQuery(GET_DIRECT_CONVERSATIONS, {
-    variables: { limit: 20, after: null },
-    fetchPolicy: "cache-and-network",
-  })
 
-    const conversations: DirectConversation[] = data?.getDirectConversations ?? []
+  const { conversations, loading, error } = useDirectConversations()
 
-    const filtered = conversations.filter((conv) =>
+  const filtered = (conversations as DirectConversation[]).filter((conv) =>
+
     conv.user.username.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+  )
+
+  const sorted = [...filtered].sort(
+  (a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
+)
+
 
 
   return (
@@ -80,9 +68,9 @@ const DirectSidebar: React.FC<DirectSidebarProps> = ({ activeContactId }) => {
         ) : error ? (
           <div className="text-center py-4 text-red-500 text-sm">Error loading conversations</div>
         ) : filtered.length > 0 ? (
-          filtered.map((conv) => (
+          sorted.map((conv) => (
             <button
-              key={conv.id}
+              key={`${conv.id}-${conv.user.id}`}
               onClick={() => navigate(`/chat/direct/${conv.user.id}`)}
               className={`flex items-center gap-3 w-full p-2 rounded-md transition group mb-1 ${
                 conv.user.id === activeContactId

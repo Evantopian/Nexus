@@ -10,6 +10,7 @@ import ChatHeader from "@/components/chats/ChatHeader"
 import MessageList from "@/components/chats/MessageList"
 import MessageInput from "@/components/chats/MessageInput"
 import NoMessagesFallback from "@/components/chats/NoMessagesFallback"
+import { useDirectConversations } from "@/hooks/useDirectConversations"
 
 interface Message {
   id: string
@@ -28,6 +29,7 @@ const USER_ID_TO_NAME = Object.entries(USER_IDS).reduce((acc, [name, id]) => {
 
 
 
+
 const ChatArea: React.FC = () => {
   const { contact: paramContact, groupId } = useParams<{ contact?: string; groupId?: string }>()
   const navigate = useNavigate()
@@ -43,6 +45,7 @@ const ChatArea: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState("")
   const [typingUsers, setTypingUsers] = useState<string[]>([])
+  const { refetch } = useDirectConversations()
 
   useEffect(() => {
     if (user?.uuid) {
@@ -146,12 +149,15 @@ const ChatArea: React.FC = () => {
 
     channel
       .push("message:new", { body, client_id: tempId })
+      .receive("ok", () => {
+        refetch() // ✅ trigger sidebar update
+      })
       .receive("error", (err: unknown) => {
         console.error("Failed to send:", err)
-        // Optionally show UI feedback
         setMessages((prev) => prev.filter((m) => m.id !== tempId))
       })
   }
+
 
   const handleTyping = () => {
     if (channel) {
