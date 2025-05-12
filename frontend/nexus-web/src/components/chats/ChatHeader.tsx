@@ -1,4 +1,4 @@
-import type React from "react"
+"use client"
 import { Hash, Users, Search, Phone, Video } from "lucide-react"
 
 interface ChatHeaderProps {
