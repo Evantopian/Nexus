@@ -72,7 +72,6 @@ func (r *mutationResolver) SendChannelMessage(ctx context.Context, channelID uui
 	return chat.SendChannelMessage(ctx, channelID, body, replyToID)
 }
 
-
 // AssignRole is the resolver for the assignRole field.
 func (r *mutationResolver) AssignRole(ctx context.Context, userID uuid.UUID, serverID uuid.UUID, roleID uuid.UUID) (bool, error) {
 	return chat.AssignRole(ctx, userID, serverID, roleID)
@@ -128,14 +127,6 @@ func (r *queryResolver) GetChannelMessages(ctx context.Context, channelID uuid.U
 	return chat.GetChannelMessages(ctx, channelID)
 }
 
-func (r *queryResolver) GetPinnedMessagesByChannel(ctx context.Context, channelID uuid.UUID) ([]*model.Message, error) {
-	return chat.GetPinnedMessagesByChannel(ctx, channelID)
-}
-func (r *queryResolver) GetPinnedMessagesByConversation(ctx context.Context, conversationID uuid.UUID) ([]*model.Message, error) {
-	return chat.GetPinnedMessagesByConversation(ctx, conversationID)
-}
-
-
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
@@ -144,5 +135,3 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
- 

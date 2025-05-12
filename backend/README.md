@@ -13,13 +13,14 @@ Contains information and instructions for Nexus Backend
 - **GraphQL Playground** - Playground for testing GraphQL queries
 <!-- - **MongoDB** - Optional NoSQL database -->
 
-## Setup Instructions
+## Local Setup Instructions
 
 ### 1. Install Dependencies
 
 Before running the project, you'll need to install all required dependencies.
 
-In your terminal:
+In the terminal:
+
 Run go get for each dependency in the require section of go.mod, then run go mod tidy.
 
 ```bash
@@ -32,12 +33,31 @@ go mod tidy
 Example of .env file set up:
 
 ```bash
+PORT=PORT_NUMBER
 POSTGRES_URL=connection_url
 MONGO_URI=connection_uri
 JWT_SECRET_KEY=your_jwt_secret_key
 ```
 
-### 3. Run the application
+### 3. Set up goose for database migrations
+
+Install `goose` and use it to manage database versions.
+
+```bash
+go install github.com/pressly/goose/v3/cmd/goose@latest
+```
+
+Goose command for migrations and database version control.
+
+- Use `up` to apply new migrations.
+- Use `down` to rollback the last migration.
+- Use `reset` to erase and restart the database.
+
+```bash
+goose -dir internal/migrations postgres "postgres://postgres:<password>@localhost:<port>/<db_name>?sslmode=disable" <cmd>
+```
+
+### 4. Run the application
 
 You can run the application using the following command:
 
@@ -45,21 +65,21 @@ You can run the application using the following command:
 go run main.go
 ```
 
-#### Alternatively, you can use Air, a live-reloading go tool that automatically reloads on code change.
+Alternatively, you can use Air, a live-reloading go tool that automatically reloads on code change.
 
-Install air via go get, then simply do air to run it.
+Install air, then simply do `air` to run it.
 
 ```bash
-go install github.com/cosmtrek/air@latest
+go install github.com/air-verse/air@latest
 air
 ```
 
-### 4. Access GraphQL Playground
+### 5. Testing via GraphQL Playground
 
 This will open the GraphQL Playground, where you can test your GraphQL queries.
 
 ```bash
-http://localhost:8080/
+http://localhost:<PORT>/
 ```
 
 #### Run queries with valid authorization token to test against the server.
