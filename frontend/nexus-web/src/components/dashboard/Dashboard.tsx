@@ -1,8 +1,8 @@
-// import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import FeaturedGames from "./FeaturedGames";
 import MainContent from "./MainContent";
 import Sidebar from "./SideBar";
-// import { GET_ALL_LFG_POSTS } from "@/graphql/lfgQueries";
+import { GET_ALL_LFG_POSTS } from "@/graphql/lfgQueries";
 
 // temporary data, waiting for backend APIs to be built, then we will fetch.
 const Dashboard = () => {
@@ -166,26 +166,11 @@ const Dashboard = () => {
   ];
 
   // LFG post data
-  const lfgPostData = [
-    {
-      id: 1,
-      title: "Need 2 for Raid",
-      author: {
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=lfg1",
-        username: "RaidLeader1",
-      },
-      tags: ["Tank", "Healer"],
-    },
-    {
-      id: 2,
-      title: "Need 3 for Raid",
-      author: {
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=lfg2",
-        username: "RaidLeader2",
-      },
-      tags: ["Tank", "Healer"],
-    },
-  ];
+  const { data } = useQuery(GET_ALL_LFG_POSTS, {
+    variables: { limit: 2, offset: 0 },
+  });
+
+  const lfgPostData = data?.getAllLFGPosts || [];
 
   return (
     <>

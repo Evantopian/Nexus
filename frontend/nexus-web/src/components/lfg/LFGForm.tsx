@@ -3,7 +3,7 @@ import { useMutation } from "@apollo/client";
 import { CREATE_LFG_POST, UPDATE_LFG_POST } from "@/graphql/lfgQueries";
 import { useGames } from "@/contexts/GameContext"; // Import GameContext
 import { useNavigate } from "react-router-dom";
-import { LFGPostFormData } from "./UserLFGPosts";
+import { LFGPostFormData } from "./LFG";
 
 type LfgFormProps = {
   initialData?: LFGPostFormData & { id: string };

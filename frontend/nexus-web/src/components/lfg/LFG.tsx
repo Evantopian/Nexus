@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_ALL_LFG_POSTS, GET_USER_LFG_POSTS } from "@/graphql/lfgQueries";
-import LFGPosts from "../common/LFGPosts";
-import UserLfgPosts from "./UserLFGPosts";
+import UserLFGPosts from "./UserLFGPosts";
+import AllLFGPosts from "./AllLFGPosts";
 
-// Reorganize which lfgpost component is used (lfgpost for side & lfgpost for user view, all view, and game view)
+export type LFGPostFormData = {
+  gameId: string;
+  title: string;
+  description: string;
+  requirements: string[];
+  tags: string[];
+  expirationHour: number;
+};
 
 const Lfg = () => {
   const [activeTab, setActiveTab] = useState<"all" | "user">("all");
@@ -13,6 +20,7 @@ const Lfg = () => {
     data: allPostsData,
     loading: allPostsLoading,
     error: allPostsError,
+    refetch: refetchLFGPosts,
   } = useQuery(GET_ALL_LFG_POSTS, {
     variables: { limit: 5, offset: 0 },
   });
@@ -69,7 +77,11 @@ const Lfg = () => {
               Error fetching your posts: {userPostsError.message}
             </p>
           ) : (
-            <UserLfgPosts posts={userPosts} refetch={refetchUserPosts} />
+            <UserLFGPosts
+              posts={userPosts}
+              refetch={refetchUserPosts}
+              refetchAll={refetchLFGPosts}
+            />
           )
         ) : allPostsLoading ? (
           <p>Loading LFG Posts...</p>
@@ -78,7 +90,7 @@ const Lfg = () => {
             Error fetching posts: {allPostsError.message}
           </p>
         ) : (
-          <LFGPosts posts={allPosts} />
+          <AllLFGPosts posts={allPosts} />
         )}
       </div>
     </div>

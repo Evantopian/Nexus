@@ -56,16 +56,16 @@ const TopNavigation = ({ isMobile = false }: TopNavigationProps) => {
               LFG
             </Link>
             <Link
+              to="/party"
+              className="text-gray-800 dark:text-gray-200 font-semibold hover:text-indigo-600 dark:hover:text-indigo-400 whitespace-nowrap transition-colors duration-200 hover:scale-105 transform"
+            >
+              Party
+            </Link>
+            <Link
               to="/players"
               className="text-gray-800 dark:text-gray-200 font-semibold hover:text-indigo-600 dark:hover:text-indigo-400 whitespace-nowrap transition-colors duration-200 hover:scale-105 transform"
             >
               Players
-            </Link>
-            <Link
-              to="/events"
-              className="text-gray-800 dark:text-gray-200 font-semibold hover:text-indigo-600 dark:hover:text-indigo-400 whitespace-nowrap transition-colors duration-200 hover:scale-105 transform"
-            >
-              Events
             </Link>
           </div>
         </div>

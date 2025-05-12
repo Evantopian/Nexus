@@ -3,7 +3,7 @@ import axios from "axios";
 import client from "@/lib/apollo-client";
 import { PROFILE_QUERY } from "@/graphql/userQueries";
 
-type User = {
+export type User = {
   uuid: string;
   username: string;
   email: string;
@@ -12,6 +12,7 @@ type User = {
   status: string;
   reputation: number;
   rank: string | null;
+  age: number;
   createdAt: string;
   preferences: Preferences;
 };
@@ -60,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         fetchPolicy: "no-cache", // Ensures fresh data
       });
       setUser(res.data.profile); // Update user state
-      console.log("User info:", res.data.profile); // Log the updated user data
+      console.log("User info:", res.data.profile);
     } catch (err) {
       console.error("Refresh failed", err);
     }
@@ -75,7 +76,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const token = response.data.token;
     // Store the token in localStorage or in state
     localStorage.setItem("authToken", token);
-    // console.log("Login response", response.a);
     await refreshUser(); // Update user state after login
   };
 
@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       );
       console.log("logged out");
       setUser(null); // Clear user state on logout
-      localStorage.removeItem("authToken"); // Optionally clear token from localStorage
+      localStorage.removeItem("authToken"); // Clear token from localStorage
     } catch (error) {
       console.error("Logout failed", error);
     }

@@ -9,6 +9,7 @@ import (
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/Evantopian/Nexus/internal/database/postgres"
 	contextkey "github.com/Evantopian/Nexus/internal/services"
+	"github.com/google/uuid"
 )
 
 // UpdateUser updates user with information and returns user
@@ -151,6 +152,56 @@ func Profile(ctx context.Context) (*model.User, error) {
 		user.Age = &age.Int32 // Correctly assign the age to user.Age
 	} else {
 		user.Age = nil // Set to nil if age is NULL in the database
+	}
+
+	return &user, nil
+}
+
+// GetUser fetches info for a user based on uuid
+func GetUser(ctx context.Context, userID uuid.UUID) (*model.User, error) {
+	var user model.User
+	var createdAt time.Time
+	var age sql.NullInt32
+
+	if userID == uuid.Nil {
+		return nil, fmt.Errorf("user UUID is required")
+	}
+
+	// Check if user exists before fetching
+	var exists bool
+	checkQuery := "SELECT EXISTS (SELECT 1 FROM users WHERE uuid=$1)"
+	err := postgres.DB.QueryRow(ctx, checkQuery, userID).Scan(&exists)
+	if err != nil {
+		return nil, fmt.Errorf("error checking user existence: %v", err)
+	}
+	if !exists {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	// Query user fields
+	query := `SELECT uuid, username, email, COALESCE(profile_img, ''), COALESCE(profile_message, ''),
+							COALESCE(status, ''), COALESCE(rank, ''), COALESCE(reputation, 0), created_at, preferences, age
+						FROM users WHERE uuid=$1;`
+
+	err = postgres.DB.QueryRow(ctx, query, userID).Scan(
+		&user.UUID, &user.Username, &user.Email, &user.ProfileImg,
+		&user.ProfileMessage, &user.Status, &user.Rank, &user.Reputation, &createdAt, &user.Preferences, &age,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user not found")
+		}
+		return nil, fmt.Errorf("error fetching user: %v", err)
+	}
+
+	createdAtStr := createdAt.Format(time.RFC3339)
+	user.CreatedAt = &createdAtStr
+
+	if age.Valid {
+		user.Age = &age.Int32
+	} else {
+		user.Age = nil
 	}
 
 	return &user, nil

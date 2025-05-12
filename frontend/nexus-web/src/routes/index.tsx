@@ -15,7 +15,8 @@ import ChatLayout from "@/layouts/ChatLayout";
 import ChatArea from "@/components/chats/ChatArea";
 import NoMessagesFallback from "@/components/chats/NoMessagesFallback";
 import Lfg from "@/components/lfg/LFG";
- 
+import Party from "@/components/party/Party";
+
 
 const routes: RouteObject[] = [
   {
@@ -53,13 +54,8 @@ const routes: RouteObject[] = [
         ),
       },
       {
-        path: "events",
-        element: (
-          <WorkInProgress
-            title="Events Calendar"
-            message="The Events Calendar is coming soon. Stay tuned for tournaments, livestreams, and gaming events!"
-          />
-        ),
+        path: "party",
+        element: <Party />,
       },
       {
         path: "profile",

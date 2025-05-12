@@ -1,6 +1,6 @@
 import { Heart, BarChart, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import RivalsBanner from "@/assets/pages/games/MarvelRivals/MarvelRivalsBanner.jpg"
+import RivalsBanner from "@/assets/pages/games/MarvelRivals/MarvelRivalsBanner.jpg";
 
 interface GameCardProps {
   image: string;
@@ -43,7 +43,7 @@ const GameCard = ({
 
   return (
     <div
-      className="flex- w-150 h-50 overflow-visible relative group shadow-lg transform transition-all duration-300 hover:scale-105 border border-gray-300 dark:border-gray-600 h-full rounded-[10px]"
+      className="flex- w-150 h-full overflow-visible relative group shadow-lg transform transition-all duration-300 hover:scale-105 border border-gray-300 dark:border-gray-600 rounded-[10px]"
       onDoubleClick={handleDoubleClick}
     >
       <div className="flex h-full rounded-[10px] overflow-hidden">
@@ -65,7 +65,7 @@ const GameCard = ({
                 >
                   <div className="h-5 w-5 rounded-full overflow-hidden mr-1 bg-gray-100 dark:bg-gray-700 flex-shrink-0">
                     <img
-                      src= {RivalsBanner}
+                      src={RivalsBanner}
                       alt="game icon"
                       className="h-full w-full object-cover"
                     />
@@ -78,11 +78,13 @@ const GameCard = ({
                     {players}k
                   </span>
                 </div>
-                  <div className="flex flex-wrap gap-1 mt-4">
+                <div className="flex flex-wrap gap-1 mt-4">
                   {tags.map((tag, i) => (
                     <span
                       key={i}
-                      className={`inline-block text-[9px] px-2 py-0.5 rounded-full ${getTagStyle(tag)}`}
+                      className={`inline-block text-[9px] px-2 py-0.5 rounded-full ${getTagStyle(
+                        tag
+                      )}`}
                     >
                       {tag
                         .replace("bg-", "")
