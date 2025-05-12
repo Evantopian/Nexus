@@ -12,3 +12,4 @@ recommendation.zip
 lambda-env
 *.temp-env
 *.zip
+docker-compose.yml

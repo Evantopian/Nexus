@@ -1,0 +1,37 @@
+# Bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+
+# Environment and config
+.env
+.env.*
+*.local
+*.bak
+*.swp
+.DS_Store
+
+# Virtual environments
+venv/
+env/
+lambda-env/
+.venv/
+
+# Git and editor junk
+.git
+.gitignore
+*.log
+.vscode/
+.idea/
+
+# OS & Docker system files
+*.tar
+*.gz
+*.zip
+*.egg-info/
+*.whl
+docker-compose*
+Dockerfile~

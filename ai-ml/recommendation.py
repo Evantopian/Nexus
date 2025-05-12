@@ -1,4 +1,3 @@
-from mangum import Mangum
 from fastapi import FastAPI, HTTPException
 import pandas as pd
 import numpy as np
@@ -11,20 +10,23 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
+from sqlalchemy.exc import OperationalError
+
 
 app = FastAPI()
 
 load_dotenv()
-
+'''
 url = URL.create(
     drivername="postgresql+psycopg2",
     username=os.getenv("NEXUSUSERNAME"),
     password=os.getenv("NEXUSPASSWORD"),
     host=os.getenv("HOST"),
     port=os.getenv("PORT"),
-    database=os.getenv("DATABASE"),
+    database=os.getenv("NEXUSDATABASE")
 )
-
+'''
+url = os.getenv("DATABASE_URL")
 engine = create_engine(url)
 
 query = """
@@ -48,6 +50,16 @@ friends_df = pd.read_sql_query("""
 """, engine)
 
 df = pd.merge(df, friends_df, how='left', left_on='uuid', right_on='user_id')
+
+df.fillna({
+    'region': 'UNKNOWN',
+    'playstyle': 'UNKNOWN',
+    'platform': 'UNKNOWN',
+    'genre': 'UNKNOWN',
+    'rank': 'UNRANKED',
+    'reputation': 0,
+    'age': 13,
+}, inplace=True)
 
 default_weights = {
     'region': 0.6,
@@ -170,14 +182,10 @@ def get_recommendations_ml(player_index, num_recommendations=5, weighted_matrix=
     return full_recommendations[['uuid', 'region', 'genre', 'platform', 'playstyle', 'rank', 'reputation', 'age']]
 
 
-handler = Mangum(app)
-
 '''
-cd ..
-python3 -m venv temp-env
-source temp-env/bin/activate
-mkdir fastapi-lambda-build
-cd fastapi-lambda-build
-pip install fastapi mangum python-dotenv pandas numpy scikit-learn psycopg2-binary -t .
-cp ../your_project/recommendation.py .
+if __name__ == "__main__":
+    uvicorn.run("recommend:app", host="0.0.0.0", port=8000, reload=True)
+
+docker build -t fastapi .
+docker run --env-file .env -p 8000:8000 fastapi
 '''
