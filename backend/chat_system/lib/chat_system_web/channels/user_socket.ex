@@ -7,6 +7,9 @@ defmodule ChatSystemWeb.UserSocket do
   # Comment this out for now if it's incomplete or broken:
   # channel "room:*", ChatSystemWeb.RoomChannel
 
+  
+  
+  # fix the token issue later, dummys wont work for now.
   def connect(%{"user_id" => user_id}, socket, _connect_info) do
     {:ok, assign(socket, :user_id, user_id)}
   end

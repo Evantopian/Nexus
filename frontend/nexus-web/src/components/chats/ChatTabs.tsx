@@ -1,27 +1,29 @@
-// src/components/chats/ChatTabs.tsx
+ 
+
 interface ChatTabsProps {
-  tabs: string[];
-  activeTab: string;
-  onTabChange: (tab: string) => void;
+  tabs: string[]
+  activeTab: string
+  onTabChange: (tab: string) => void
 }
 
 const ChatTabs: React.FC<ChatTabsProps> = ({ tabs, activeTab, onTabChange }) => (
-  <div className="flex space-x-4 bg-gray-100 dark:bg-gray-800 px-4 py-2">
+  <div className="flex space-x-1 bg-[#0e1525] px-2 py-2 overflow-x-auto">
     {tabs.map((tab) => (
       <button
         key={tab}
         onClick={() => onTabChange(tab)}
         className={[
-          "px-3 py-1 text-sm font-medium rounded transition",
+          "px-3 py-1.5 text-sm font-medium rounded-md transition flex items-center",
           activeTab === tab
-            ? "bg-white dark:bg-gray-900 shadow"
-            : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200",
+            ? "bg-[#4a65f2] text-white shadow-md"
+            : "text-[#8a92b2] hover:bg-[#182238] hover:text-[#e0e4f0]",
         ].join(" ")}
       >
+        <span className="mr-1.5">#</span>
         {tab}
       </button>
     ))}
   </div>
-);
+)
 
-export default ChatTabs;
+export default ChatTabs

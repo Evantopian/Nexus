@@ -1,41 +1,116 @@
-// src/components/chats/MessageInput.tsx
+import { useState } from "react"
+import { PlusCircle, Smile, ImageIcon, AtSign, Send } from "lucide-react"
+
 interface MessageInputProps {
-  value: string;
-  onChange: (val: string) => void;
-  onSend: () => void;
-  onTyping: () => void;
+  value: string
+  onChange: (val: string) => void
+  onSend: () => void
+  onTyping: () => void
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({
-  value,
-  onChange,
-  onSend,
-  onTyping,
-}) => (
-  <div className="px-4 py-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex items-center space-x-3">
-    <textarea
-      rows={1}
-      value={value}
-      onChange={(e) => {
-        onChange(e.target.value);
-        onTyping();
-      }}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          onSend();
-        }
-      }}
-      placeholder="Type a message…"
-      className="flex-1 resize-none bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-gray-100"
-    />
-    <button
-      onClick={onSend}
-      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm transition"
-    >
-      Send
-    </button>
-  </div>
-);
+const MessageInput: React.FC<MessageInputProps> = ({ value, onChange, onSend, onTyping }) => {
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
-export default MessageInput;
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      if (value.trim()) {
+        onSend()
+      }
+    }
+  }
+
+  return (
+    <div className="px-4 py-3 bg-[#121a2f] border-t border-[#1e2a45]">
+      {/* Optional: Reply context */}
+      {false && (
+        <div className="mb-2 px-3 py-2 bg-[#182238] rounded-md flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="w-1 h-full bg-[#4a65f2] mr-2"></div>
+            <div>
+              <span className="text-xs text-[#4a65f2]">Replying to Alex Gaming</span>
+              <p className="text-xs text-[#8a92b2] truncate">Ready for the tournament?</p>
+            </div>
+          </div>
+          <button className="text-[#8a92b2] hover:text-[#e0e4f0]">
+            <PlusCircle className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      <div className="flex items-center space-x-2">
+        <button className="text-[#8a92b2] hover:text-[#e0e4f0] transition p-2 rounded-full hover:bg-[#182238]">
+          <PlusCircle className="w-5 h-5" />
+        </button>
+
+        <div className="flex-1 relative">
+          <textarea
+            rows={1}
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value)
+              onTyping()
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a message..."
+            className="w-full resize-none bg-[#182238] border-none rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4a65f2] text-[#e0e4f0] placeholder-[#8a92b2] min-h-[40px] max-h-[50vh]"
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-[#8a92b2]">
+            <button className="hover:text-[#e0e4f0] transition p-1 rounded-full hover:bg-[#1e2a45]">
+              <AtSign className="w-4 h-4" />
+            </button>
+            <button className="hover:text-[#e0e4f0] transition p-1 rounded-full hover:bg-[#1e2a45]">
+              <ImageIcon className="w-4 h-4" />
+            </button>
+            <button
+              className="hover:text-[#e0e4f0] transition p-1 rounded-full hover:bg-[#1e2a45]"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            >
+              <Smile className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        <button
+          onClick={onSend}
+          disabled={!value.trim()}
+          className={`p-2 rounded-full shadow-md transition ${
+            value.trim()
+              ? "bg-[#4a65f2] hover:bg-[#3a55e2] text-white"
+              : "bg-[#182238] text-[#8a92b2] cursor-not-allowed"
+          }`}
+        >
+          <Send className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Emoji picker placeholder - would be implemented with an actual emoji picker library */}
+      {showEmojiPicker && (
+        <div className="absolute bottom-16 right-4 w-64 h-48 bg-[#182238] border border-[#1e2a45] rounded-md shadow-lg p-2">
+          <div className="flex justify-between items-center mb-2 pb-1 border-b border-[#1e2a45]">
+            <span className="text-sm text-[#e0e4f0]">Emoji</span>
+            <button onClick={() => setShowEmojiPicker(false)} className="text-[#8a92b2] hover:text-[#e0e4f0]">
+              <PlusCircle className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-6 gap-1">
+            {["😀", "😂", "😍", "🤔", "😎", "👍", "🎮", "🏆", "⚔️", "🛡️", "🔥", "✨"].map((emoji, i) => (
+              <button
+                key={i}
+                className="text-xl hover:bg-[#1e2a45] rounded p-1"
+                onClick={() => {
+                  onChange(value + emoji)
+                  setShowEmojiPicker(false)
+                }}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default MessageInput
