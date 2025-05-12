@@ -1,4 +1,5 @@
 # Scalar for UUID-based identifiers (Postgres-compatible)
+scalar Time
 # Supported types of channels
 enum ChannelType {
   TEXT
@@ -83,6 +84,22 @@ type Channel {
   categoryId: UUID
 }
 
+
+type DirectConversation {
+  id: UUID!
+  user: ChatUser!
+  lastMessage: String!
+  lastActive: Time!
+}
+
+type GroupConversation {
+  id: UUID!
+  name: String!
+  participants: [User!]!
+  lastMessage: String!
+  lastActive: Time!
+}
+
 # Queries for fetching conversations, servers, channels, messages
 extend type Query {
   getConversations: [Conversation]!
@@ -91,6 +108,8 @@ extend type Query {
   getServer(id: UUID!): Server
   getChannels(serverId: UUID!): [Channel]!
   getChannelMessages(channelId: UUID!): [Message]!
+  getDirectConversations(limit: Int = 20, after: Time): [DirectConversation!]!
+  getGroupConversations(userID: UUID!, limit: Int = 20, after: Time): [GroupConversation!]!
 }
 
 # Mutations for chat interactions, server/channel management, role handling

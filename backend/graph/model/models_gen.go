@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -36,6 +37,13 @@ type Conversation struct {
 	IsGroup      bool        `json:"isGroup"`
 }
 
+type DirectConversation struct {
+	ID          uuid.UUID `json:"id"`
+	User        *ChatUser `json:"user"`
+	LastMessage string    `json:"lastMessage"`
+	LastActive  time.Time `json:"lastActive"`
+}
+
 type FriendRequest struct {
 	Sender      uuid.UUID `json:"sender"`
 	Receiver    uuid.UUID `json:"receiver"`
@@ -64,6 +72,14 @@ type Game struct {
 	Platforms        []string  `json:"platforms,omitempty"`
 	Tags             []string  `json:"tags,omitempty"`
 	Rating           *float64  `json:"rating,omitempty"`
+}
+
+type GroupConversation struct {
+	ID           uuid.UUID `json:"id"`
+	Name         string    `json:"name"`
+	Participants []*User   `json:"participants"`
+	LastMessage  string    `json:"lastMessage"`
+	LastActive   time.Time `json:"lastActive"`
 }
 
 type LFGPost struct {
@@ -143,6 +159,18 @@ type User struct {
 	Age            *int32       `json:"age,omitempty"`
 	Preferences    *Preferences `json:"preferences,omitempty"`
 	FollowingGames []*Game      `json:"followingGames"`
+}
+
+type UserRecommendation struct {
+	UUID       uuid.UUID `json:"uuid"`
+	Username   *string   `json:"username,omitempty"`
+	Region     *string   `json:"region,omitempty"`
+	Genre      *string   `json:"genre,omitempty"`
+	Platform   *string   `json:"platform,omitempty"`
+	Playstyle  *string   `json:"playstyle,omitempty"`
+	Rank       *string   `json:"rank,omitempty"`
+	Reputation *int32    `json:"reputation,omitempty"`
+	Age        *int32    `json:"age,omitempty"`
 }
 
 type ChannelType string
