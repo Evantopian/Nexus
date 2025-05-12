@@ -1,3 +1,6 @@
+"use client"
+
+import type React from "react"
 import { useEffect, useRef, useState } from "react"
 import type { Message } from "@/hooks/useMessageFeed"
 import { MoreHorizontal, Reply, Smile } from "lucide-react"
@@ -59,29 +62,34 @@ const MessageList: React.FC<MessageListProps> = ({ messages, typingUsers }) => {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto py-2 space-y-4 bg-[#121a2f] text-[#e0e4f0]">
+    <div className="flex-1 overflow-y-auto py-2 space-y-4 bg-white dark:bg-[#121a2f] text-gray-800 dark:text-[#e0e4f0]">
       {/* Date separator */}
       <div className="relative px-4 py-2">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#1e2a45]"></div>
+          <div className="w-full border-t border-gray-200 dark:border-[#1e2a45]"></div>
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-[#121a2f] px-3 text-xs text-[#8a92b2]">
+          <span className="bg-white dark:bg-[#121a2f] px-3 text-xs text-gray-500 dark:text-[#8a92b2]">
             {new Date().toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" })}
           </span>
         </div>
       </div>
 
       {groupedMessages.map((group, groupIndex) => (
-        <div key={groupIndex} className="px-4 hover:bg-[#182238] py-0.5 transition-colors duration-200">
+        <div
+          key={groupIndex}
+          className="px-4 hover:bg-gray-50 dark:hover:bg-[#182238] py-0.5 transition-colors duration-200"
+        >
           <div className="flex items-start gap-4 pt-2 group">
-            <div className="w-10 h-10 rounded-full bg-[#4a65f2] text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-md">
+            <div className="w-10 h-10 rounded-full bg-blue-500 dark:bg-[#4a65f2] text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-md">
               {group.user_id?.[0] ?? "?"}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline">
-                <span className="font-medium text-white">{group.user_id}</span>
-                <span className="ml-2 text-xs text-[#8a92b2]">{formatMessageDate(group.timestamp)}</span>
+                <span className="font-medium text-gray-900 dark:text-white">{group.user_id}</span>
+                <span className="ml-2 text-xs text-gray-500 dark:text-[#8a92b2]">
+                  {formatMessageDate(group.timestamp)}
+                </span>
               </div>
               <div className="space-y-1">
                 {group.messages.map((msg: Message, i: number) => (
@@ -91,21 +99,21 @@ const MessageList: React.FC<MessageListProps> = ({ messages, typingUsers }) => {
                     onMouseEnter={() => setHoveredMessageId(i)}
                     onMouseLeave={() => setHoveredMessageId(null)}
                   >
-                    <p className="text-[#e0e4f0] break-words pr-16">{msg.body}</p>
+                    <p className="text-gray-800 dark:text-[#e0e4f0] break-words pr-16">{msg.body}</p>
 
                     {/* Message actions that appear on hover */}
                     <div
                       className={`absolute right-0 top-0 flex items-center gap-1 ${
                         hoveredMessageId === i ? "opacity-100" : "opacity-0"
-                      } transition-opacity duration-200 bg-[#182238] rounded-md p-0.5`}
+                      } transition-opacity duration-200 bg-gray-100 dark:bg-[#182238] rounded-md p-0.5`}
                     >
-                      <button className="p-1 rounded hover:bg-[#1e2a45] text-[#8a92b2] hover:text-[#e0e4f0]">
+                      <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#1e2a45] text-gray-500 dark:text-[#8a92b2] hover:text-gray-700 dark:hover:text-[#e0e4f0]">
                         <Smile className="w-4 h-4" />
                       </button>
-                      <button className="p-1 rounded hover:bg-[#1e2a45] text-[#8a92b2] hover:text-[#e0e4f0]">
+                      <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#1e2a45] text-gray-500 dark:text-[#8a92b2] hover:text-gray-700 dark:hover:text-[#e0e4f0]">
                         <Reply className="w-4 h-4" />
                       </button>
-                      <button className="p-1 rounded hover:bg-[#1e2a45] text-[#8a92b2] hover:text-[#e0e4f0]">
+                      <button className="p-1 rounded hover:bg-gray-200 dark:hover:bg-[#1e2a45] text-gray-500 dark:text-[#8a92b2] hover:text-gray-700 dark:hover:text-[#e0e4f0]">
                         <MoreHorizontal className="w-4 h-4" />
                       </button>
                     </div>
@@ -118,7 +126,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, typingUsers }) => {
       ))}
 
       {typingUsers.length > 0 && (
-        <div className="px-4 py-2 text-sm italic text-[#8a92b2]">
+        <div className="px-4 py-2 text-sm italic text-gray-500 dark:text-[#8a92b2]">
           <div className="flex items-center gap-2">
             <span className="flex gap-1">
               <span className="animate-bounce">•</span>
