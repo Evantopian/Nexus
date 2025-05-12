@@ -11,7 +11,7 @@ export interface NavItem {
 }
 
 // Section 1: Followed Games
-export const followedGames: NavItem[] = [
+export const followedGamesTest: NavItem[] = [
   {
     icon: (
       <img

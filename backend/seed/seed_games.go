@@ -37,7 +37,7 @@ func main() {
 			Developer:        StringPointer("Marvel Studios"),
 			Publisher:        StringPointer("Marvel Entertainment"),
 			Platforms:        []string{"PC", "Console"},
-			Tags:             []string{"action", "multiplayer", "strategy"},
+			Tags:             []string{"Action", "Multiplayer", "Strategy"},
 			Rating:           FloatPointer(4.6),
 		},
 		{
@@ -53,7 +53,7 @@ func main() {
 			Developer:        StringPointer("Riot Games"),
 			Publisher:        StringPointer("Riot Games"),
 			Platforms:        []string{"PC"},
-			Tags:             []string{"MOBA", "competitive", "multiplayer"},
+			Tags:             []string{"MOBA", "Competitive", "Multiplayer"},
 			Rating:           FloatPointer(4.7),
 		},
 		{
@@ -69,7 +69,7 @@ func main() {
 			Developer:        StringPointer("Mojang Studios"),
 			Publisher:        StringPointer("Mojang Studios"),
 			Platforms:        []string{"PC", "Console", "Mobile"},
-			Tags:             []string{"sandbox", "adventure", "multiplayer"},
+			Tags:             []string{"Sandbox", "Adventure", "Multiplayer"},
 			Rating:           FloatPointer(4.8),
 		},
 		{
@@ -85,7 +85,7 @@ func main() {
 			Developer:        StringPointer("Infinity Ward"),
 			Publisher:        StringPointer("Activision"),
 			Platforms:        []string{"PC", "Console"},
-			Tags:             []string{"FPS", "action", "multiplayer"},
+			Tags:             []string{"FPS", "Action", "Multiplayer"},
 			Rating:           FloatPointer(4.3),
 		},
 		{
@@ -101,7 +101,7 @@ func main() {
 			Developer:        StringPointer("Riot Games"),
 			Publisher:        StringPointer("Riot Games"),
 			Platforms:        []string{"PC"},
-			Tags:             []string{"FPS", "multiplayer", "strategy"},
+			Tags:             []string{"FPS", "Multiplayer", "Strategy"},
 			Rating:           FloatPointer(4.5),
 		},
 		{
@@ -117,7 +117,7 @@ func main() {
 			Developer:        StringPointer("Epic Games"),
 			Publisher:        StringPointer("Epic Games"),
 			Platforms:        []string{"PC", "Console", "Mobile"},
-			Tags:             []string{"battle royale", "multiplayer", "action"},
+			Tags:             []string{"Battle Royale", "Multiplayer", "Action"},
 			Rating:           FloatPointer(4.2),
 		},
 		{
@@ -133,7 +133,7 @@ func main() {
 			Developer:        StringPointer("Respawn Entertainment"),
 			Publisher:        StringPointer("Electronic Arts"),
 			Platforms:        []string{"PC", "Console"},
-			Tags:             []string{"battle royale", "multiplayer", "action"},
+			Tags:             []string{"Battle Royale", "Multiplayer", "Action"},
 			Rating:           FloatPointer(4.4),
 		},
 		{
@@ -149,7 +149,7 @@ func main() {
 			Developer:        StringPointer("miHoYo"),
 			Publisher:        StringPointer("miHoYo"),
 			Platforms:        []string{"PC", "Console", "Mobile"},
-			Tags:             []string{"action", "RPG", "open-world"},
+			Tags:             []string{"Action", "RPG", "Open-world"},
 			Rating:           FloatPointer(4.7),
 		},
 	}

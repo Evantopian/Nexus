@@ -48,6 +48,11 @@ const Party = () => {
       username: "LunaMage",
       profileImg: "https://thispersondoesnotexist.com/",
     },
+    {
+      id: "6",
+      username: "SunSword",
+      profileImg: "https://thispersondoesnotexist.com/",
+    },
   ];
 
   const handleHonor = (userId: string) => {

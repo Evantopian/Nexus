@@ -7,6 +7,9 @@ import {
 } from "./NavItemsModel";
 import NavItem from "./NavItem";
 import SectionHeader from "./SectionHeader";
+// import { useAuth } from "@/contexts/AuthContext";
+// import { useQuery } from "@apollo/client";
+// import { GET_USER_FOLLOWED_GAMES } from "@/graphql/userQueries";
 
 interface SidebarContentProps {
   expanded: boolean;
@@ -14,6 +17,7 @@ interface SidebarContentProps {
 
 const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
   const location = useLocation();
+
 
   // Remap the “Direct Messages” link to /chat (so your index route logic will run)
   const chatItems = rawChatItems.map((item) => {
@@ -27,6 +31,16 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
     // }
     return { ...item, href };
   });
+
+  // const { user } = useAuth();
+  // const { data, loading, error } = useQuery(GET_USER_FOLLOWED_GAMES, {
+  //   variables: { userId: user?.uuid },
+  // });
+
+  // const followedGames = data?.getUserFollowedGames ?? [];
+
+  // console.log("Followed Games", followedGames);
+
 
   return (
     <div className="w-full overflow-hidden">
