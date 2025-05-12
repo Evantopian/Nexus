@@ -32,6 +32,7 @@ engine = create_engine(url)
 query = """
 SELECT 
   uuid,
+  username,
   reputation,
   rank,
   age,
@@ -67,7 +68,7 @@ default_weights = {
     'playstyle': 0.1,
     'platform': 0.6,
     'rank': 0.1,
-    'reputation': 0.4,
+    'reputation': 0.2,
     'age': 0.2
 }
 
@@ -139,6 +140,16 @@ async def refresh_model():
     df = pd.merge(df, friends_df, how='left',
                   left_on='uuid', right_on='user_id')
 
+    df.fillna({
+        'region': 'UNKNOWN',
+        'playstyle': 'UNKNOWN',
+        'platform': 'UNKNOWN',
+        'genre': 'UNKNOWN',
+        'rank': 'UNRANKED',
+        'reputation': 0,
+        'age': 13,
+    }, inplace=True)
+
     X = preprocessor.fit_transform(
         df[numerical_features + categorical_features]).toarray()
 
@@ -179,13 +190,13 @@ def get_recommendations_ml(player_index, num_recommendations=5, weighted_matrix=
         {'uuid': new_friend_ids[:num_recommendations]})
     full_recommendations = pd.merge(recommendations, df, on='uuid')
 
-    return full_recommendations[['uuid', 'region', 'genre', 'platform', 'playstyle', 'rank', 'reputation', 'age']]
+    return full_recommendations[['uuid', 'username', 'region', 'genre', 'platform', 'playstyle', 'rank', 'reputation', 'age']]
 
 
 '''
 if __name__ == "__main__":
-    uvicorn.run("recommend:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("recommendation:app", host="0.0.0.0", port=8000, reload=True)
 
-docker build -t fastapi .
-docker run --env-file .env -p 8000:8000 fastapi
+docker build --platform linux/amd64 -t sha243/nexusrecc:latest .
+docker push sha243/nexusrecc:latest
 '''
