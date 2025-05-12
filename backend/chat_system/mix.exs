@@ -18,8 +18,8 @@ defmodule ChatSystem.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {ChatSystem.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :postgrex, :ecto_sql],
+      mod: {ChatSystem.Application, []}
     ]
   end
 
@@ -35,7 +35,7 @@ defmodule ChatSystem.MixProject do
       {:phoenix, "~> 1.7.21"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, ">= 0.20.0"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 1.0"},
@@ -57,8 +57,12 @@ defmodule ChatSystem.MixProject do
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
-    ]
+      {:bandit, "~> 1.5"},
+      {:absinthe_plug, "~> 1.5"},
+      {:joken, "~> 2.6.2"},
+      {:dotenv, "~> 3.1.0"},
+      {:dotenv_parser, "~> 2.0.1"},
+      ]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

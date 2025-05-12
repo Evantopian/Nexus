@@ -4,7 +4,9 @@ import (
 	"errors"
 	"os"
 	"time"
+	"log"
 
+	"github.com/joho/godotenv"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -12,9 +14,22 @@ import (
 var jwtSecret []byte
 
 func init() {
-	// Load the JWT secret key from the environment variable
-	jwtSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
+	// Load the .env file from backend/.env (relative to project root)
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatalf("Could not load backend/.env: %v", err)
+	}
+
+	// Log for sanity
+	log.Printf("Loaded JWT_SECRET_KEY: %q", os.Getenv("JWT_SECRET_KEY"))
+
+	// Set the jwtSecret
+	secret := os.Getenv("JWT_SECRET_KEY")
+	if secret == "" {
+		log.Fatal("JWT_SECRET_KEY is not set in environment")
+	}
+	jwtSecret = []byte(secret)
 }
+
 
 // GenerateToken creates a JWT token with a custom expiration time (in minutes)
 func GenerateToken(uuid string, expiryMinutes int) (string, error) {

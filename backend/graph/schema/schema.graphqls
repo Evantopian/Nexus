@@ -51,7 +51,7 @@ type Preferences {
 }
 
 # Root Query type (Protected Query)
-type Query {
+extend type Query {
   profile: User! # Get the user's profile
   getUser(userId: UUID!): User!
   getUserFollowedGames(userId: UUID!): [Game!]!
@@ -59,7 +59,7 @@ type Query {
 }
 
 # Root Mutation type (Protected User Management)
-type Mutation {
+extend type Mutation {
   updateUser(
     username: String
     email: String
