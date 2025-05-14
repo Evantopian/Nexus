@@ -71,7 +71,7 @@ func (r *queryResolver) GetRecommendations(ctx context.Context, userID uuid.UUID
 
 // SearchUser is the resolver for the searchUser field.
 func (r *queryResolver) SearchUser(ctx context.Context, search string) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented: SearchUser - searchUser"))
+	return resolver.SearchUser(ctx, search)
 }
 
 // GetUserFollowedGames is the resolver for the getUserFollowedGames field.

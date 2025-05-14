@@ -138,7 +138,6 @@ func (r *queryResolver) GetDirectConversations(ctx context.Context, limit *int32
 	return chat.GetDirectConversations(ctx, limitValue, after)
 }
 
-
 // GetGroupConversations is the resolver for the getGroupConversations field.
 func (r *queryResolver) GetGroupConversations(ctx context.Context, userID uuid.UUID, limit *int32, after *time.Time) ([]*model.GroupConversation, error) {
 	panic(fmt.Errorf("not implemented: GetGroupConversations - getGroupConversations"))
