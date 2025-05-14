@@ -21,6 +21,7 @@ export const FollowedGamesProvider = ({
   const { user } = useAuth();
   const { data, loading, error } = useQuery(GET_USER_FOLLOWED_GAMES, {
     variables: { userId: user?.uuid },
+    skip: !user?.uuid, // prevents early execution, runs when user is defined
   });
 
   const followedGames = data?.getUserFollowedGames ?? [];

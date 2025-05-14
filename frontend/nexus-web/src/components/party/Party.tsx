@@ -1,56 +1,71 @@
+import { useQuery } from "@apollo/client";
 import PartyList from "./PartyList";
 import PlayerRecommendation from "./PlayerRecommendation";
+import { GET_RECOMMENDATIONS } from "@/graphql/userQueries";
+import { useAuth } from "@/contexts/AuthContext";
+
+type UserRecommendation = {
+  uuid: string;
+  username: string;
+  email: string;
+  profileImg: string;
+  region: string;
+  genre: string;
+  platform: string;
+  playstyle: string;
+  rank: string;
+  age: number;
+  reputation: number;
+};
 
 export type Player = {
   id: string;
   username: string;
+  email: string;
   profileImg: string;
 };
 
 const Party = () => {
-  const recommendedPlayers = [
-    {
-      id: "1",
-      username: "AceHunter",
+  const { user } = useAuth();
+  const { data, loading } = useQuery(GET_RECOMMENDATIONS, {
+    variables: { userId: user?.uuid, numRecommendations: 5 },
+    skip: !user?.uuid, // prevents early execution, runs when user is defined
+  });
+
+  // console.log(data?.getRecommendations);
+
+  const recommendedPlayers =
+    data?.getRecommendations?.map((player: UserRecommendation) => ({
+      id: player.uuid,
+      username: player.username,
+      email: player.email || "placeholder@email.com",
       profileImg:
-        "https://fastly.picsum.photos/id/874/200/300.jpg?hmac=rJgHohZZtli5gr1B42TQbIuoC-GrMDffD-Xukd2Grj8",
-    },
-    {
-      id: "2",
-      username: "ShadowKnight",
-      profileImg: "https://thispersondoesnotexist.com/",
-    },
-    {
-      id: "3",
-      username: "SkyFlyer",
-      profileImg: "https://thispersondoesnotexist.com/",
-    },
-    {
-      id: "4",
-      username: "StarMaker",
-      profileImg: "https://thispersondoesnotexist.com/",
-    },
-  ];
+        player.profileImg || "https://picsum.photos/250/250?grayscale",
+    })) || [];
 
   const partyMembers = [
     {
       id: "3",
       username: "DragonSlayer",
+      email: "dragon@example.com",
       profileImg: "https://thispersondoesnotexist.com/",
     },
     {
       id: "4",
       username: "SkyWalker",
+      email: "skyw@example.com",
       profileImg: "https://thispersondoesnotexist.com/",
     },
     {
       id: "5",
       username: "LunaMage",
+      email: "lm@example.com",
       profileImg: "https://thispersondoesnotexist.com/",
     },
     {
       id: "6",
       username: "SunSword",
+      email: "ssword@example.com",
       profileImg: "https://thispersondoesnotexist.com/",
     },
   ];
@@ -73,7 +88,11 @@ const Party = () => {
       <div className="flex items-start gap-2 w-4/5 max-w-[1440px]">
         {/* Carousel / Profile Cards */}
         <div className="flex-2">
-          <PlayerRecommendation recommendedPlayers={recommendedPlayers} />
+          <PlayerRecommendation
+            recommendedPlayers={recommendedPlayers}
+            loading={loading || !user?.uuid}
+            // Loading is true when either querying is in flight or skip user is true
+          />
         </div>
 
         {/* Current Party Sidebar */}

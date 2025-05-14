@@ -11,7 +11,7 @@ export interface NavItem {
 }
 
 // Section 1: Followed Games
-export const followedGamesTest: NavItem[] = [
+export const followedGames: NavItem[] = [
   {
     icon: (
       <img
@@ -42,13 +42,13 @@ export const followedGamesTest: NavItem[] = [
 export const chatItems: NavItem[] = [
   {
     icon: <ChatIcon sx={{ fontSize: 20 }} />,
-    href: "/chat/direct",         // <-- updated to match "direct/:contact"
+    href: "/chat/direct", // <-- updated to match "direct/:contact"
     tooltip: "Direct Messages",
     label: "Direct Messages",
   },
   {
     icon: <ChatIcon sx={{ fontSize: 20 }} />,
-    href: "/chat/groups",         // <-- updated to match "groups/:groupId"
+    href: "/chat/groups", // <-- updated to match "groups/:groupId"
     tooltip: "Group Chats",
     label: "Group Chats",
   },

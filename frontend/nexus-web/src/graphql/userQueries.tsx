@@ -92,3 +92,24 @@ export const GET_USER_FOLLOWED_GAMES = gql`
     }
   }
 `;
+
+export const GET_RECOMMENDATIONS = gql`
+  query getRecommendations($userId: UUID!, $numRecommendations: Int!) {
+    getRecommendations(
+      userId: $userId
+      numRecommendations: $numRecommendations
+    ) {
+      uuid
+      email
+      username
+      profileImg
+      region
+      genre
+      platform
+      playstyle
+      rank
+      reputation
+      age
+    }
+  }
+`;
