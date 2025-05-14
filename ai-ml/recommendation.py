@@ -33,6 +33,8 @@ query = """
 SELECT 
   uuid,
   username,
+  email,
+  profile_img,
   reputation,
   rank,
   age,
@@ -190,7 +192,7 @@ def get_recommendations_ml(player_index, num_recommendations=5, weighted_matrix=
         {'uuid': new_friend_ids[:num_recommendations]})
     full_recommendations = pd.merge(recommendations, df, on='uuid')
 
-    return full_recommendations[['uuid', 'username', 'region', 'genre', 'platform', 'playstyle', 'rank', 'reputation', 'age']]
+    return full_recommendations[['uuid', 'username', 'email', 'profile_img', 'region', 'genre', 'platform', 'playstyle', 'rank', 'reputation', 'age']]
 
 
 '''
