@@ -113,3 +113,9 @@ export const GET_RECOMMENDATIONS = gql`
     }
   }
 `;
+
+export const ADJUST_REP = gql`
+  mutation adjustRep($userId: UUID!, $amount: Int!) {
+    adjustRep(userId: $userId, amount: $amount)
+  }
+`;

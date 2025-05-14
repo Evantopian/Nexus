@@ -1,7 +1,7 @@
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import PartyList from "./PartyList";
 import PlayerRecommendation from "./PlayerRecommendation";
-import { GET_RECOMMENDATIONS } from "@/graphql/userQueries";
+import { ADJUST_REP, GET_RECOMMENDATIONS } from "@/graphql/userQueries";
 import { useAuth } from "@/contexts/AuthContext";
 
 type UserRecommendation = {
@@ -31,8 +31,7 @@ const Party = () => {
     variables: { userId: user?.uuid, numRecommendations: 5 },
     skip: !user?.uuid, // prevents early execution, runs when user is defined
   });
-
-  // console.log(data?.getRecommendations);
+  const [adjustRep] = useMutation(ADJUST_REP);
 
   const recommendedPlayers =
     data?.getRecommendations?.map((player: UserRecommendation) => ({
@@ -70,12 +69,26 @@ const Party = () => {
     },
   ];
 
-  const handleHonor = (userId: string) => {
-    console.log(userId);
+  const handleHonor = async (userId: string) => {
+    try {
+      // await adjustRep({
+      //   variables: { userId, amount: 1 },
+      // });
+      console.log(`Honored ${userId}`);
+    } catch (err) {
+      console.error("Failed to honor user:", err);
+    }
   };
 
-  const handleDislike = (userId: string) => {
-    console.log(userId);
+  const handleDislike = async (userId: string) => {
+    try {
+      // await adjustRep({
+      //   variables: { userId, amount: -1 },
+      // });
+      console.log(`Disliked ${userId}`);
+    } catch (err) {
+      console.error("Failed to dislike user:", err);
+    }
   };
 
   const handleViewProfile = (userId: string) => {
