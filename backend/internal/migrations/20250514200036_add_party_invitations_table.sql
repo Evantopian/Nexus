@@ -6,8 +6,7 @@ CREATE TABLE party_invitations (
     inviter_id UUID REFERENCES users(uuid),                   -- The user who sent the invitation
     invitee_id UUID REFERENCES users(uuid),                   -- The user who was invited
     status TEXT CHECK (status IN ('pending', 'accepted', 'rejected', 'expired')) DEFAULT 'pending',
-    sent_at TIMESTAMPTZ DEFAULT now(),                       -- Time when the invitation was sent
-    expires_at TIMESTAMPTZ,                                  -- Expiration time of the invitation
+    created_at TIMESTAMPTZ DEFAULT now(),                       -- Time when the invitation was sent
     UNIQUE (party_id, invitee_id)                             -- Ensure only one invite per user per party
 );
 
