@@ -3,6 +3,7 @@
 package model
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -64,6 +65,17 @@ type Preferences struct {
 type Query struct {
 }
 
+type Recommendation struct {
+	ID         uuid.UUID `json:"id"`
+	Region     string    `json:"region"`
+	Genre      *string   `json:"genre,omitempty"`
+	Platform   *string   `json:"platform,omitempty"`
+	Playstyle  Playstyle `json:"playstyle"`
+	Rank       string    `json:"rank"`
+	Reputation int32     `json:"reputation"`
+	Age        int32     `json:"age"`
+}
+
 type Server struct {
 	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
@@ -85,6 +97,7 @@ type User struct {
 	Rank           *string      `json:"rank,omitempty"`
 	CreatedAt      *string      `json:"createdAt,omitempty"`
 	Preferences    *Preferences `json:"preferences,omitempty"`
+	Age            *int32       `json:"age,omitempty"`
 	FollowingGames []*Game      `json:"followingGames"`
 }
 
@@ -127,4 +140,18 @@ func (e *Playstyle) UnmarshalGQL(v any) error {
 
 func (e Playstyle) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *Playstyle) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Playstyle) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

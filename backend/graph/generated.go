@@ -92,26 +92,27 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AcceptFriendRequest func(childComplexity int, senderID uuid.UUID) int
-		AdjustRep           func(childComplexity int, amount int32) int
-		CreateGame          func(childComplexity int, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) int
-		CreateLFGPost       func(childComplexity int, gameID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) int
-		CreateServer        func(childComplexity int, gameID *uuid.UUID, name string, image *string, description *string) int
-		DeleteGame          func(childComplexity int, slug string) int
-		DeleteLFGPost       func(childComplexity int, postID uuid.UUID) int
-		DeleteServer        func(childComplexity int, serverID uuid.UUID) int
-		DeleteUser          func(childComplexity int) int
-		FollowGame          func(childComplexity int, slug string) int
-		JoinServer          func(childComplexity int, serverID uuid.UUID) int
-		LeaveServer         func(childComplexity int, serverID uuid.UUID) int
-		RejectFriendRequest func(childComplexity int, senderID uuid.UUID) int
-		RemoveFriend        func(childComplexity int, friendID uuid.UUID) int
-		SendFriendRequest   func(childComplexity int, receiverID uuid.UUID) int
-		UnfollowGame        func(childComplexity int, slug string) int
-		UpdateGame          func(childComplexity int, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) int
-		UpdateLFGPost       func(childComplexity int, postID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) int
-		UpdatePreference    func(childComplexity int, region *string, playstyle *model.Playstyle) int
-		UpdateUser          func(childComplexity int, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string) int
+		AcceptFriendRequest    func(childComplexity int, senderID uuid.UUID) int
+		AdjustRep              func(childComplexity int, amount int32) int
+		CreateGame             func(childComplexity int, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) int
+		CreateLFGPost          func(childComplexity int, gameID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) int
+		CreateServer           func(childComplexity int, gameID *uuid.UUID, name string, image *string, description *string) int
+		DeleteGame             func(childComplexity int, slug string) int
+		DeleteLFGPost          func(childComplexity int, postID uuid.UUID) int
+		DeleteServer           func(childComplexity int, serverID uuid.UUID) int
+		DeleteUser             func(childComplexity int) int
+		FollowGame             func(childComplexity int, slug string) int
+		JoinServer             func(childComplexity int, serverID uuid.UUID) int
+		LeaveServer            func(childComplexity int, serverID uuid.UUID) int
+		RefreshRecommendations func(childComplexity int) int
+		RejectFriendRequest    func(childComplexity int, senderID uuid.UUID) int
+		RemoveFriend           func(childComplexity int, friendID uuid.UUID) int
+		SendFriendRequest      func(childComplexity int, receiverID uuid.UUID) int
+		UnfollowGame           func(childComplexity int, slug string) int
+		UpdateGame             func(childComplexity int, slug string, title string, description *string, shortDescription *string, image *string, banner *string, logo *string, players *string, releaseDate *string, developer *string, publisher *string, platforms []string, tags []string, rating *float64) int
+		UpdateLFGPost          func(childComplexity int, postID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) int
+		UpdatePreference       func(childComplexity int, region *string, playstyle *model.Playstyle) int
+		UpdateUser             func(childComplexity int, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string) int
 	}
 
 	Preferences struct {
@@ -126,11 +127,23 @@ type ComplexityRoot struct {
 		GetFriends           func(childComplexity int) int
 		GetGame              func(childComplexity int, slug string) int
 		GetLFGPosts          func(childComplexity int, slug string) int
+		GetRecommendations   func(childComplexity int, id uuid.UUID, limit *int32) int
 		GetServers           func(childComplexity int, slug string) int
 		GetUserFollowedGames func(childComplexity int, userID uuid.UUID) int
 		GetUserLFGPosts      func(childComplexity int, limit *int32, offset *int32) int
 		IsUserFollowingGame  func(childComplexity int, userID uuid.UUID, gameID uuid.UUID) int
 		Profile              func(childComplexity int) int
+	}
+
+	Recommendation struct {
+		Age        func(childComplexity int) int
+		Genre      func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Platform   func(childComplexity int) int
+		Playstyle  func(childComplexity int) int
+		Rank       func(childComplexity int) int
+		Region     func(childComplexity int) int
+		Reputation func(childComplexity int) int
 	}
 
 	Server struct {
@@ -143,6 +156,7 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
+		Age            func(childComplexity int) int
 		CreatedAt      func(childComplexity int) int
 		Email          func(childComplexity int) int
 		FollowingGames func(childComplexity int) int
@@ -175,6 +189,7 @@ type MutationResolver interface {
 	CreateLFGPost(ctx context.Context, gameID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) (*model.LFGPost, error)
 	UpdateLFGPost(ctx context.Context, postID uuid.UUID, title string, description string, requirements []string, tags []string, expirationHour *int32) (*model.LFGPost, error)
 	DeleteLFGPost(ctx context.Context, postID uuid.UUID) (bool, error)
+	RefreshRecommendations(ctx context.Context) (bool, error)
 	CreateServer(ctx context.Context, gameID *uuid.UUID, name string, image *string, description *string) (*model.Server, error)
 	JoinServer(ctx context.Context, serverID uuid.UUID) (bool, error)
 	LeaveServer(ctx context.Context, serverID uuid.UUID) (bool, error)
@@ -191,6 +206,7 @@ type QueryResolver interface {
 	GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error)
 	GetAllLFGPosts(ctx context.Context, limit *int32, offset *int32) ([]*model.LFGPost, error)
 	GetUserLFGPosts(ctx context.Context, limit *int32, offset *int32) ([]*model.LFGPost, error)
+	GetRecommendations(ctx context.Context, id uuid.UUID, limit *int32) ([]*model.Recommendation, error)
 	GetServers(ctx context.Context, slug string) ([]*model.Server, error)
 }
 
@@ -208,7 +224,7 @@ func (e *executableSchema) Schema() *ast.Schema {
 	return parsedSchema
 }
 
-func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
+func (e *executableSchema) Complexity(ctx context.Context, typeName, field string, childComplexity int, rawArgs map[string]any) (int, bool) {
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
@@ -435,7 +451,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_acceptFriendRequest_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_acceptFriendRequest_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -447,7 +463,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_adjustRep_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_adjustRep_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -459,7 +475,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createGame_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createGame_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -471,7 +487,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createLFGPost_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createLFGPost_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -483,7 +499,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_createServer_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createServer_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -495,7 +511,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteGame_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteGame_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -507,7 +523,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteLFGPost_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteLFGPost_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -519,7 +535,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteServer_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteServer_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -538,7 +554,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_followGame_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_followGame_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -550,7 +566,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_joinServer_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_joinServer_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -562,19 +578,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_leaveServer_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_leaveServer_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.LeaveServer(childComplexity, args["serverId"].(uuid.UUID)), true
 
+	case "Mutation.refreshRecommendations":
+		if e.complexity.Mutation.RefreshRecommendations == nil {
+			break
+		}
+
+		return e.complexity.Mutation.RefreshRecommendations(childComplexity), true
+
 	case "Mutation.rejectFriendRequest":
 		if e.complexity.Mutation.RejectFriendRequest == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_rejectFriendRequest_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_rejectFriendRequest_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -586,7 +609,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_removeFriend_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_removeFriend_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -598,7 +621,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_sendFriendRequest_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_sendFriendRequest_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -610,7 +633,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_unfollowGame_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_unfollowGame_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -622,7 +645,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateGame_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateGame_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -634,7 +657,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateLFGPost_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateLFGPost_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -646,7 +669,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updatePreference_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updatePreference_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -658,7 +681,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Mutation_updateUser_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateUser_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -691,7 +714,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_getAllLFGPosts_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getAllLFGPosts_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -717,7 +740,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_getGame_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getGame_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -729,19 +752,31 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_getLFGPosts_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getLFGPosts_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Query.GetLFGPosts(childComplexity, args["slug"].(string)), true
 
+	case "Query.getRecommendations":
+		if e.complexity.Query.GetRecommendations == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getRecommendations_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetRecommendations(childComplexity, args["id"].(uuid.UUID), args["limit"].(*int32)), true
+
 	case "Query.getServers":
 		if e.complexity.Query.GetServers == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getServers_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getServers_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -753,7 +788,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_getUserFollowedGames_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getUserFollowedGames_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -765,7 +800,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_getUserLFGPosts_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getUserLFGPosts_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -777,7 +812,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_isUserFollowingGame_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_isUserFollowingGame_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -790,6 +825,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Profile(childComplexity), true
+
+	case "Recommendation.age":
+		if e.complexity.Recommendation.Age == nil {
+			break
+		}
+
+		return e.complexity.Recommendation.Age(childComplexity), true
+
+	case "Recommendation.genre":
+		if e.complexity.Recommendation.Genre == nil {
+			break
+		}
+
+		return e.complexity.Recommendation.Genre(childComplexity), true
+
+	case "Recommendation.id":
+		if e.complexity.Recommendation.ID == nil {
+			break
+		}
+
+		return e.complexity.Recommendation.ID(childComplexity), true
+
+	case "Recommendation.platform":
+		if e.complexity.Recommendation.Platform == nil {
+			break
+		}
+
+		return e.complexity.Recommendation.Platform(childComplexity), true
+
+	case "Recommendation.playstyle":
+		if e.complexity.Recommendation.Playstyle == nil {
+			break
+		}
+
+		return e.complexity.Recommendation.Playstyle(childComplexity), true
+
+	case "Recommendation.rank":
+		if e.complexity.Recommendation.Rank == nil {
+			break
+		}
+
+		return e.complexity.Recommendation.Rank(childComplexity), true
+
+	case "Recommendation.region":
+		if e.complexity.Recommendation.Region == nil {
+			break
+		}
+
+		return e.complexity.Recommendation.Region(childComplexity), true
+
+	case "Recommendation.reputation":
+		if e.complexity.Recommendation.Reputation == nil {
+			break
+		}
+
+		return e.complexity.Recommendation.Reputation(childComplexity), true
 
 	case "Server.createdAt":
 		if e.complexity.Server.CreatedAt == nil {
@@ -832,6 +923,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Server.Name(childComplexity), true
+
+	case "User.age":
+		if e.complexity.User.Age == nil {
+			break
+		}
+
+		return e.complexity.User.Age(childComplexity), true
 
 	case "User.createdAt":
 		if e.complexity.User.CreatedAt == nil {
@@ -1020,7 +1118,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "schema/friend.graphqls" "schema/game.graphqls" "schema/lfg.graphqls" "schema/schema.graphqls" "schema/server.graphqls"
+//go:embed "schema/friend.graphqls" "schema/game.graphqls" "schema/lfg.graphqls" "schema/recommendation.graphqls" "schema/schema.graphqls" "schema/server.graphqls"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1035,6 +1133,7 @@ var sources = []*ast.Source{
 	{Name: "schema/friend.graphqls", Input: sourceData("schema/friend.graphqls"), BuiltIn: false},
 	{Name: "schema/game.graphqls", Input: sourceData("schema/game.graphqls"), BuiltIn: false},
 	{Name: "schema/lfg.graphqls", Input: sourceData("schema/lfg.graphqls"), BuiltIn: false},
+	{Name: "schema/recommendation.graphqls", Input: sourceData("schema/recommendation.graphqls"), BuiltIn: false},
 	{Name: "schema/schema.graphqls", Input: sourceData("schema/schema.graphqls"), BuiltIn: false},
 	{Name: "schema/server.graphqls", Input: sourceData("schema/server.graphqls"), BuiltIn: false},
 }
@@ -2416,6 +2515,47 @@ func (ec *executionContext) field_Query_getLFGPosts_argsSlug(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_getRecommendations_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_getRecommendations_argsID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := ec.field_Query_getRecommendations_argsLimit(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["limit"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Query_getRecommendations_argsID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (uuid.UUID, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+	if tmp, ok := rawArgs["id"]; ok {
+		return ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, tmp)
+	}
+
+	var zeroVal uuid.UUID
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_getRecommendations_argsLimit(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int32, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+	if tmp, ok := rawArgs["limit"]; ok {
+		return ec.unmarshalOInt2ᚖint32(ctx, tmp)
+	}
+
+	var zeroVal *int32
 	return zeroVal, nil
 }
 
@@ -3836,6 +3976,8 @@ func (ec *executionContext) fieldContext_LFGPost_author(_ context.Context, field
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "preferences":
 				return ec.fieldContext_User_preferences(ctx, field)
+			case "age":
+				return ec.fieldContext_User_age(ctx, field)
 			case "followingGames":
 				return ec.fieldContext_User_followingGames(ctx, field)
 			}
@@ -4082,6 +4224,8 @@ func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "preferences":
 				return ec.fieldContext_User_preferences(ctx, field)
+			case "age":
+				return ec.fieldContext_User_age(ctx, field)
 			case "followingGames":
 				return ec.fieldContext_User_followingGames(ctx, field)
 			}
@@ -5040,6 +5184,50 @@ func (ec *executionContext) fieldContext_Mutation_deleteLFGPost(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_refreshRecommendations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_refreshRecommendations(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RefreshRecommendations(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_refreshRecommendations(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createServer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createServer(ctx, field)
 	if err != nil {
@@ -5423,6 +5611,8 @@ func (ec *executionContext) fieldContext_Query_profile(_ context.Context, field 
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "preferences":
 				return ec.fieldContext_User_preferences(ctx, field)
+			case "age":
+				return ec.fieldContext_User_age(ctx, field)
 			case "followingGames":
 				return ec.fieldContext_User_followingGames(ctx, field)
 			}
@@ -5635,6 +5825,8 @@ func (ec *executionContext) fieldContext_Query_getFriends(_ context.Context, fie
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "preferences":
 				return ec.fieldContext_User_preferences(ctx, field)
+			case "age":
+				return ec.fieldContext_User_age(ctx, field)
 			case "followingGames":
 				return ec.fieldContext_User_followingGames(ctx, field)
 			}
@@ -6088,6 +6280,79 @@ func (ec *executionContext) fieldContext_Query_getUserLFGPosts(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getRecommendations(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getRecommendations(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetRecommendations(rctx, fc.Args["id"].(uuid.UUID), fc.Args["limit"].(*int32))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Recommendation)
+	fc.Result = res
+	return ec.marshalNRecommendation2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐRecommendationᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getRecommendations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Recommendation_id(ctx, field)
+			case "region":
+				return ec.fieldContext_Recommendation_region(ctx, field)
+			case "genre":
+				return ec.fieldContext_Recommendation_genre(ctx, field)
+			case "platform":
+				return ec.fieldContext_Recommendation_platform(ctx, field)
+			case "playstyle":
+				return ec.fieldContext_Recommendation_playstyle(ctx, field)
+			case "rank":
+				return ec.fieldContext_Recommendation_rank(ctx, field)
+			case "reputation":
+				return ec.fieldContext_Recommendation_reputation(ctx, field)
+			case "age":
+				return ec.fieldContext_Recommendation_age(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Recommendation", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getRecommendations_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getServers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getServers(ctx, field)
 	if err != nil {
@@ -6288,6 +6553,352 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Recommendation_id(ctx context.Context, field graphql.CollectedField, obj *model.Recommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommendation_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(uuid.UUID)
+	fc.Result = res
+	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommendation_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UUID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommendation_region(ctx context.Context, field graphql.CollectedField, obj *model.Recommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommendation_region(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Region, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommendation_region(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommendation_genre(ctx context.Context, field graphql.CollectedField, obj *model.Recommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommendation_genre(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Genre, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommendation_genre(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommendation_platform(ctx context.Context, field graphql.CollectedField, obj *model.Recommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommendation_platform(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Platform, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommendation_platform(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommendation_playstyle(ctx context.Context, field graphql.CollectedField, obj *model.Recommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommendation_playstyle(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Playstyle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.Playstyle)
+	fc.Result = res
+	return ec.marshalNPlaystyle2githubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐPlaystyle(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommendation_playstyle(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Playstyle does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommendation_rank(ctx context.Context, field graphql.CollectedField, obj *model.Recommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommendation_rank(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Rank, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommendation_rank(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommendation_reputation(ctx context.Context, field graphql.CollectedField, obj *model.Recommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommendation_reputation(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reputation, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommendation_reputation(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Recommendation_age(ctx context.Context, field graphql.CollectedField, obj *model.Recommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Recommendation_age(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Age, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Recommendation_age(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Recommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Server_id(ctx context.Context, field graphql.CollectedField, obj *model.Server) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Server_id(ctx, field)
 	if err != nil {
@@ -6437,6 +7048,8 @@ func (ec *executionContext) fieldContext_Server_members(_ context.Context, field
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "preferences":
 				return ec.fieldContext_User_preferences(ctx, field)
+			case "age":
+				return ec.fieldContext_User_age(ctx, field)
 			case "followingGames":
 				return ec.fieldContext_User_followingGames(ctx, field)
 			}
@@ -7039,6 +7652,47 @@ func (ec *executionContext) fieldContext_User_preferences(_ context.Context, fie
 				return ec.fieldContext_Preferences_playstyle(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Preferences", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_age(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_age(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Age, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int32)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_age(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -9465,6 +10119,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "refreshRecommendations":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_refreshRecommendations(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createServer":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createServer(ctx, field)
@@ -9799,6 +10460,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getRecommendations":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getRecommendations(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getServers":
 			field := field
 
@@ -9829,6 +10512,74 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var recommendationImplementors = []string{"Recommendation"}
+
+func (ec *executionContext) _Recommendation(ctx context.Context, sel ast.SelectionSet, obj *model.Recommendation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, recommendationImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Recommendation")
+		case "id":
+			out.Values[i] = ec._Recommendation_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "region":
+			out.Values[i] = ec._Recommendation_region(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "genre":
+			out.Values[i] = ec._Recommendation_genre(ctx, field, obj)
+		case "platform":
+			out.Values[i] = ec._Recommendation_platform(ctx, field, obj)
+		case "playstyle":
+			out.Values[i] = ec._Recommendation_playstyle(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "rank":
+			out.Values[i] = ec._Recommendation_rank(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "reputation":
+			out.Values[i] = ec._Recommendation_reputation(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "age":
+			out.Values[i] = ec._Recommendation_age(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9958,6 +10709,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
 		case "preferences":
 			out.Values[i] = ec._User_preferences(ctx, field, obj)
+		case "age":
+			out.Values[i] = ec._User_age(ctx, field, obj)
 		case "followingGames":
 			out.Values[i] = ec._User_followingGames(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -10327,6 +11080,7 @@ func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (
 }
 
 func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalBoolean(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -10504,6 +11258,7 @@ func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int
 }
 
 func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalInt32(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -10589,6 +11344,60 @@ func (ec *executionContext) marshalNPreferences2ᚖgithubᚗcomᚋEvantopianᚋN
 	return ec._Preferences(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNRecommendation2ᚕᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐRecommendationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Recommendation) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNRecommendation2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐRecommendation(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNRecommendation2ᚖgithubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐRecommendation(ctx context.Context, sel ast.SelectionSet, v *model.Recommendation) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Recommendation(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNServer2githubᚗcomᚋEvantopianᚋNexusᚋgraphᚋmodelᚐServer(ctx context.Context, sel ast.SelectionSet, v model.Server) graphql.Marshaler {
 	return ec._Server(ctx, sel, &v)
 }
@@ -10647,6 +11456,7 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) 
 }
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -10692,6 +11502,7 @@ func (ec *executionContext) unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(c
 }
 
 func (ec *executionContext) marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx context.Context, sel ast.SelectionSet, v uuid.UUID) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalUUID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -10807,6 +11618,7 @@ func (ec *executionContext) unmarshalN__DirectiveLocation2string(ctx context.Con
 }
 
 func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -10995,6 +11807,7 @@ func (ec *executionContext) unmarshalN__TypeKind2string(ctx context.Context, v a
 }
 
 func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	_ = sel
 	res := graphql.MarshalString(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -11010,6 +11823,8 @@ func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v any) (
 }
 
 func (ec *executionContext) marshalOBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalBoolean(v)
 	return res
 }
@@ -11026,6 +11841,8 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalBoolean(*v)
 	return res
 }
@@ -11042,6 +11859,7 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
 	res := graphql.MarshalFloatContext(*v)
 	return graphql.WrapContextMarshaler(ctx, res)
 }
@@ -11072,6 +11890,8 @@ func (ec *executionContext) marshalOInt2ᚖint32(ctx context.Context, sel ast.Se
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalInt32(*v)
 	return res
 }
@@ -11161,6 +11981,8 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalString(*v)
 	return res
 }
@@ -11177,6 +11999,8 @@ func (ec *executionContext) marshalOUUID2ᚖgithubᚗcomᚋgoogleᚋuuidᚐUUID(
 	if v == nil {
 		return graphql.Null
 	}
+	_ = sel
+	_ = ctx
 	res := graphql.MarshalUUID(*v)
 	return res
 }

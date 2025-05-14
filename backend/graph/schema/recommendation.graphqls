@@ -1,0 +1,20 @@
+#recommendation types
+
+type Recommendation {
+  id: UUID!
+  region: String!
+  genre: String
+  platform: String
+  playstyle: Playstyle!
+  rank: String!
+  reputation: Int!
+  age: Int!
+}
+
+extend type Query {
+  getRecommendations(id: UUID!, limit: Int): [Recommendation!]!
+}
+
+extend type Mutation {
+  refreshRecommendations: Boolean!
+}

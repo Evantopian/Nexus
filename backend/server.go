@@ -1,17 +1,28 @@
 package main
 
 import (
-    "fmt"
-    "github.com/Evantopian/Nexus/internal/matchmaking"
+	"log"
+	"os"
+
+	"github.com/Evantopian/Nexus/internal/database/postgres"
+	"github.com/Evantopian/Nexus/internal/handler"
+	"github.com/joho/godotenv"
 )
 
-func main() {
-    client := matchmaking.FullRecommendationClient("http://localhost:8000")
-    recommendations, err := client.GetRecommendations("41ed449c-2bf0-42fb-a2c7-03aca710cf46", 10)
-    if err != nil {
-        fmt.Printf("Error: %v\n", err)
-        return
-    }
+func init() {
+	// Load environment variables from .env file
+	if err := godotenv.Load(); err != nil {
+		log.Println("Warning: No .env file found")
+	}
+}
 
-    fmt.Printf("Recommended players: %v\n", recommendations)
+func main() {
+	postgres.ConnectPostgres()
+
+	// Set up new gin router
+	r := handler.SetUpHandler()
+
+	port := os.Getenv("PORT")
+	log.Printf("Server running at http://localhost:%s", port)
+	log.Fatal(r.Run(":" + port))
 }

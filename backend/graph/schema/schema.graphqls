@@ -20,6 +20,7 @@ type User {
   rank: String # User's rank (optional)
   createdAt: String # Account creation time (formatted as a string)
   preferences: Preferences # User's game preferences
+  age: Int # User's age
   followingGames: [Game!]! # List of games the user is following
 }
 
