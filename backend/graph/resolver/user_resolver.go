@@ -336,6 +336,8 @@ func GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendation
 	var rawRecs []struct {
 		UUID       string  `json:"uuid"`
 		Username   string  `json:"username"`
+		Email      string  `json:"email"`
+		ProfileImg string  `json:"profileImg"`
 		Region     string  `json:"region"`
 		Genre      string  `json:"genre"`
 		Platform   string  `json:"platform"`
@@ -352,7 +354,7 @@ func GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendation
 	recommendations := make([]*model.UserRecommendation, 0, len(rawRecs))
 
 	for _, rec := range rawRecs {
-		uid, err := uuid.Parse(rec.UUID)
+		uuid, err := uuid.Parse(rec.UUID)
 		if err != nil {
 			continue // skip invalid UUIDs
 		}
@@ -361,8 +363,10 @@ func GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendation
 		age := int32(rec.Age)
 
 		recommendations = append(recommendations, &model.UserRecommendation{
-			UUID:       uid,
+			UUID:       uuid,
+			Email:      &rec.Email,
 			Username:   &rec.Username,
+			ProfileImg: &rec.ProfileImg,
 			Region:     &rec.Region,
 			Genre:      &rec.Genre,
 			Platform:   &rec.Platform,

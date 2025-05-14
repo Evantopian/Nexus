@@ -52,7 +52,9 @@ type Preferences {
 
 type UserRecommendation {
   uuid: UUID!
+  email: String
   username: String
+  profileImg: String
   region: String
   genre: String
   platform: String

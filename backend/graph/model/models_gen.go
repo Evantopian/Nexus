@@ -147,7 +147,9 @@ type User struct {
 
 type UserRecommendation struct {
 	UUID       uuid.UUID `json:"uuid"`
+	Email      *string   `json:"email,omitempty"`
 	Username   *string   `json:"username,omitempty"`
+	ProfileImg *string   `json:"profileImg,omitempty"`
 	Region     *string   `json:"region,omitempty"`
 	Genre      *string   `json:"genre,omitempty"`
 	Platform   *string   `json:"platform,omitempty"`
