@@ -133,5 +133,3 @@ func GetServer(ctx context.Context, id uuid.UUID) (*model.Server, error) {
 	}
 	return &s, nil
 }
-
-

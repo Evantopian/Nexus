@@ -50,10 +50,30 @@ type Preferences {
   favoriteGameGenre: GameGenre # User's favorite game genre (e.g., RPG, FPS)
 }
 
+type UserRecommendation {
+  uuid: UUID!
+  username: String
+  region: String
+  genre: String
+  platform: String
+  playstyle: String
+  rank: String
+  reputation: Int
+  age: Int
+}
+
 # Root Query type (Protected Query)
 extend type Query {
   profile: User! # Get the user's profile
   getUser(userId: UUID!): User!
+  getRandomUsers: [User!]!
+  getRecommendations(
+    userId: UUID!
+    numRecommendations: Int!
+  ): [UserRecommendation!]!
+
+  searchUser(search: String!): [User!]!
+
   getUserFollowedGames(userId: UUID!): [Game!]!
   isUserFollowingGame(userId: UUID!, gameId: UUID!): Boolean!
 }
