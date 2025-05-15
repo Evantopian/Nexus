@@ -29,23 +29,19 @@ func init() {
 	ginLambda = ginadapter.New(r)
 }
 
-func Handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	log.Println("Received request:", req)
-	//directly add path from lambda since gin not recognizing
-	if proxyPath, ok := req.PathParameters["proxy"]; ok {
-		req.Path = "/" + proxyPath
+func Handler(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayProxyResponse, error) {
+	log.Printf("Incoming (V2): RawPath=%s, Method=%s", req.RawPath, req.RequestContext.HTTP.Method)
+
+	// Manually map into a V1-style request
+	v1 := events.APIGatewayProxyRequest{
+		HTTPMethod:      req.RequestContext.HTTP.Method,
+		Path:            req.RawPath,
+		Headers:         req.Headers,
+		Body:            req.Body,
+		IsBase64Encoded: req.IsBase64Encoded,
 	}
-	if req.HTTPMethod == "" {
-		// Manually set method since gin not recognizing
-		switch req.Path {
-		case "/login", "/signup", "/logout", "/query":
-			req.HTTPMethod = "POST"
-		default:
-			req.HTTPMethod = "GET"
-		}
-	}
-	log.Printf("Fixed Request Path: %s, Method: %s", req.Path, req.HTTPMethod)
-	return ginLambda.ProxyWithContext(ctx, req)
+
+	return ginLambda.ProxyWithContext(ctx, v1)
 }
 
 func main() {
