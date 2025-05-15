@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import type React from "react"
 import { SocketProvider } from "./contexts/socket-context"
 import { ServerProvider } from "./contexts/server-context"
 import { ChannelProvider } from "./contexts/channel-context"
@@ -27,17 +27,10 @@ export interface ChatSystemProps {
   children?: React.ReactNode
 }
 import { Routes, Route, Navigate } from "react-router-dom"
- 
 
-export function ChatSystem({
-  user,
-  apiBaseUrl,
-  socketUrl,
-  onError,
-  className,
-}: ChatSystemProps) {
+export function ChatSystem({ user, apiBaseUrl, socketUrl, onError, className }: ChatSystemProps) {
   return (
-    <div className={`h-full w-full flex ${className || ""}`}>
+    <div className="h-full w-full flex bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <SocketProvider socketUrl={socketUrl} user={user} onError={onError}>
         <ServerProvider apiBaseUrl={apiBaseUrl}>
           <ChannelProvider apiBaseUrl={apiBaseUrl}>
@@ -49,7 +42,7 @@ export function ChatSystem({
                     <Route
                       index
                       element={
-                        <div className="flex items-center justify-center h-full text-gray-400 italic">
+                        <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 italic">
                           Select a conversation to start chatting.
                         </div>
                       }
@@ -65,7 +58,6 @@ export function ChatSystem({
     </div>
   )
 }
-
 
 // Extend global interface if needed
 declare global {
