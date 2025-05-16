@@ -5,7 +5,6 @@ import { SocketProvider } from "./contexts/socket-context"
 import { ServerProvider } from "./contexts/server-context"
 import { ChannelProvider } from "./contexts/channel-context"
 import { PresenceProvider } from "./contexts/presence-context"
-import { ChatProvider } from "./contexts/chat-context"
 import { useAuth } from "../../contexts/AuthContext"
 
 import DirectMessageView from "./views/DirectMessageView"
@@ -35,7 +34,6 @@ export function ChatSystem({ user, apiBaseUrl, socketUrl, onError, className }: 
         <ServerProvider apiBaseUrl={apiBaseUrl}>
           <ChannelProvider apiBaseUrl={apiBaseUrl}>
             <PresenceProvider>
-              <ChatProvider>
                 <Routes>
                   <Route path="/" element={<Navigate to="/chat/dms" replace />} />
                   <Route path="dms" element={<ChatLayout />}>
@@ -50,7 +48,6 @@ export function ChatSystem({ user, apiBaseUrl, socketUrl, onError, className }: 
                     <Route path=":conversationId" element={<DirectMessageView />} />
                   </Route>
                 </Routes>
-              </ChatProvider>
             </PresenceProvider>
           </ChannelProvider>
         </ServerProvider>
@@ -70,6 +67,10 @@ function ChatSystemWrapper() {
   const { user } = useAuth()
   if (!user) return <p>Loading user...</p>
 
+  const socketUrl = import.meta.env.DEV
+    ? "ws://localhost:4000/socket"
+    : import.meta.env.VITE_SOCKET_URL || "future link here"
+
   return (
     <ChatSystem
       user={{
@@ -79,7 +80,7 @@ function ChatSystemWrapper() {
         status: (user.status || "offline") as "online" | "idle" | "dnd" | "offline",
       }}
       apiBaseUrl={import.meta.env.VITE_API_BASE_URL}
-      socketUrl="wss://localhost:4000/socket"
+      socketUrl={socketUrl}
     />
   )
 }

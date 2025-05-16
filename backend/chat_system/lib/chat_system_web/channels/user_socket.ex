@@ -1,18 +1,24 @@
-# lib/chat_system_web/user_socket.ex
-
 defmodule ChatSystemWeb.UserSocket do
   use Phoenix.Socket
 
-  channel "dm:*", ChatSystemWeb.DirectChannel
-  # Comment this out for now if it's incomplete or broken:
-  # channel "room:*", ChatSystemWeb.RoomChannel
+  ## Channels
+  channel "dm:*", ChatSystemWeb.ChatChannel
+  # future:
+  # channel "group:*", ChatSystemWeb.ChatChannel
+  # channel "server:*", ChatSystemWeb.ChatChannel
 
-  
-  
-  # fix the token issue later, dummys wont work for now.
-  def connect(%{"user_id" => user_id}, socket, _connect_info) do
-    {:ok, assign(socket, :user_id, user_id)}
+  @impl true
+  def connect(%{"token" => token}, socket, _connect_info) do
+    # Ideally look up user info from the token:
+    # %{id: user_id, username: username} = lookup_user(token)
+
+    {:ok,
+    socket
+    |> assign(:user_token, token)
+    |> assign(:user_id, token) # TEMP, replace with actual lookup
+    |> assign(:username, "Unknown")}
   end
 
+  @impl true
   def id(_socket), do: nil
 end

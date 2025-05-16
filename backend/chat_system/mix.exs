@@ -18,7 +18,7 @@ defmodule ChatSystem.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      extra_applications: [:logger, :runtime_tools, :postgrex, :ecto_sql],
+      extra_applications: [:logger, :runtime_tools],
       mod: {ChatSystem.Application, []}
     ]
   end

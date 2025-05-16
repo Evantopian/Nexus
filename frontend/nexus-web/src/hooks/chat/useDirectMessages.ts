@@ -5,7 +5,7 @@ import {
   SEND_DM_MESSAGE
 } from "@/graphql/chat/dm.graphql"
 
-export const useDirectMessages = (conversationId?: string) => {
+export const useDirectMessages = (conversationId?: string, p0?: { skipIfRealtimeActive: boolean }) => {
   // Conversations (sidebar)
   const {
     data: convData,

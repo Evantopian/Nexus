@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect, useMemo } from "react"
 import { useLazyQuery, useMutation } from "@apollo/client"
 import { Link, useNavigate, useParams } from "react-router-dom"
-import { useDirectMessages } from "@/hooks/chat/useDirectMessages"
+import { useChatContext } from "../contexts/chat-context"
 import { SEARCH_USER, START_CONVERSATION } from "@/graphql/chat/dm.graphql"
 import { Search, X, Plus, Users, Settings } from "lucide-react"
 import { ConversationSkeleton } from "../ui/conversation-skeleton"
@@ -23,7 +23,7 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 export default function DirectMessageSidebar() {
-  const { conversations, loadingConversations, refetchConversations } = useDirectMessages()
+  const { conversations, loading, refetchConversations } = useChatContext()
   const { conversationId } = useParams<{ conversationId: string }>()
   const navigate = useNavigate()
   const [term, setTerm] = useState("")
@@ -121,8 +121,6 @@ export default function DirectMessageSidebar() {
 
   return (
     <div className="relative w-full h-full flex flex-col bg-white dark:bg-gray-800 text-gray-800 dark:text-white transition-colors duration-200">
-      {/* Header with app name */}
-
 
       {/* Search trigger */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
@@ -182,7 +180,7 @@ export default function DirectMessageSidebar() {
             </button>
           </div>
 
-          {loadingConversations ? (
+          {loading ? (
             <div className="space-y-2 px-2">
               {Array.from({ length: 5 }).map((_, i) => (
                 <ConversationSkeleton key={i} />
