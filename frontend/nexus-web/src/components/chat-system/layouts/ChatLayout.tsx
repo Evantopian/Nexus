@@ -10,12 +10,11 @@ export default function ChatLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  // Check if we're on mobile
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768
       setIsMobile(mobile)
-      setSidebarOpen(!mobile) // Close sidebar on mobile by default
+      setSidebarOpen(!mobile)
     }
 
     checkMobile()
@@ -23,7 +22,6 @@ export default function ChatLayout() {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // Close sidebar when clicking outside on mobile
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (isMobile && sidebarOpen) {
@@ -39,7 +37,7 @@ export default function ChatLayout() {
   }, [isMobile, sidebarOpen])
 
   return (
-    <ChatProvider> {/* ✅ wrap everything inside ChatProvider */}
+    <ChatProvider> 
       <div className="flex h-screen w-full overflow-hidden bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
         {/* Mobile overlay */}
         {isMobile && sidebarOpen && (

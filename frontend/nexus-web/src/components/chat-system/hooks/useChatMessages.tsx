@@ -64,31 +64,34 @@ export function useChatMessages(conversationId: string | undefined) {
     }
 
     const handleIncoming = (payload: any) => {
-      const senderId = payload.sender_id || payload.sender?.id || ""
-      const messageId = payload.id || `server-${Date.now()}`
-      const timestamp = payload.timestamp || new Date().toISOString()
+        const senderId = payload.sender_id
+        const username = payload.username || "Unknown" 
+        const timestamp = payload.timestamp || new Date().toISOString()
+        const messageId = payload.id || `server-${Date.now()}`
 
-      const incoming = {
-        id: messageId,
-        body: payload.body,
-        timestamp,
-        sender: resolveSender(senderId),
-      }
+        const message = {
+            id: messageId,
+            body: payload.body,
+            timestamp,
+            sender: {
+            id: senderId,
+            username: username,  
+            },
+        }
 
-      // Remove optimistic version if present
-      setMessages((prev) => {
-        const filtered = prev.filter(
-          (m) =>
-            !(
-              m.sender.id === senderId &&
-              m.body === incoming.body &&
-              Math.abs(new Date(m.timestamp).getTime() - new Date(incoming.timestamp).getTime()) < 5000
+        setMessages((prev) => {
+            const alreadyExists = prev.some(
+            (m) =>
+                m.sender.id === senderId &&
+                m.body === message.body &&
+                Math.abs(new Date(m.timestamp).getTime() - new Date(message.timestamp).getTime()) < 5000
             )
-        )
+            if (alreadyExists) return prev
 
-        return [...filtered, incoming].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-      })
+            return [...prev, message].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+        })
     }
+
 
     const channel = joinDM(conversationId, handleIncoming)
     channelRef.current = channel

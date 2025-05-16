@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useMemo } from "react"
+import { createContext, useContext, useMemo } from "react"
 import { useDirectMessages } from "@/hooks/chat/useDirectMessages"
 
 type ChatContextType = {
@@ -8,15 +8,26 @@ type ChatContextType = {
   loading: boolean
   refetchConversations: () => Promise<any>
   getConversationById: (id: string) => any | undefined
+  setConversations: (fn: (prev: any[]) => any[]) => void
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined)
 
-export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { conversations, loadingConversations, refetchConversations } = useDirectMessages()
+export const useChatContext = () => {
+  const ctx = useContext(ChatContext)
+  if (!ctx) throw new Error("useChatContext must be used within ChatProvider")
+  return ctx
+}
 
-  const getConversationById = (id: string) =>
-    conversations.find((conv: any) => conv?.id === id)
+export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
+  const {
+    conversations,
+    loadingConversations,
+    refetchConversations,
+    setConversations,
+  } = useDirectMessages()
+
+  const getConversationById = (id: string) => conversations.find((c) => c.id === id)
 
   const value = useMemo(
     () => ({
@@ -24,15 +35,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading: loadingConversations,
       refetchConversations,
       getConversationById,
+      setConversations,
     }),
     [conversations, loadingConversations, refetchConversations]
   )
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>
-}
-
-export const useChatContext = (): ChatContextType => {
-  const ctx = useContext(ChatContext)
-  if (!ctx) throw new Error("useChatContext must be used within a ChatProvider")
-  return ctx
 }

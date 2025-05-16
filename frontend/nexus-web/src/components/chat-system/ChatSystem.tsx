@@ -56,7 +56,6 @@ export function ChatSystem({ user, apiBaseUrl, socketUrl, onError, className }: 
   )
 }
 
-// Extend global interface if needed
 declare global {
   interface Window {
     __APOLLO_CLIENT__: any

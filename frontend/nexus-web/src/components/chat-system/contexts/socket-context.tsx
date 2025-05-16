@@ -59,7 +59,12 @@ export const SocketProvider = ({
 
       return {
         sendMessage: (body: string) => {
-          channel.push("message:new", { body, conversation_id: conversationId });
+          channel.push("message:new", {
+            body,
+            conversation_id: conversationId,
+            sender_id: user.id,
+            username: user.username,
+          });
         },
         leave: () => channel.leave(),
       };

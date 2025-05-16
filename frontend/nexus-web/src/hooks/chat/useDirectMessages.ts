@@ -4,14 +4,25 @@ import {
   FETCH_DM_MESSAGES,
   SEND_DM_MESSAGE
 } from "@/graphql/chat/dm.graphql"
+import { useEffect, useState } from "react"
 
 export const useDirectMessages = (conversationId?: string, p0?: { skipIfRealtimeActive: boolean }) => {
+  // Local state for real-time mutation
+  const [conversations, setConversations] = useState<any[]>([])
+
   // Conversations (sidebar)
   const {
     data: convData,
     loading: loadingConversations,
     refetch: refetchConversations,
   } = useQuery(GET_DIRECT_CONVERSATIONS)
+
+  // Initialize local conversations when GraphQL loads
+  useEffect(() => {
+    if (convData?.getDirectConversations) {
+      setConversations(convData.getDirectConversations)
+    }
+  }, [convData])
 
   // Messages (pane)
   const {
@@ -33,7 +44,8 @@ export const useDirectMessages = (conversationId?: string, p0?: { skipIfRealtime
 
   return {
     // sidebar
-    conversations: convData?.getDirectConversations ?? [],
+    conversations,
+    setConversations,
     loadingConversations,
     refetchConversations,
 

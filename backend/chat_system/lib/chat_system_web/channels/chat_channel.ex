@@ -18,11 +18,12 @@ defmodule ChatSystemWeb.ChatChannel do
   end
 
   @impl true
-  def handle_in("message:new", %{"body" => body} = payload, socket) do
-    conversation_id = socket.assigns[:conversation_id]
-    user_id = socket.assigns[:user_id] || "anonymous"
-    username = socket.assigns[:username] || "Unknown"
-
+  def handle_in("message:new", %{
+    "body" => body,
+    "conversation_id" => conversation_id,
+    "sender_id" => user_id,
+    "username" => username
+  }, socket) do
     enriched_payload = %{
       "id" => Ecto.UUID.generate(),
       "body" => body,
@@ -33,10 +34,10 @@ defmodule ChatSystemWeb.ChatChannel do
     }
 
     IO.inspect(enriched_payload, label: "💥 Broadcasting enriched message")
-
     broadcast!(socket, "message:new", enriched_payload)
     {:noreply, socket}
   end
+
 
 
 
