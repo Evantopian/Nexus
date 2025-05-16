@@ -4,6 +4,7 @@ import { Player } from "./Party";
 
 interface PlayerRecommendationProps {
   recommendedPlayers: Player[];
+  handleInvite: (userId: string) => void;
   loading: boolean;
 }
 
@@ -14,6 +15,7 @@ const CARD_ASPECT_RATIO = 300 / 260; // Original width/height ratio (adjust if y
 
 const PlayerRecommendation = ({
   recommendedPlayers,
+  handleInvite,
   loading,
 }: PlayerRecommendationProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -119,7 +121,10 @@ const PlayerRecommendation = ({
                 </div>
 
                 {/* Invite Button */}
-                <button className="text-sm px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
+                <button
+                  className="text-sm px-5 py-2 bg-indigo-600  text-white rounded-full hover:bg-indigo-700 transition"
+                  onClick={() => handleInvite(p.id)}
+                >
                   Invite
                 </button>
               </div>

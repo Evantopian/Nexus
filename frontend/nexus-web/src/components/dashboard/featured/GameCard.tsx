@@ -1,6 +1,6 @@
 import { Heart, BarChart, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import RivalsBanner from "@/assets/pages/games/MarvelRivals/MarvelRivalsBanner.jpg";
+// import RivalsBanner from "@/assets/pages/games/MarvelRivals/MarvelRivalsBanner.jpg";
 
 interface GameCardProps {
   image: string;
@@ -51,10 +51,11 @@ const GameCard = ({
           <>
             <div className="w-[70%] h-full relative">
               <img
-                src={RivalsBanner}
+                src={image}
                 alt={title}
                 className="w-full h-full object-cover"
               />
+
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
             <div className="w-[30%] bg-white dark:bg-gray-800 p-3 flex flex-col justify-between">
@@ -65,12 +66,12 @@ const GameCard = ({
                 >
                   <div className="h-5 w-5 rounded-full overflow-hidden mr-1 bg-gray-100 dark:bg-gray-700 flex-shrink-0">
                     <img
-                      src={RivalsBanner}
+                      src={image}
                       alt="game icon"
                       className="h-full w-full object-cover"
                     />
                   </div>
-                  {"Marvel Rivals"}
+                  {title}
                 </h3>
                 <div className="flex items-center mt-2">
                   <Users className="h-4 w-4 mr-1 text-gray-600 dark:text-gray-400" />
