@@ -56,3 +56,8 @@ func (r *queryResolver) GetSentPartyInvitations(ctx context.Context, userID uuid
 func (r *queryResolver) GetParty(ctx context.Context, partyID uuid.UUID) (*model.Party, error) {
 	return resolver.GetParty(ctx, partyID)
 }
+
+// GetPartyByUser is the resolver for the getPartyByUser field.
+func (r *queryResolver) GetPartyByUser(ctx context.Context, userID uuid.UUID) (*model.Party, error) {
+	return resolver.GetPartyByUser(ctx, userID)
+}

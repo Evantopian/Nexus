@@ -3,6 +3,7 @@ package resolver
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -46,7 +47,7 @@ func GetParty(ctx context.Context, partyId uuid.UUID) (*model.Party, error) {
 	var members []*model.User
 	for _, memberUUID := range memberUUIDs {
 		var member model.User
-		err := postgres.DB.QueryRow(ctx, `SELECT uuid, username FROM users WHERE uuid=$1`, memberUUID).Scan(&member.UUID, &member.Username)
+		err := postgres.DB.QueryRow(ctx, `SELECT uuid, username, profile_img FROM users WHERE uuid=$1`, memberUUID).Scan(&member.UUID, &member.Username, &member.ProfileImg)
 		if err != nil {
 			return nil, fmt.Errorf("error fetching member info for %v: %v", memberUUID, err)
 		}
@@ -55,6 +56,31 @@ func GetParty(ctx context.Context, partyId uuid.UUID) (*model.Party, error) {
 	party.Members = members
 
 	return &party, nil
+}
+
+// GetPartyByUser gets the party info the user is currently in
+func GetPartyByUser(ctx context.Context, userId uuid.UUID) (*model.Party, error) {
+	// Ensure the user is authorized
+	requesterUUID, exists := ctx.Value(contextkey.UserUUIDKey).(string)
+	if !exists || requesterUUID == "" {
+		return nil, fmt.Errorf("unauthorized")
+	}
+
+	var partyId uuid.UUID
+
+	// Query to find the party that contains the userId in the members array
+	query := `SELECT id FROM parties WHERE $1 = ANY(members)`
+	err := postgres.DB.QueryRow(ctx, query, userId).Scan(&partyId)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// no party found, return nil with no error
+			return nil, nil
+		}
+		return nil, fmt.Errorf("error finding user's party: %v", err)
+	}
+
+	// Reuse existing GetParty logic to build full party details
+	return GetParty(ctx, partyId)
 }
 
 // CreateParty creates a new party with the current user as the leader and first member
@@ -208,9 +234,13 @@ func GetPartyInvitations(ctx context.Context, userID uuid.UUID) ([]*model.PartyI
 	query := `
 		SELECT 
 			pi.id, pi.party_id, pi.inviter_id, pi.invitee_id, pi.status, pi.created_at::TEXT,
-			u.uuid, u.username
+			inviter.uuid, inviter.username,
+			invitee.uuid, invitee.username,
+			p.id, p.name
 		FROM party_invitations pi
-		JOIN users u ON pi.inviter_id = u.uuid
+		JOIN users inviter ON pi.inviter_id = inviter.uuid
+		JOIN users invitee ON pi.invitee_id = invitee.uuid
+		JOIN parties p ON pi.party_id = p.id
 		WHERE pi.invitee_id = $1
 		ORDER BY pi.created_at DESC
 	`
@@ -226,17 +256,24 @@ func GetPartyInvitations(ctx context.Context, userID uuid.UUID) ([]*model.PartyI
 	for rows.Next() {
 		var inv model.PartyInvitation
 		var inviter model.User
+		var invitee model.User
+		var party model.Party
 
 		err := rows.Scan(
 			&inv.ID, &inv.PartyID, &inv.InviterID, &inv.InviteeID,
 			&inv.Status, &inv.CreatedAt,
 			&inviter.UUID, &inviter.Username,
+			&invitee.UUID, &invitee.Username,
+			&party.ID, &party.Name,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan invitation row: %v", err)
 		}
 
 		inv.Inviter = &inviter
+		inv.Invitee = &invitee
+		inv.Party = &party
+
 		invitations = append(invitations, &inv)
 	}
 
@@ -248,26 +285,57 @@ func GetPartyInvitations(ctx context.Context, userID uuid.UUID) ([]*model.PartyI
 }
 
 // GetSentPartyInvitations gets all the party invitiation sent by the user
-func GetSentPartyInvitations(ctx context.Context, userId uuid.UUID) ([]*model.PartyInvitation, error) {
-	rows, err := postgres.DB.Query(ctx, `
-		SELECT id, party_id, inviter_id, invitee_id, status, created_at::TEXT
-		FROM party_invitations
-		WHERE inviter_id = $1
-		ORDER BY created_at DESC
-	`, userId)
+func GetSentPartyInvitations(ctx context.Context, userID uuid.UUID) ([]*model.PartyInvitation, error) {
+	query := `
+		SELECT 
+			pi.id, pi.party_id, pi.inviter_id, pi.invitee_id, pi.status, pi.created_at::TEXT,
+
+			inviter.uuid, inviter.username,
+			invitee.uuid, invitee.username,
+			p.id, p.name
+
+		FROM party_invitations pi
+		JOIN users inviter ON pi.inviter_id = inviter.uuid
+		JOIN users invitee ON pi.invitee_id = invitee.uuid
+		JOIN parties p ON pi.party_id = p.id
+
+		WHERE pi.inviter_id = $1
+		ORDER BY pi.created_at DESC
+	`
+
+	rows, err := postgres.DB.Query(ctx, query, userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sent invitations: %v", err)
 	}
 	defer rows.Close()
 
 	var invitations []*model.PartyInvitation
+
 	for rows.Next() {
 		var inv model.PartyInvitation
-		err := rows.Scan(&inv.ID, &inv.PartyID, &inv.InviterID, &inv.InviteeID, &inv.Status, &inv.CreatedAt)
+		var inviter model.User
+		var invitee model.User
+		var party model.Party
+
+		err := rows.Scan(
+			&inv.ID, &inv.PartyID, &inv.InviterID, &inv.InviteeID,
+			&inv.Status, &inv.CreatedAt,
+			&inviter.UUID, &inviter.Username,
+			&invitee.UUID, &invitee.Username,
+			&party.ID, &party.Name,
+		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan invitation: %v", err)
+			return nil, fmt.Errorf("failed to scan sent invitation row: %v", err)
 		}
+
+		inv.Inviter = &inviter
+		inv.Invitee = &invitee
+		inv.Party = &party
 		invitations = append(invitations, &inv)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error reading sent invitations: %v", err)
 	}
 
 	return invitations, nil
@@ -316,9 +384,25 @@ func InviteToParty(ctx context.Context, partyID, inviteeID uuid.UUID) (*model.Pa
 	if err != nil {
 		return nil, fmt.Errorf("failed to load inviter user info: %v", err)
 	}
-
-	// Add inviter details to the invitation
 	invitation.Inviter = &inviter
+
+	// Fetch invitee details
+	var invitee model.User
+	err = postgres.DB.QueryRow(ctx, `SELECT uuid, username FROM users WHERE uuid=$1`, inviteeID).
+		Scan(&invitee.UUID, &invitee.Username)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load invitee user info: %v", err)
+	}
+	invitation.Invitee = &invitee
+
+	// Fetch party details
+	var party model.Party
+	err = postgres.DB.QueryRow(ctx, `SELECT id, name FROM parties WHERE id=$1`, partyID).
+		Scan(&party.ID, &party.Name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load party info: %v", err)
+	}
+	invitation.Party = &party
 
 	return &invitation, nil
 }

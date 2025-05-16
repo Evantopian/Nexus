@@ -33,8 +33,8 @@ extend type Query {
   # Get all invites sent by a user
   getSentPartyInvitations(userId: UUID!): [PartyInvitation!]!
 
-  # Get a party by ID
   getParty(partyId: UUID!): Party
+  getPartyByUser(userId: UUID!): Party
 }
 
 extend type Mutation {

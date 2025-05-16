@@ -337,7 +337,7 @@ func GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendation
 		UUID       string  `json:"uuid"`
 		Username   string  `json:"username"`
 		Email      string  `json:"email"`
-		ProfileImg string  `json:"profileImg"`
+		ProfileImg string  `json:"profile_img"`
 		Region     string  `json:"region"`
 		Genre      string  `json:"genre"`
 		Platform   string  `json:"platform"`
