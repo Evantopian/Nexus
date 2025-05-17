@@ -45,6 +45,23 @@ export function shouldShowTimestamp(
   return currentTime.getTime() - prevTime.getTime() > fiveMinutes
 }
 
+export function shouldShowHeader(
+  currentMsg: { timestamp: string | number | Date; sender: { id: string } },
+  prevMsg?: { timestamp: string | number | Date; sender: { id: string } },
+): boolean {
+  if (!prevMsg) return true
+
+  const currentTime = new Date(currentMsg.timestamp)
+  const prevTime = new Date(prevMsg.timestamp)
+
+  // Show header if sender changed
+  if (currentMsg.sender.id !== prevMsg.sender.id) return true
+
+  // Show header if more than 10 minutes between messages
+  const tenMinutes = 10 * 60 * 1000
+  return currentTime.getTime() - prevTime.getTime() > tenMinutes
+}
+
 export function getDateSeparator(
   currentMsg: { timestamp: string | number | Date },
   prevMsg?: { timestamp: string | number | Date },

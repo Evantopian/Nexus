@@ -1,8 +1,13 @@
+"use client"
+
 // components/MessageInput.tsx
 import { Paperclip, Smile, Send } from "lucide-react"
 import { useState, useRef } from "react"
 
-export function MessageInput({ onSend, disabled }: {
+export function MessageInput({
+  onSend,
+  disabled,
+}: {
   onSend: (text: string) => void
   disabled: boolean
 }) {
@@ -17,11 +22,8 @@ export function MessageInput({ onSend, disabled }: {
   }
 
   return (
-    <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800">
-      <div className="rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center">
-        <button className="p-3 text-gray-500">
-          <Paperclip size={20} />
-        </button>
+    <div className="p-4 border-t border-gray-200 dark:border-[#2a2d3e] bg-white dark:bg-[#1e2030]">
+      <div className="relative">
         <input
           ref={inputRef}
           value={text}
@@ -32,22 +34,26 @@ export function MessageInput({ onSend, disabled }: {
               handleSend()
             }
           }}
-          placeholder="Type a message..."
-          className="flex-1 p-3 bg-transparent outline-none text-gray-800 dark:text-gray-200"
+          placeholder="Send a message..."
+          className="w-full px-4 py-3 bg-gray-100 dark:bg-[#2a2d3e] rounded-md outline-none text-gray-800 dark:text-gray-200 placeholder:text-gray-500 dark:placeholder:text-gray-400 border-2 border-transparent focus:border-indigo-500 dark:focus:border-[#6c5ce7]"
+          disabled={disabled}
         />
-        <button className="p-3 text-gray-500">
-          <Smile size={20} />
-        </button>
-      </div>
-      <div className="flex justify-end mt-2">
-        <button
-          disabled={disabled || !text.trim()}
-          onClick={handleSend}
-          className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
-        >
-          <span>Send</span>
-          <Send size={16} />
-        </button>
+
+        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+          <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-[#3f4259]">
+            <Paperclip size={18} />
+          </button>
+          <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-[#3f4259]">
+            <Smile size={18} />
+          </button>
+          <button
+            disabled={disabled || !text.trim()}
+            onClick={handleSend}
+            className="p-2 rounded-md bg-indigo-600 dark:bg-[#6c5ce7] text-white hover:bg-indigo-700 dark:hover:bg-[#5b4dd1] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Send size={18} />
+          </button>
+        </div>
       </div>
     </div>
   )

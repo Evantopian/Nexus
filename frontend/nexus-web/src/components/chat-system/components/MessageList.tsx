@@ -1,9 +1,12 @@
 // components/MessageList.tsx
 import { MessageBubble } from "../ui/message-bubble"
 import { DateSeparator } from "../ui/date-separator"
-import { shouldShowTimestamp, getDateSeparator } from "../utils/date-helpers"
+import { shouldShowTimestamp, shouldShowHeader, getDateSeparator } from "../utils/date-helpers"
 
-export function MessageList({ messages, currentUserId }: {
+export function MessageList({
+  messages,
+  currentUserId,
+}: {
   messages: any[]
   currentUserId: string
 }) {
@@ -13,8 +16,8 @@ export function MessageList({ messages, currentUserId }: {
 
     return {
       ...msg,
-      isFirstInGroup: !prev || prev.sender.id !== msg.sender.id,
-      isLastInGroup: !next || next.sender.id !== msg.sender.id,
+      isFirstInGroup: !prev || prev.sender.id !== msg.sender.id || shouldShowHeader(msg, prev),
+      isLastInGroup: !next || next.sender.id !== msg.sender.id || shouldShowHeader(next, msg),
       showTimestamp: shouldShowTimestamp(msg, prev),
       dateSeparator: getDateSeparator(msg, prev),
     }

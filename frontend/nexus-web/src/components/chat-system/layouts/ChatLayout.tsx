@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom"
 import DirectMessageSidebar from "@/components/chat-system/components/DirectMessageSidebar"
 import { useState, useEffect } from "react"
 import { MobileMenuButton } from "../ui/mobile-menu-button"
-import { ChatProvider } from "../contexts/chat-context"  
+import { ChatProvider } from "../contexts/chat-context"
 
 export default function ChatLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -37,14 +37,11 @@ export default function ChatLayout() {
   }, [isMobile, sidebarOpen])
 
   return (
-    <ChatProvider> 
-      <div className="flex h-screen w-full overflow-hidden bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <ChatProvider>
+      <div className="flex h-screen w-full overflow-hidden bg-white dark:bg-[#1a1b26] text-gray-900 dark:text-gray-200">
         {/* Mobile overlay */}
         {isMobile && sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/30 z-20 md:hidden transition-opacity duration-200"
-            aria-hidden="true"
-          />
+          <div className="fixed inset-0 bg-black/30 dark:bg-black/50 z-20 md:hidden" aria-hidden="true" />
         )}
 
         {/* Sidebar - responsive */}
@@ -52,11 +49,9 @@ export default function ChatLayout() {
           id="sidebar"
           className={`${
             isMobile
-              ? `fixed inset-y-0 left-0 z-30 w-72 transform transition-transform duration-200 ease-in-out ${
-                  sidebarOpen ? "translate-x-0" : "-translate-x-full"
-                }`
+              ? `fixed inset-y-0 left-0 z-30 w-72 transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`
               : "w-64 md:w-72 lg:w-80"
-          } h-full flex-shrink-0 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800`}
+          } h-full flex-shrink-0 border-r border-gray-200 dark:border-[#2a2d3e] bg-white dark:bg-[#1e2030]`}
           aria-label="Sidebar navigation"
         >
           <DirectMessageSidebar />
@@ -66,10 +61,7 @@ export default function ChatLayout() {
         <main className="flex-1 flex flex-col overflow-hidden relative">
           {/* Mobile menu button */}
           <div className="absolute top-3 left-3 z-10 md:hidden">
-            <MobileMenuButton
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              isOpen={sidebarOpen}
-            />
+            <MobileMenuButton onClick={() => setSidebarOpen(!sidebarOpen)} isOpen={sidebarOpen} />
           </div>
 
           <Outlet />

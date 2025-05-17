@@ -37,18 +37,12 @@ export function MessageBubble({
   const initial = typeof sender.username === "string" ? sender.username.charAt(0).toUpperCase() : ""
   const [isFocused, setIsFocused] = useState(false)
 
-  // Determine message bubble styling based on position in group
-  const bubbleClasses = `text-gray-700 dark:text-gray-200 text-sm break-words p-3 rounded-lg ${
-    isCurrentUser
-      ? `bg-blue-500 text-white dark:bg-blue-600 ${isFirstInGroup ? "rounded-tl-sm" : "rounded-tl-lg"} ${isLastInGroup ? "rounded-bl-sm" : "rounded-bl-lg"}`
-      : `bg-gray-200 dark:bg-gray-700 ${isFirstInGroup ? "rounded-tl-sm" : "rounded-tl-lg"} ${isLastInGroup ? "rounded-bl-sm" : "rounded-bl-lg"}`
-  }`
-
+  // Discord-style message - no bubble, just text on background with a subtle left border for non-user messages
   return (
     <div
-      className={`group flex items-start gap-3 py-0.5 px-1 rounded-md transition-colors duration-200 ${
-        isFocused ? "bg-gray-100/50 dark:bg-gray-800/50" : ""
-      }`}
+      className={`group flex items-start gap-3 py-1.5 px-2 ${
+        isFocused ? "bg-gray-100/70 dark:bg-[#2a2d3e]/70" : "hover:bg-gray-100/50 dark:hover:bg-[#2a2d3e]/40"
+      } ${isCurrentUser ? "pl-4" : "border-l-2 border-transparent hover:border-indigo-300 dark:hover:border-[#6c5ce7]"}`}
       tabIndex={0}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
@@ -57,22 +51,44 @@ export function MessageBubble({
       aria-label={`Message from ${sender.username}: ${body}`}
     >
       {showAvatar ? (
-        <div className="flex-shrink-0 w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 flex items-center justify-center text-xs font-medium text-white shadow-sm">
+        <div
+          className={`flex-shrink-0 w-10 h-10 rounded-md flex items-center justify-center text-sm font-bold text-white ${
+            isCurrentUser ? "bg-indigo-500 dark:bg-[#6c5ce7]" : "bg-emerald-500 dark:bg-[#00b894]"
+          }`}
+        >
           {initial}
         </div>
       ) : (
-        <div className="flex-shrink-0 w-9 h-9 opacity-0">{/* Invisible placeholder to maintain alignment */}</div>
+        <div className="flex-shrink-0 w-10 opacity-0">{/* Invisible placeholder to maintain alignment */}</div>
       )}
 
-      <div className="flex flex-col max-w-[85%]">
-        {isFirstInGroup && showTimestamp && (
+      <div className="flex flex-col max-w-[90%] pt-0.5">
+        {isFirstInGroup && (
           <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium text-sm text-gray-800 dark:text-gray-200">{sender.username}</span>
+            <span
+              className={`font-bold text-sm ${
+                isCurrentUser ? "text-indigo-600 dark:text-indigo-400" : "text-emerald-600 dark:text-emerald-400"
+              }`}
+            >
+              {sender.username}
+            </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">{formattedTime}</span>
           </div>
         )}
 
-        <div className={bubbleClasses}>{body}</div>
+        <div className={`text-gray-800 dark:text-gray-200 text-sm leading-relaxed ${isFirstInGroup ? "" : "pl-0"}`}>
+          {body}
+        </div>
+
+        {/* Message actions that appear on hover */}
+        <div className="flex items-center gap-1 mt-1 opacity-0 group-hover:opacity-100">
+          <button className="w-6 h-6 rounded-sm bg-gray-200 dark:bg-[#2a2d3e] flex items-center justify-center cursor-pointer hover:bg-gray-300 dark:hover:bg-[#3f4259]">
+            <span className="text-xs">👍</span>
+          </button>
+          <button className="w-6 h-6 rounded-sm bg-gray-200 dark:bg-[#2a2d3e] flex items-center justify-center cursor-pointer hover:bg-gray-300 dark:hover:bg-[#3f4259]">
+            <span className="text-xs">⋯</span>
+          </button>
+        </div>
       </div>
     </div>
   )
