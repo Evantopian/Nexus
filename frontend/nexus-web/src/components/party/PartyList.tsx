@@ -7,6 +7,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
+import CreatePartyModal from "./modals/CreatePartyModal";
+import DeletePartyModal from "./modals/DeletePartyModal";
+import KickConfirmModal from "./modals/KickConfirmModal";
 
 interface Leader {
   uuid: string;
@@ -53,7 +56,6 @@ const PartyList = ({
 }: PartyListProps) => {
   const { user } = useAuth();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newPartyName, setNewPartyName] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [kickConfirmId, setKickConfirmId] = useState<string | null>(null);
 
@@ -85,52 +87,21 @@ const PartyList = ({
           </button>
         </div>
 
-        {/* Create Party Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center">
-                Create Party
-              </h3>
-              <input
-                type="text"
-                value={newPartyName}
-                onChange={(e) => setNewPartyName(e.target.value)}
-                placeholder="Party Name"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg mb-4 text-sm dark:bg-gray-700 dark:text-white"
-              />
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => {
-                    if (newPartyName.trim()) {
-                      onCreateParty(newPartyName.trim());
-                      setShowCreateModal(false);
-                      setNewPartyName("");
-                    }
-                  }}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
-                >
-                  Create
-                </button>
-                <button
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    setNewPartyName("");
-                  }}
-                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <CreatePartyModal
+          show={showCreateModal}
+          onCreate={onCreateParty}
+          onClose={() => setShowCreateModal(false)}
+        />
       </>
     );
   }
 
-  // Destructure partyData
-  const { id: partyId, leaderId, members: partyMembers } = partyData;
+  const {
+    id: partyId,
+    name: partyName,
+    leaderId,
+    members: partyMembers,
+  } = partyData;
 
   const confirmKick = (userId: string) => {
     setKickConfirmId(userId);
@@ -149,7 +120,7 @@ const PartyList = ({
     <div className="flex justify-center items-center w-full h-full">
       <div className="w-full max-w-md">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-center">
-          Current Party
+          {partyName || "Current Party"}
         </h2>
 
         <div className="space-y-3">
@@ -176,8 +147,13 @@ const PartyList = ({
                   alt={m.username}
                   className="h-10 w-10 rounded-full object-cover"
                 />
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                <span className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
                   {m.username}
+                  {m.uuid === leaderId && (
+                    <span className="text-xs bg-indigo-700 text-white px-2 py-0.5 rounded-full">
+                      Leader
+                    </span>
+                  )}
                 </span>
 
                 {!(m.uuid === user?.uuid) && (
@@ -227,59 +203,21 @@ const PartyList = ({
           )}
         </div>
 
-        {/* Delete Confirm Modal */}
-        {deleteConfirm && (
-          <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full">
-              <p className="text-gray-900 dark:text-white mb-4 text-center">
-                Are you sure you want to disband this party? This action cannot
-                be undone.
-              </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => {
-                    onDeleteParty(partyId || "");
-                    setDeleteConfirm(null);
-                  }}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
-                >
-                  Yes, Delete
-                </button>
-                <button
-                  onClick={() => setDeleteConfirm(null)}
-                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <DeletePartyModal
+          show={!!deleteConfirm}
+          onConfirm={() => {
+            onDeleteParty(partyId || "");
+            setDeleteConfirm(null);
+          }}
+          onCancel={() => setDeleteConfirm(null)}
+          message="Are you sure you want to disband this party? This action cannot be undone."
+        />
 
-        {/* Kick Confirmation Modal */}
-        {kickConfirmId && (
-          <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full">
-              <p className="text-gray-900 dark:text-white mb-4 text-center">
-                Are you sure you want to kick this player from the party?
-              </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={handleKick}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
-                >
-                  Yes, Kick
-                </button>
-                <button
-                  onClick={cancelKick}
-                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <KickConfirmModal
+          show={!!kickConfirmId}
+          onConfirm={() => handleKick()}
+          onCancel={() => cancelKick()}
+        />
       </div>
     </div>
   );

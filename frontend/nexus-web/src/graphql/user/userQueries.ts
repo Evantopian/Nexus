@@ -65,3 +65,15 @@ export const GET_RECOMMENDATIONS = gql`
     }
   }
 `;
+
+export const GET_LEADERBOARD = gql`
+  query getLeaderboard($limit: Int!) {
+    getLeaderboard(limit: $limit) {
+      uuid
+      username
+      email
+      profileImg
+      reputation
+    }
+  }
+`;
