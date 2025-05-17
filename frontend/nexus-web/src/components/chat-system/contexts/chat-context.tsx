@@ -1,6 +1,10 @@
 "use client"
 
-import { createContext, useContext, useMemo } from "react"
+import React from "react"
+
+import type { ReactNode } from "react"
+
+import { createContext, useContext, useMemo, useState } from "react"
 import { useDirectMessages } from "@/hooks/chat/useDirectMessages"
 
 type ChatContextType = {
@@ -19,13 +23,16 @@ export const useChatContext = () => {
   return ctx
 }
 
-export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
-  const {
-    conversations,
-    loadingConversations,
-    refetchConversations,
-    setConversations,
-  } = useDirectMessages()
+export const ChatProvider = ({ children }: { children: ReactNode }) => {
+  const { conversations: initialConversations, loadingConversations, refetchConversations } = useDirectMessages()
+  const [conversations, setConversations] = useState<any[]>([])
+
+  // Update local state when initial conversations change
+  React.useEffect(() => {
+    if (initialConversations && initialConversations.length > 0) {
+      setConversations(initialConversations)
+    }
+  }, [initialConversations])
 
   const getConversationById = (id: string) => conversations.find((c) => c.id === id)
 
@@ -37,7 +44,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       getConversationById,
       setConversations,
     }),
-    [conversations, loadingConversations, refetchConversations]
+    [conversations, loadingConversations, refetchConversations],
   )
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>
