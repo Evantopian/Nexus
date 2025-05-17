@@ -18,7 +18,7 @@ defmodule ChatSystem.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      extra_applications: [:logger, :runtime_tools, :postgrex, :ecto_sql],
+      extra_applications: [:logger, :runtime_tools],
       mod: {ChatSystem.Application, []}
     ]
   end
@@ -63,7 +63,6 @@ defmodule ChatSystem.MixProject do
       {:dotenv, "~> 3.1.0"},
       {:dotenv_parser, "~> 2.0.1"},
       {:httpoison, "~> 2.2.3"},
-
       ]
   end
 

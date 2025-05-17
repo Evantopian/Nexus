@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -36,6 +37,13 @@ type Conversation struct {
 	IsGroup      bool        `json:"isGroup"`
 }
 
+type DirectConversation struct {
+	ID          uuid.UUID `json:"id"`
+	User        *ChatUser `json:"user"`
+	LastMessage string    `json:"lastMessage"`
+	LastActive  time.Time `json:"lastActive"`
+}
+
 type FriendRequest struct {
 	Sender      uuid.UUID `json:"sender"`
 	Receiver    uuid.UUID `json:"receiver"`
@@ -64,6 +72,14 @@ type Game struct {
 	Platforms        []string  `json:"platforms,omitempty"`
 	Tags             []string  `json:"tags,omitempty"`
 	Rating           *float64  `json:"rating,omitempty"`
+}
+
+type GroupConversation struct {
+	ID           uuid.UUID `json:"id"`
+	Name         string    `json:"name"`
+	Participants []*User   `json:"participants"`
+	LastMessage  string    `json:"lastMessage"`
+	LastActive   time.Time `json:"lastActive"`
 }
 
 type LFGPost struct {

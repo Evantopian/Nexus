@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/Evantopian/Nexus/graph/resolver"
@@ -55,12 +56,17 @@ func (r *queryResolver) Profile(ctx context.Context) (*model.User, error) {
 
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, userID uuid.UUID) (*model.User, error) {
-	return resolver.GetUser(ctx, userID)
+	panic(fmt.Errorf("not implemented: GetUser - getUser"))
 }
 
 // GetRandomUsers is the resolver for the getRandomUsers field.
 func (r *queryResolver) GetRandomUsers(ctx context.Context) ([]*model.User, error) {
-	return resolver.GetRandomUsers(ctx)
+	panic(fmt.Errorf("not implemented: GetRandomUsers - getRandomUsers"))
+}
+
+// GetRecommendations is the resolver for the getRecommendations field.
+func (r *queryResolver) GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendations int32) ([]*model.UserRecommendation, error) {
+	panic(fmt.Errorf("not implemented: GetRecommendations - getRecommendations"))
 }
 
 // GetRecommendations is the resolver for the getRecommendations field.

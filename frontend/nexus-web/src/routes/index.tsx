@@ -11,12 +11,9 @@ import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import AuthRedirect from "@/components/auth/AuthRedirect";
 import Profile from "@/components/profile/Profile";
-import ChatLayout from "@/layouts/ChatLayout";
-import ChatArea from "@/components/chats/ChatArea";
-import NoMessagesFallback from "@/components/chats/NoMessagesFallback";
 import Lfg from "@/components/lfg/LFG";
 import Party from "@/components/party/Party";
-
+import ChatSystemWrapper from "@/components/chat-system/ChatSystem";
 
 const routes: RouteObject[] = [
   {
@@ -63,13 +60,8 @@ const routes: RouteObject[] = [
       },
       { path: "games/:gameName", element: <GameDetail /> },
       {
-        path: "chat",
-        element: <ChatLayout />,
-        children: [
-          { index: true, element: <NoMessagesFallback /> },
-          { path: "direct/:contact", element: <ChatArea /> },
-          { path: "groups/:groupId", element: <ChatArea /> },
-        ],
+        path: "chat/*", 
+        element: <ChatSystemWrapper/>
       },
       {
         path: "*",
@@ -83,5 +75,6 @@ const routes: RouteObject[] = [
     ],
   },
 ];
+
 
 export default routes;

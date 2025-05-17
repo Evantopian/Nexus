@@ -6,6 +6,8 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/Evantopian/Nexus/graph/resolver/chat"
@@ -125,6 +127,20 @@ func (r *queryResolver) GetChannels(ctx context.Context, serverID uuid.UUID) ([]
 // GetChannelMessages is the resolver for the getChannelMessages field.
 func (r *queryResolver) GetChannelMessages(ctx context.Context, channelID uuid.UUID) ([]*model.Message, error) {
 	return chat.GetChannelMessages(ctx, channelID)
+}
+
+// GetDirectConversations is the resolver for the getDirectConversations field.
+func (r *queryResolver) GetDirectConversations(ctx context.Context, limit *int32, after *time.Time) ([]*model.DirectConversation, error) {
+	limitValue := 0
+	if limit != nil {
+		limitValue = int(*limit)
+	}
+	return chat.GetDirectConversations(ctx, limitValue, after)
+}
+
+// GetGroupConversations is the resolver for the getGroupConversations field.
+func (r *queryResolver) GetGroupConversations(ctx context.Context, userID uuid.UUID, limit *int32, after *time.Time) ([]*model.GroupConversation, error) {
+	panic(fmt.Errorf("not implemented: GetGroupConversations - getGroupConversations"))
 }
 
 // Mutation returns MutationResolver implementation.

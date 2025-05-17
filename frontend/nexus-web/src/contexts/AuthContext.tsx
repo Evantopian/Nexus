@@ -91,10 +91,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    const token = localStorage.getItem("authToken"); // Get the token from localStorage
+    const token = localStorage.getItem("authToken");   
 
     try {
-      // Include the token in the Authorization header
       await axios.post(
         "/logout",
         {},

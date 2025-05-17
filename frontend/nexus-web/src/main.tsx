@@ -10,6 +10,7 @@ import { ThemeProvider } from "./contexts/ThemeContext.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { GameProvider } from "./contexts/GameContext.tsx";
 import { FollowedGamesProvider } from "./contexts/FollowedGamesContext.tsx";
+ 
 
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 

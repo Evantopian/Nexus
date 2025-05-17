@@ -134,3 +134,5 @@ tmp
 
 # gqlgen generated file
 backend/graph/generated.go
+
+backend/graph/model/models_gen.go
