@@ -1,6 +1,5 @@
-// hooks/useRecommendedPlayers.ts
 import { useQuery } from "@apollo/client";
-import { GET_RECOMMENDATIONS } from "../graphql/userQueries"; // update path if needed
+import { GET_RECOMMENDATIONS } from "../graphql/user/userQueries"; // update path if needed
 import { UserRecommendation } from "@/components/party/Party";
 
 export const useRecommendedPlayers = (

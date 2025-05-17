@@ -1,7 +1,7 @@
 // src/components/SidebarContent.tsx
 import { useLocation } from "react-router-dom";
 import {
-  followedGamesTest,
+  followedGames,
   chatItems as rawChatItems,
   serverItems,
 } from "./NavItemsModel";
@@ -17,7 +17,6 @@ interface SidebarContentProps {
 
 const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
   const location = useLocation();
-
 
   // Remap the “Direct Messages” link to /chat (so your index route logic will run)
   const chatItems = rawChatItems.map((item) => {
@@ -41,14 +40,13 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
 
   // console.log("Followed Games", followedGames);
 
-
   return (
     <div className="w-full overflow-hidden">
       {/* Section 1: Followed Games */}
       <div className="mb-6 w-full">
         <SectionHeader title="GAMES" expanded={expanded} />
         <div className="space-y-1">
-          {followedGamesTest.map((item, i) => (
+          {followedGames.map((item, i) => (
             <NavItem
               key={`game-${i}`}
               {...item}

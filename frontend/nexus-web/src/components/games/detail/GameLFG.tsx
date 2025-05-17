@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { GET_LFG_POSTS_BY_SLUG } from "@/graphql/lfgQueries";
+import { GET_LFG_POSTS_BY_SLUG } from "@/graphql/lfg/lfgQueries";
 
 interface GameLFGProps {
   gameName: string;

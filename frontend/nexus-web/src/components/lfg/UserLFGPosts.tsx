@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { DELETE_LFG_POST } from "@/graphql/lfgQueries";
+import { DELETE_LFG_POST } from "@/graphql/lfg/lfgMutations";
 import LFGForm from "./LFGForm";
 import { useState } from "react";
 import { LFGPostFormData } from "./LFG";

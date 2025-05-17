@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import PartyList from "./PartyList";
 import PlayerRecommendation from "./PlayerRecommendation";
 import { useAuth } from "@/contexts/AuthContext";
-import { ADJUST_REP } from "@/graphql/userQueries";
+import { ADJUST_REP } from "@/graphql/user/userMutations";
 import {
   GET_PARTY_BY_USER,
   GET_PARTY_INVITATIONS,

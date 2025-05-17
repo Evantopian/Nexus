@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import client from "@/lib/apollo-client";
-import { PROFILE_QUERY } from "@/graphql/userQueries";
+import { PROFILE_QUERY } from "@/graphql/user/userQueries";
 
 export type User = {
   uuid: string;
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    const token = localStorage.getItem("authToken");   
+    const token = localStorage.getItem("authToken");
 
     try {
       await axios.post(
