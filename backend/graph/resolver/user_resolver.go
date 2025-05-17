@@ -379,3 +379,54 @@ func GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendation
 
 	return recommendations, nil
 }
+
+func GetLeaderboard(ctx context.Context, limit int) ([]*model.User, error) {
+	query := `
+		SELECT uuid, username, email, COALESCE(profile_img, ''), COALESCE(profile_message, ''),
+		       COALESCE(status, ''), COALESCE(rank, ''), COALESCE(reputation, 0),
+		       created_at, preferences, age
+		FROM users
+		ORDER BY reputation DESC
+		LIMIT $1;
+	`
+
+	rows, err := postgres.DB.Query(ctx, query, limit)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching leaderboard: %v", err)
+	}
+	defer rows.Close()
+
+	var users []*model.User
+
+	for rows.Next() {
+		var user model.User
+		var createdAt time.Time
+		var age sql.NullInt32
+
+		err := rows.Scan(
+			&user.UUID, &user.Username, &user.Email, &user.ProfileImg,
+			&user.ProfileMessage, &user.Status, &user.Rank, &user.Reputation,
+			&createdAt, &user.Preferences, &age,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning leaderboard user: %v", err)
+		}
+
+		createdAtStr := createdAt.Format(time.RFC3339)
+		user.CreatedAt = &createdAtStr
+
+		if age.Valid {
+			user.Age = &age.Int32
+		} else {
+			user.Age = nil
+		}
+
+		users = append(users, &user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("row iteration error: %v", err)
+	}
+
+	return users, nil
+}

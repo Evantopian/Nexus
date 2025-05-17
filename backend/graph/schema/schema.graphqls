@@ -73,6 +73,7 @@ extend type Query {
     userId: UUID!
     numRecommendations: Int!
   ): [UserRecommendation!]!
+  getLeaderboard(limit: Int!): [User!]!
 
   searchUser(search: String!): [User!]!
 

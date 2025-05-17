@@ -68,6 +68,11 @@ func (r *queryResolver) GetRecommendations(ctx context.Context, userID uuid.UUID
 	return resolver.GetRecommendations(ctx, userID, int(numRecommendations))
 }
 
+// GetLeaderboard is the resolver for the getLeaderboard field.
+func (r *queryResolver) GetLeaderboard(ctx context.Context, limit int32) ([]*model.User, error) {
+	return resolver.GetLeaderboard(ctx, int(limit))
+}
+
 // SearchUser is the resolver for the searchUser field.
 func (r *queryResolver) SearchUser(ctx context.Context, search string) ([]*model.User, error) {
 	return resolver.SearchUser(ctx, search)
