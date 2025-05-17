@@ -9,6 +9,11 @@ import WorkInProgress from "@/components/common/WorkInProgress";
 import MainLayout from "@/layouts/MainLayout";
 import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
+import AuthRedirect from "@/components/auth/AuthRedirect";
+import Profile from "@/components/profile/Profile";
+import Lfg from "@/components/lfg/LFG";
+import Party from "@/components/party/Party";
+import ChatSystemWrapper from "@/components/chat-system/ChatSystem";
 
 const routes: RouteObject[] = [
   {
@@ -18,10 +23,15 @@ const routes: RouteObject[] = [
   },
   {
     path: "/",
-    element: <AuthLayout />,
+    element: <AuthRedirect />,
     children: [
-      { path: "login", element: <Login /> },
-      { path: "signup", element: <SignUp /> },
+      {
+        element: <AuthLayout />,
+        children: [
+          { path: "login", element: <Login /> },
+          { path: "signup", element: <SignUp /> },
+        ],
+      },
     ],
   },
   {
@@ -30,15 +40,7 @@ const routes: RouteObject[] = [
     children: [
       { path: "dashboard", element: <Dashboard /> },
       { path: "browse", element: <GamesList /> },
-      {
-        path: "lfg",
-        element: (
-          <WorkInProgress
-            title="LFG Feature"
-            message="The Looking For Group feature is currently under development. Check back soon to find teammates for your favorite games!"
-          />
-        ),
-      },
+      { path: "lfg", element: <Lfg /> },
       {
         path: "players",
         element: (
@@ -49,24 +51,18 @@ const routes: RouteObject[] = [
         ),
       },
       {
-        path: "events",
-        element: (
-          <WorkInProgress
-            title="Events Calendar"
-            message="The Events Calendar is coming soon. Stay tuned for tournaments, livestreams, and gaming events!"
-          />
-        ),
+        path: "party",
+        element: <Party />,
       },
       {
         path: "profile",
-        element: (
-          <WorkInProgress
-            title="Profile Page"
-            message="Your profile page is under construction. Soon you'll be able to customize your gaming identity."
-          />
-        ),
+        element: <Profile />,
       },
       { path: "games/:gameName", element: <GameDetail /> },
+      {
+        path: "chat/*", 
+        element: <ChatSystemWrapper/>
+      },
       {
         path: "*",
         element: (
@@ -79,5 +75,6 @@ const routes: RouteObject[] = [
     ],
   },
 ];
+
 
 export default routes;

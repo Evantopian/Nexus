@@ -14,7 +14,7 @@ import (
 )
 
 // Token expiration (can be configured via env variables)
-var tokenExpiryMinutes = 60
+var tokenExpiryMinutes = 120
 
 // User represents a user account.
 type User struct {
@@ -90,7 +90,7 @@ func Signup(c *gin.Context) {
 	}
 
 	// After generating the JWT token in the login route
-	c.SetCookie("token", token, tokenExpiryMinutes*60, "/", "", false, true)
+	// c.SetCookie("token", token, tokenExpiryMinutes*60, "/", "", false, true)
 
 	// Respond with success message and token
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully", "token": token})
@@ -132,7 +132,7 @@ func Login(c *gin.Context) {
 	}
 
 	// After generating the JWT token in the login route
-	c.SetCookie("token", token, tokenExpiryMinutes*60, "/", "", false, true)
+	// c.SetCookie("token", token, tokenExpiryMinutes*60, "/", "", false, true)
 
 	// Respond with token
 	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
@@ -142,7 +142,7 @@ func Login(c *gin.Context) {
 func Logout(c *gin.Context) {
 	// Clear the authentication token in the cookie by setting it to an empty value
 	// Cookie parameters: name, value, max age, path, domain, secure(true for production), httpOnly
-	c.SetCookie("token", "", -1, "/", "", false, true)
+	// c.SetCookie("token", "", -1, "/", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }

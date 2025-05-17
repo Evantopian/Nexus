@@ -2,15 +2,18 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import GameCard from "@/components/dashboard/featured/GameCard";
-import { getAllGames } from "@/data/DummyGameData";
+// import { getAllGames } from "@/data/DummyGameData";
+import { useGames } from "@/contexts/GameContext";
 
-interface FeaturedGamesProps {
-  games?: any[];
-}
+// interface FeaturedGamesProps {
+//   games?: any[];
+// }
 
-const FeaturedGames = ({ games }: FeaturedGamesProps) => {
+const FeaturedGames = () => {
   // If no games are provided, use the data model
-  const allGamesData = games || getAllGames();
+  const { games } = useGames();
+
+  const allGamesData = games;
 
   const [activeIndex, setActiveIndex] = useState(
     Math.floor(allGamesData.length / 2)
@@ -38,7 +41,7 @@ const FeaturedGames = ({ games }: FeaturedGamesProps) => {
     };
 
     window.addEventListener("resize", handleResize);
-    handleResize();  
+    handleResize();
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -103,10 +106,10 @@ const FeaturedGames = ({ games }: FeaturedGamesProps) => {
                 }}
               >
                 <GameCard
-                  image={game.image}
+                  image={game.image || "/default-placeholder.png"}
                   title={game.title}
                   slug={game.slug}
-                  players={game.players}
+                  players={game.players || ""}
                   tags={
                     typeof game.tags[0] === "string"
                       ? game.tags

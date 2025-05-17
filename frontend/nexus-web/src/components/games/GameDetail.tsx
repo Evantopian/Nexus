@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getGameBySlug } from "@/data/DummyGameData";
+import { useQuery } from "@apollo/client";
 
-// Import modular components
+import { GET_GAME_QUERY } from "@/graphql/game/gameQueries";
+import { useFollowedGames } from "@/contexts/FollowedGamesContext";
+
 import GameBanner from "./common/GameBanner";
 import FilterBar from "./common/FilterBar";
 import GameAbout from "./detail/GameAbout";
@@ -11,23 +13,36 @@ import GamePlayers from "./detail/GamePlayers";
 import GameLFG from "./detail/GameLFG";
 
 const GameDetail = () => {
-  const { gameName } = useParams<{ gameName: string }>();
+  const gameName =
+    useParams<{ gameName: string }>().gameName ?? "defaultGameName";
   const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("guilds");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  // Redirect to dashboard if gameName is undefined
+  const { loading, error, data } = useQuery(GET_GAME_QUERY, {
+    variables: { slug: gameName },
+  });
+
+  const gameData = data?.getGame;
+
+  const { followedGames } = useFollowedGames();
+  const isFollowed = followedGames.some((game: any) => game.slug === gameName);
+
+  // console.log(gameData);
+
+  // Redirect to dashboard if no valid game name
   useEffect(() => {
     if (!gameName) {
       navigate("/dashboard");
     }
   }, [gameName, navigate]);
 
-  // Get game data from our data model
-  const gameData = getGameBySlug(gameName || "");
+  if (loading) {
+    return <div className="text-center py-8">Loading...</div>;
+  }
 
-  // If game not found, show error or redirect
-  if (!gameData) {
+  if (error || !gameData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md text-center">
@@ -48,14 +63,13 @@ const GameDetail = () => {
     );
   }
 
-  // Tab configuration
+  // Your tabs, filters, etc.
   const tabs = [
     { id: "guilds", label: "Guilds/Factions/Servers" },
     { id: "players", label: "Players" },
     { id: "lfg", label: "LFG" },
   ];
 
-  // Filter options
   const filterOptions = [
     { id: "all", label: "All", active: activeFilter === "all" },
     { id: "active", label: "Active", active: activeFilter === "active" },
@@ -76,11 +90,12 @@ const GameDetail = () => {
     <div className="min-h-screen w-full">
       {/* Game Banner with integrated tabs */}
       <div className="w-[calc(100%+2rem)] -ml-4 -mt-6">
-        <GameBanner 
-          game={gameData} 
+        <GameBanner
+          game={gameData}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           tabs={tabs}
+          isFollowed={isFollowed}
         />
       </div>
       {/* Content Area */}
@@ -95,9 +110,7 @@ const GameDetail = () => {
           {/* Main Content Area - Left Side */}
           <div className="lg:w-3/4">
             {/* Guilds/Servers Section - Carousel */}
-            {activeTab === "guilds" && (
-              <GameServers servers={gameData.servers} />
-            )}
+            {activeTab === "guilds" && <GameServers gameName={gameName} />}
 
             {/* Separator Line */}
             <div className="w-full h-px bg-gray-200 dark:bg-gray-700 my-6"></div>
@@ -106,9 +119,7 @@ const GameDetail = () => {
             <GamePlayers players={gameData.topPlayers} />
 
             {/* LFG Section */}
-            {activeTab === "lfg" && (
-              <GameLFG lfgPosts={gameData.lfgPosts} gameName={gameData.title} />
-            )}
+            {activeTab === "lfg" && <GameLFG gameName={gameName} />}
           </div>
 
           {/* Sidebar - Right Side */}

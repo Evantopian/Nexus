@@ -1,22 +1,22 @@
 import { useState } from "react";
-import { getAllGames } from "@/data/DummyGameData";
 import SearchFilters from "./lists/SearchFilters";
 import GameGrid from "./lists/GameGrid";
+import { useGames } from "@/contexts/GameContext";
 
 const GamesList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
 
   // Get all games from data model
-  const games = getAllGames();
+  const { games } = useGames();
 
   // Filter games based on search term and active filter
   const filteredGames = games.filter((game) => {
     const matchesSearch =
       game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      game.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      game.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       game.tags.some((tag) =>
-        tag.toLowerCase().includes(searchTerm.toLowerCase()),
+        tag.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
     if (activeFilter === "all") return matchesSearch;
@@ -38,7 +38,7 @@ const GamesList = () => {
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 pt-6 pb-12">
       <div className="w-full max-w-[1600px] mx-auto px-4 transition-all duration-300">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-6">Browse Games</h1>
+          <h1 className="text-3xl font-bold my-6">Browse Games</h1>
 
           {/* Search and Filter Bar */}
           <SearchFilters

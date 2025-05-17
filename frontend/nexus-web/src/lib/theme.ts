@@ -25,7 +25,7 @@ export const defaultPalette: ColorPalette = {
   primaryForeground: "text-white",
   secondary: "bg-gray-100",
   secondaryHover: "hover:bg-gray-200",
-  secondaryForeground: "text-gray-800",
+  secondaryForeground: "text-gray-600",
   accent: "bg-teal-400",
   accentHover: "hover:bg-teal-500",
   accentForeground: "text-white",

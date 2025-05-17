@@ -7,6 +7,24 @@ enum Playstyle {
   CASUAL
 }
 
+# Enum for Platform (e.g., PC, Console, Mobile)
+enum Platform {
+  PC
+  CONSOLE
+  MOBILE
+}
+
+# Enum for Game Genre (e.g., RPG, FPS)
+enum GameGenre {
+  RPG
+  FPS
+  MOBA
+  STRATEGY
+  ACTION
+  ADVENTURE
+  SIMULATION
+}
+
 # Define the User type
 type User {
   uuid: UUID! # Unique identifier for the user (UUID)
@@ -19,22 +37,51 @@ type User {
   reputation: Int! # Player's reputation (starts at 0, can go negative)
   rank: String # User's rank (optional)
   createdAt: String # Account creation time (formatted as a string)
+  age: Int # User's age
   preferences: Preferences # User's game preferences
+  followingGames: [Game!]! # List of games the user is following
 }
 
 # Define the Preferences type
 type Preferences {
-  region: String! # User's preferred region (e.g., "NA", "EU")
-  playstyle: Playstyle! # User's playstyle (Competitive, Casual, etc.)
+  region: String # User's preferred region (e.g., "NA", "EU")
+  playstyle: Playstyle # User's playstyle (Competitive, Casual, etc.)
+  favoritePlatform: Platform # User's favorite platform (PC, Console, Mobile)
+  favoriteGameGenre: GameGenre # User's favorite game genre (e.g., RPG, FPS)
+}
+
+type UserRecommendation {
+  uuid: UUID!
+  email: String
+  username: String
+  profileImg: String
+  region: String
+  genre: String
+  platform: String
+  playstyle: String
+  rank: String
+  reputation: Int
+  age: Int
 }
 
 # Root Query type (Protected Query)
-type Query {
+extend type Query {
   profile: User! # Get the user's profile
+  getUser(userId: UUID!): User!
+  getRandomUsers: [User!]!
+  getRecommendations(
+    userId: UUID!
+    numRecommendations: Int!
+  ): [UserRecommendation!]!
+
+  searchUser(search: String!): [User!]!
+
+  getUserFollowedGames(userId: UUID!): [Game!]!
+  isUserFollowingGame(userId: UUID!, gameId: UUID!): Boolean!
 }
 
 # Root Mutation type (Protected User Management)
-type Mutation {
+extend type Mutation {
   updateUser(
     username: String
     email: String
@@ -43,10 +90,22 @@ type Mutation {
     profileMessage: String
     status: String
     rank: String
+    age: Int
   ): User!
 
   deleteUser: Boolean! # Delete the user and their related data (friends, friend requests)
-  adjustRep(amount: Int!): Boolean!
+  adjustRep(userId: UUID!, amount: Int!): Boolean!
 
-  updatePreference(region: String, playstyle: Playstyle): Preferences!
+  updatePreference(
+    region: String
+    playstyle: Playstyle
+    favoritePlatform: Platform
+    favoriteGameGenre: GameGenre
+  ): User!
+
+  # Add a game to the user's follow list
+  followGame(slug: String!): Boolean!
+
+  # Remove a game from the user's follow list
+  unfollowGame(slug: String!): Boolean!
 }

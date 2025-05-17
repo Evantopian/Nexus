@@ -6,25 +6,22 @@ import (
 	"fmt"
 
 	"github.com/Evantopian/Nexus/internal/database/postgres"
-	contextkey "github.com/Evantopian/Nexus/internal/services"
+	"github.com/google/uuid"
 )
 
-// AdjustRep adjusts the user's reputation and returns if it worked
-func AdjustRep(ctx context.Context, value int) (bool, error) {
-	uuid, exists := ctx.Value(contextkey.UserUUIDKey).(string)
-	if !exists || uuid == "" {
-		return false, fmt.Errorf("authorization token missing or invalid from resolver")
+// AdjustRep adjusts the reputation of a user with the given UUID and returns if it worked
+func AdjustRep(ctx context.Context, userID uuid.UUID, value int) (bool, error) {
+	if userID == uuid.Nil {
+		return false, fmt.Errorf("user UUID is required")
 	}
 
 	var currentRep int
-
-	// Query the current reputation from the database
-	err := postgres.DB.QueryRow(ctx, `SELECT reputation FROM users WHERE uuid = $1`, uuid).Scan(&currentRep)
+	err := postgres.DB.QueryRow(ctx, `SELECT reputation FROM users WHERE uuid = $1`, userID).Scan(&currentRep)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, fmt.Errorf("user not found")
 		}
-		return false, err
+		return false, fmt.Errorf("error fetching reputation: %v", err)
 	}
 
 	currentRep += value
@@ -35,7 +32,7 @@ func AdjustRep(ctx context.Context, value int) (bool, error) {
 		currentRep = 1000
 	}
 
-	_, err = postgres.DB.Exec(ctx, `UPDATE users SET reputation = $1 WHERE uuid = $2`, currentRep, uuid)
+	_, err = postgres.DB.Exec(ctx, `UPDATE users SET reputation = $1 WHERE uuid = $2`, currentRep, userID)
 	if err != nil {
 		return false, fmt.Errorf("failed to update reputation: %v", err)
 	}

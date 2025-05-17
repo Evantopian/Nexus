@@ -3,7 +3,6 @@ package resolver
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 
 	"github.com/Evantopian/Nexus/graph/model"
@@ -54,9 +53,9 @@ func CreateGame(
 		return nil, fmt.Errorf("error inserting game: %v", err)
 	}
 
-	// Initialize empty lists for related data
-	game.Servers = []*model.Server{}
-	game.LfgPosts = []*model.LFGPost{}
+	// // Initialize empty lists for related data
+	// game.Servers = []*model.Server{}
+	// game.LfgPosts = []*model.LFGPost{}
 
 	return game, nil
 }
@@ -105,8 +104,8 @@ func UpdateGame(
 		return nil, fmt.Errorf("error updating game: %v", err)
 	}
 
-	game.Servers = []*model.Server{}
-	game.LfgPosts = []*model.LFGPost{}
+	// game.Servers = []*model.Server{}
+	// game.LfgPosts = []*model.LFGPost{}
 
 	return game, nil
 }
@@ -137,45 +136,19 @@ func GetGame(ctx context.Context, slug string) (*model.Game, error) {
 		SELECT 
 			g.id, g.slug, g.title, g.description, g.short_description, g.image, 
 			g.banner, g.logo, g.players, g.release_date::TEXT, g.developer, 
-			g.publisher, g.rating,
-			
-			-- Directly selecting platforms and tags from the games table
-			g.platforms, 
-			g.tags,
-
-			-- Servers as JSONB
-			COALESCE(jsonb_agg(DISTINCT jsonb_build_object(
-				'id', s.id, 'name', s.name, 'image', s.image, 
-				'description', s.description, 'created_at', s.created_at
-			)) FILTER (WHERE s.id IS NOT NULL), '[]') AS servers,
-
-			-- LFG Posts as JSONB (including author)
-			COALESCE(jsonb_agg(DISTINCT jsonb_build_object(
-				'id', lp.id, 'title', lp.title, 'description', lp.description, 
-				'created_at', lp.created_at, 'author', jsonb_build_object(
-					'id', u.uuid, 'username', u.username
-				)
-			)) FILTER (WHERE lp.id IS NOT NULL), '[]') AS lfg_posts
-
+			g.publisher, g.rating, g.platforms, g.tags
 		FROM games g
-		LEFT JOIN servers s ON g.id = s.game_id
-		LEFT JOIN lfg_posts lp ON g.id = lp.game_id
-		LEFT JOIN users u ON lp.author_id = u.uuid
-
 		WHERE g.slug = $1
-		GROUP BY g.id;
 	`
 
 	var game model.Game
 	var platforms, tags []string
-	var serversJSON, lfgPostsJSON []byte
 
-	// Execute the query
 	err := postgres.DB.QueryRow(ctx, query, slug).Scan(
 		&game.ID, &game.Slug, &game.Title, &game.Description, &game.ShortDescription,
 		&game.Image, &game.Banner, &game.Logo, &game.Players, &game.ReleaseDate,
 		&game.Developer, &game.Publisher, &game.Rating,
-		&platforms, &tags, &serversJSON, &lfgPostsJSON,
+		&platforms, &tags,
 	)
 
 	if err != nil {
@@ -189,15 +162,50 @@ func GetGame(ctx context.Context, slug string) (*model.Game, error) {
 	game.Platforms = platforms
 	game.Tags = tags
 
-	// Safely parse JSONB fields
-	if err := json.Unmarshal(serversJSON, &game.Servers); err != nil {
-		fmt.Println("Error parsing servers:", err)
-		game.Servers = nil
+	return &game, nil
+}
+
+// GetAllGames returns all games from the database
+func GetAllGames(ctx context.Context) ([]*model.Game, error) {
+	query := `
+		SELECT 
+			id, slug, title, description, short_description, image, 
+			banner, logo, players, release_date::TEXT, developer, 
+			publisher, rating, platforms, tags
+		FROM games
+	`
+
+	rows, err := postgres.DB.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("error querying all games: %w", err)
 	}
-	if err := json.Unmarshal(lfgPostsJSON, &game.LfgPosts); err != nil {
-		fmt.Println("Error parsing LFG posts:", err)
-		game.LfgPosts = nil
+	defer rows.Close()
+
+	var games []*model.Game
+
+	for rows.Next() {
+		var game model.Game
+		var platforms, tags []string
+
+		err := rows.Scan(
+			&game.ID, &game.Slug, &game.Title, &game.Description, &game.ShortDescription,
+			&game.Image, &game.Banner, &game.Logo, &game.Players, &game.ReleaseDate,
+			&game.Developer, &game.Publisher, &game.Rating,
+			&platforms, &tags,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning game row: %w", err)
+		}
+
+		game.Platforms = platforms
+		game.Tags = tags
+
+		games = append(games, &game)
 	}
 
-	return &game, nil
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("row iteration error: %w", err)
+	}
+
+	return games, nil
 }

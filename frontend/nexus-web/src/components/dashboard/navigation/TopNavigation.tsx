@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Bell as NotificationsIcon,
   Mail as EmailIcon,
@@ -12,6 +13,14 @@ interface TopNavigationProps {
 }
 
 const TopNavigation = ({ isMobile = false }: TopNavigationProps) => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
   return (
     <header
       className="fixed top-0 left-5 right-0 bg-white dark:bg-gray-800 z-40 shadow-sm transition-all duration-200 ease-in-out"
@@ -47,16 +56,16 @@ const TopNavigation = ({ isMobile = false }: TopNavigationProps) => {
               LFG
             </Link>
             <Link
+              to="/party"
+              className="text-gray-800 dark:text-gray-200 font-semibold hover:text-indigo-600 dark:hover:text-indigo-400 whitespace-nowrap transition-colors duration-200 hover:scale-105 transform"
+            >
+              Party
+            </Link>
+            <Link
               to="/players"
               className="text-gray-800 dark:text-gray-200 font-semibold hover:text-indigo-600 dark:hover:text-indigo-400 whitespace-nowrap transition-colors duration-200 hover:scale-105 transform"
             >
               Players
-            </Link>
-            <Link
-              to="/events"
-              className="text-gray-800 dark:text-gray-200 font-semibold hover:text-indigo-600 dark:hover:text-indigo-400 whitespace-nowrap transition-colors duration-200 hover:scale-105 transform"
-            >
-              Events
             </Link>
           </div>
         </div>
@@ -69,12 +78,12 @@ const TopNavigation = ({ isMobile = false }: TopNavigationProps) => {
           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200">
             <NotificationsIcon className="text-gray-600 dark:text-gray-300" />
           </button>
-          <Link
-            to="/logout"
+          <button
+            onClick={handleLogout}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-md transition-all duration-200"
           >
             <LogoutIcon className="text-gray-600 dark:text-gray-300" />
-          </Link>
+          </button>
         </div>
       </div>
     </header>

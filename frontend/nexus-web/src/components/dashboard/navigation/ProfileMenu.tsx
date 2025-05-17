@@ -1,4 +1,4 @@
-import {useEffect } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   User,
@@ -10,9 +10,8 @@ import {
   Bell,
   Palette,
 } from "lucide-react";
-import { useTheme } from "@/lib/ThemeContext";
-import cinnamoroll from "@/assets/dummydata/cinnamoroll.jpg"
-
+import { useTheme } from "@/contexts/ThemeContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProfileMenuProps {
   isOpen: boolean;
@@ -21,6 +20,7 @@ interface ProfileMenuProps {
 
 const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -52,17 +52,17 @@ const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
         <div className="flex items-center">
           <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-200 dark:border-indigo-700 mr-3">
             <img
-              src={cinnamoroll}
+              src={user?.profileImg ?? "default-image.jpg"}
               alt="Profile"
               className="w-full h-full object-cover"
             />
           </div>
           <div>
             <h3 className="font-medium text-gray-800 dark:text-gray-100">
-              @Tamothy
+              {user?.username}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Level 21 • Okayish Gamer
+              @{user?.email}
             </p>
           </div>
         </div>
@@ -100,21 +100,33 @@ const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
           <div className="flex items-center justify-between">
             <button
               onClick={() => setTheme("light")}
-              className={`flex items-center justify-center p-2 rounded-md ${theme === "light" ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300" : "text-gray-700 dark:text-gray-300"}`}
+              className={`flex items-center justify-center p-2 rounded-md ${
+                theme === "light"
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                  : "text-gray-700 dark:text-gray-300"
+              }`}
             >
               <Sun className="h-4 w-4" />
               <span className="ml-2 text-xs">Light</span>
             </button>
             <button
               onClick={() => setTheme("dark")}
-              className={`flex items-center justify-center p-2 rounded-md ${theme === "dark" ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300" : "text-gray-700 dark:text-gray-300"}`}
+              className={`flex items-center justify-center p-2 rounded-md ${
+                theme === "dark"
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                  : "text-gray-700 dark:text-gray-300"
+              }`}
             >
               <Moon className="h-4 w-4" />
               <span className="ml-2 text-xs">Dark</span>
             </button>
             <button
               onClick={() => setTheme("system")}
-              className={`flex items-center justify-center p-2 rounded-md ${theme === "system" ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300" : "text-gray-700 dark:text-gray-300"}`}
+              className={`flex items-center justify-center p-2 rounded-md ${
+                theme === "system"
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                  : "text-gray-700 dark:text-gray-300"
+              }`}
             >
               <Palette className="h-4 w-4" />
               <span className="ml-2 text-xs">Auto</span>

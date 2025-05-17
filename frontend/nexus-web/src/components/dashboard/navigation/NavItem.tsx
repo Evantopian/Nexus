@@ -25,7 +25,7 @@ const NavItem = ({
           "flex items-center rounded-lg py-2 px-3 transition-all duration-200",
           active
             ? "bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300"
-            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700",
+            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
         )}
       >
         <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">

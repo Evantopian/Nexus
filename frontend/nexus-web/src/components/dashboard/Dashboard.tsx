@@ -1,48 +1,14 @@
+import { useQuery } from "@apollo/client";
 import FeaturedGames from "./FeaturedGames";
 import MainContent from "./MainContent";
 import Sidebar from "./SideBar";
-
+import { GET_ALL_LFG_POSTS } from "@/graphql/lfg/lfgQueries";
+import { useRecommendedPlayers } from "@/hooks/useRecommendedPlayers";
+import { useAuth } from "@/contexts/AuthContext";
 
 // temporary data, waiting for backend APIs to be built, then we will fetch.
 const Dashboard = () => {
-  // Featured games data
-  const games = [
-    {
-      image:
-        "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      title: "Marvel Rivals",
-      players: "1.7",
-      tags: ["bg-blue-500", "bg-purple-500", "bg-green-500"],
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      title: "Fortnite",
-      players: "3.2",
-      tags: ["bg-blue-500", "bg-yellow-500"],
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      title: "Minecraft",
-      players: "2.5",
-      tags: ["bg-green-500", "bg-orange-500"],
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      title: "Call of Duty",
-      players: "1.9",
-      tags: ["bg-red-500", "bg-gray-500"],
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      title: "League of Legends",
-      players: "2.1",
-      tags: ["bg-purple-500", "bg-blue-300"],
-    },
-  ];
+  const { user } = useAuth();
 
   // Recently played games data
   const recentGames = [
@@ -70,32 +36,7 @@ const Dashboard = () => {
   ];
 
   // Recommended players data
-  const recommendedPlayers = [
-    {
-      id: 1,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player1",
-      username: "GamerTag1",
-      level: 10,
-    },
-    {
-      id: 2,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player2",
-      username: "GamerTag2",
-      level: 20,
-    },
-    {
-      id: 3,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player3",
-      username: "GamerTag3",
-      level: 30,
-    },
-    {
-      id: 4,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player4",
-      username: "GamerTag4",
-      level: 40,
-    },
-  ];
+  const { recommendedPlayers, recLoading } = useRecommendedPlayers(user?.uuid);
 
   // Communities data
   const communities = [
@@ -165,33 +106,18 @@ const Dashboard = () => {
   ];
 
   // LFG post data
-  const lfgPostData = [
-    {
-      id: 1,
-      title: "Need 2 for Raid",
-      author: {
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=lfg1",
-        username: "RaidLeader1",
-      },
-      tags: ["Tank", "Healer"],
-    },
-    {
-      id: 2,
-      title: "Need 3 for Raid",
-      author: {
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=lfg2",
-        username: "RaidLeader2",
-      },
-      tags: ["Tank", "Healer"],
-    },
-  ];
+  const { data } = useQuery(GET_ALL_LFG_POSTS, {
+    variables: { limit: 2, offset: 0 },
+  });
+
+  const lfgPostData = data?.getAllLFGPosts || [];
 
   return (
     <>
       {/* Main Content */}
       <div className="w-full max-w-[1600px] mx-auto px-4 py-8 transition-all duration-300">
         {/* Featured Games Carousel */}
-        <FeaturedGames games={games} />
+        <FeaturedGames />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content - 3 columns */}
