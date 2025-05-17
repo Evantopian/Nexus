@@ -1,25 +1,18 @@
-"use client"
+import { Skeleton } from "./skeleton"
 
-import { Menu } from "lucide-react"
-
-interface MobileMenuButtonProps {
-  onClick: () => void
-  isOpen: boolean
-}
-
-export function MobileMenuButton({ onClick, isOpen }: MobileMenuButtonProps) {
+export function MessageSkeleton({ isCurrentUser = false }: { isCurrentUser?: boolean }) {
   return (
-    <button
-      onClick={onClick}
-      className={`md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[#6c5ce7] ${
-        isOpen
-          ? "bg-gray-200 dark:bg-[#2a2d3e] text-gray-800 dark:text-gray-200"
-          : "text-gray-600 dark:text-gray-400 hover:text-gray-800 hover:bg-gray-100 dark:hover:text-gray-200 dark:hover:bg-[#2a2d3e]"
-      }`}
-      aria-label={isOpen ? "Close menu" : "Open menu"}
-      aria-expanded={isOpen}
-    >
-      <Menu size={20} />
-    </button>
+    <div className="group flex items-start gap-3 py-2 px-1">
+      <Skeleton className="flex-shrink-0 w-10 h-10 rounded-md" />
+
+      <div className="flex flex-col max-w-[85%]">
+        <div className="flex items-center gap-2 mb-1">
+          <Skeleton className="h-4 w-24 rounded-md" />
+          <Skeleton className="h-3 w-12 rounded-md" />
+        </div>
+
+        <Skeleton className="h-16 w-64 rounded-md" />
+      </div>
+    </div>
   )
 }

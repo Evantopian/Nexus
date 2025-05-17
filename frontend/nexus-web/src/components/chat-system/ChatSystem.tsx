@@ -29,25 +29,25 @@ import { Routes, Route, Navigate } from "react-router-dom"
 
 export function ChatSystem({ user, apiBaseUrl, socketUrl, onError, className }: ChatSystemProps) {
   return (
-    <div className="h-full w-full flex bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+    <div className="h-full w-full flex bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-hidden">
       <SocketProvider socketUrl={socketUrl} user={user} onError={onError}>
         <ServerProvider apiBaseUrl={apiBaseUrl}>
           <ChannelProvider apiBaseUrl={apiBaseUrl}>
             <PresenceProvider>
-                <Routes>
-                  <Route path="/" element={<Navigate to="/chat/dms" replace />} />
-                  <Route path="dms" element={<ChatLayout />}>
-                    <Route
-                      index
-                      element={
-                        <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 italic">
-                          Select a conversation to start chatting.
-                        </div>
-                      }
-                    />
-                    <Route path=":conversationId" element={<DirectMessageView />} />
-                  </Route>
-                </Routes>
+              <Routes>
+                <Route path="/" element={<Navigate to="/chat/dms" replace />} />
+                <Route path="dms" element={<ChatLayout />}>
+                  <Route
+                    index
+                    element={
+                      <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 italic">
+                        Select a conversation to start chatting.
+                      </div>
+                    }
+                  />
+                  <Route path=":conversationId" element={<DirectMessageView />} />
+                </Route>
+              </Routes>
             </PresenceProvider>
           </ChannelProvider>
         </ServerProvider>
