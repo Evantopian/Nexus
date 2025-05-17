@@ -177,11 +177,13 @@ def get_recommendations_ml(player_index, num_recommendations=5, weighted_matrix=
 
     player_data = weighted_matrix[player_index].reshape(1, -1)
     _, indices = knn.kneighbors(player_data)
-    similar_indices = indices.flatten()[1:]
-
+    similar_indices = indices.flatten()
     user_id = df.iloc[player_index]['uuid']
-    user_friends = df[df['uuid'] == user_id]['friends'].values[0] or []
+
     candidate_ids = df.iloc[similar_indices]['uuid'].values
+    candidate_ids = candidate_ids[candidate_ids != user_id]
+
+    user_friends = df[df['uuid'] == user_id]['friends'].values[0] or []
     new_friend_ids = candidate_ids[~np.isin(candidate_ids, user_friends)]
 
     if len(new_friend_ids) == 0:
@@ -191,6 +193,8 @@ def get_recommendations_ml(player_index, num_recommendations=5, weighted_matrix=
     recommendations = pd.DataFrame(
         {'uuid': new_friend_ids[:num_recommendations]})
     full_recommendations = pd.merge(recommendations, df, on='uuid')
+
+    full_recommendations['age'] = full_recommendations['age'].astype(int)
 
     return full_recommendations[['uuid', 'username', 'email', 'profile_img', 'region', 'genre', 'platform', 'playstyle', 'rank', 'reputation', 'age']]
 
