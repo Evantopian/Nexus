@@ -107,6 +107,28 @@ type Message struct {
 type Mutation struct {
 }
 
+type Party struct {
+	ID         uuid.UUID `json:"id"`
+	Name       string    `json:"name"`
+	LeaderID   uuid.UUID `json:"leaderId"`
+	Leader     *User     `json:"leader"`
+	Members    []*User   `json:"members"`
+	MaxMembers int32     `json:"maxMembers"`
+	CreatedAt  string    `json:"createdAt"`
+}
+
+type PartyInvitation struct {
+	ID        uuid.UUID        `json:"id"`
+	PartyID   uuid.UUID        `json:"partyId"`
+	Party     *Party           `json:"party"`
+	InviterID uuid.UUID        `json:"inviterId"`
+	Inviter   *User            `json:"inviter"`
+	InviteeID uuid.UUID        `json:"inviteeId"`
+	Invitee   *User            `json:"invitee"`
+	Status    InvitationStatus `json:"status"`
+	CreatedAt string           `json:"createdAt"`
+}
+
 type Preferences struct {
 	Region            *string    `json:"region,omitempty"`
 	Playstyle         *Playstyle `json:"playstyle,omitempty"`
@@ -163,7 +185,9 @@ type User struct {
 
 type UserRecommendation struct {
 	UUID       uuid.UUID `json:"uuid"`
+	Email      *string   `json:"email,omitempty"`
 	Username   *string   `json:"username,omitempty"`
+	ProfileImg *string   `json:"profileImg,omitempty"`
 	Region     *string   `json:"region,omitempty"`
 	Genre      *string   `json:"genre,omitempty"`
 	Platform   *string   `json:"platform,omitempty"`
@@ -264,6 +288,49 @@ func (e *GameGenre) UnmarshalGQL(v any) error {
 }
 
 func (e GameGenre) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type InvitationStatus string
+
+const (
+	InvitationStatusPending  InvitationStatus = "PENDING"
+	InvitationStatusAccepted InvitationStatus = "ACCEPTED"
+	InvitationStatusDeclined InvitationStatus = "DECLINED"
+)
+
+var AllInvitationStatus = []InvitationStatus{
+	InvitationStatusPending,
+	InvitationStatusAccepted,
+	InvitationStatusDeclined,
+}
+
+func (e InvitationStatus) IsValid() bool {
+	switch e {
+	case InvitationStatusPending, InvitationStatusAccepted, InvitationStatusDeclined:
+		return true
+	}
+	return false
+}
+
+func (e InvitationStatus) String() string {
+	return string(e)
+}
+
+func (e *InvitationStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = InvitationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid InvitationStatus", str)
+	}
+	return nil
+}
+
+func (e InvitationStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

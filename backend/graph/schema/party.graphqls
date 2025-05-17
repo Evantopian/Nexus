@@ -1,0 +1,53 @@
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+type Party {
+  id: UUID!
+  name: String!
+  leaderId: UUID!
+  leader: User!
+  members: [User!]!
+  maxMembers: Int!
+  createdAt: String!
+}
+
+type PartyInvitation {
+  id: UUID!
+  partyId: UUID!
+  party: Party!
+  inviterId: UUID!
+  inviter: User!
+  inviteeId: UUID!
+  invitee: User!
+  status: InvitationStatus!
+  createdAt: String!
+}
+
+extend type Query {
+  # Get all invitations sent to a specific user
+  getPartyInvitations(userId: UUID!): [PartyInvitation!]!
+
+  # Get all invites sent by a user
+  getSentPartyInvitations(userId: UUID!): [PartyInvitation!]!
+
+  getParty(partyId: UUID!): Party
+  getPartyByUser(userId: UUID!): Party
+}
+
+extend type Mutation {
+  # Invite a user to a party
+  inviteToParty(partyId: UUID!, inviteeId: UUID!): PartyInvitation!
+
+  # Handle an invite (accept or decline)
+  handlePartyInvite(inviteId: UUID!, accept: Boolean!): Party!
+
+  # Remove a user from a party
+  removeFromParty(partyId: UUID!, userId: UUID!): Party!
+
+  createParty(name: String!): Party!
+  deleteParty(partyId: UUID!): Boolean!
+  leaveParty(partyId: UUID!): Party!
+}
