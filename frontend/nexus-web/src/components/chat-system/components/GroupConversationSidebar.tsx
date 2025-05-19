@@ -14,7 +14,12 @@ import {
   Crown,
   Shield,
 } from "lucide-react"
+
+import { FindGroupsOverlay } from "../components/FindGroups"
+
 import { mockGroupConversations, type GroupConversation } from "../mock/groups-data"
+
+
 
 export default function GroupConversationSidebar() {
   const { groupId } = useParams<{ groupId: string }>()
@@ -72,6 +77,16 @@ export default function GroupConversationSidebar() {
             className="w-full pl-10 pr-4 py-2 rounded-md text-sm bg-gray-100 dark:bg-[#2a2d3e] placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-[#6c5ce7]"
           />
         </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="mt-2 w-full text-left text-sm text-indigo-600 dark:text-indigo-400 hover:underline px-4 py-1"
+        >
+          + New Groups
+        </button>
+
+        {showCreateModal && <FindGroupsOverlay onClose={() => setShowCreateModal(false)} />}
+
+
       </div>
 
       {/* Header */}
@@ -110,17 +125,6 @@ export default function GroupConversationSidebar() {
               </div>
             </div>
           ))}
-      </div>
-
-      {/* Footer create */}
-      <div className="p-3 border-t border-gray-200 dark:border-[#2a2d3e]">
-        <button
-          className="w-full flex items-center justify-center gap-2 py-2 bg-indigo-600 dark:bg-[#6c5ce7] hover:bg-indigo-700 dark:hover:bg-[#5b4dd1] text-white rounded-md transition-colors"
-          onClick={() => setShowCreateModal(true)}
-        >
-          <UserPlus size={16} />
-          <span>Create New Group</span>
-        </button>
       </div>
 
       {/* Context menu */}
