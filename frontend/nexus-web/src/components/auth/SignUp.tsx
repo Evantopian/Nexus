@@ -87,7 +87,9 @@ const SignUp = () => {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-6 dark:text-gray-700">Sign Up to Nexus</h2>
+            <h2 className="text-2xl font-bold mb-6 dark:text-gray-700">
+              Sign Up to Nexus
+            </h2>
 
             <div className="space-y-6">
               <div className="text-gray-700">

@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface KickConfirmModalProps {
   show: boolean;
   onConfirm: () => void;
@@ -11,18 +9,7 @@ const KickConfirmModal = ({
   onConfirm,
   onCancel,
 }: KickConfirmModalProps) => {
-  const [kickConfirmId, setKickConfirmId] = useState<string | null>(null);
-
   if (!show) return null;
-
-  const handleKick = () => {
-    if (kickConfirmId) {
-      onKick(kickConfirmId);
-      setKickConfirmId(null);
-    }
-  };
-
-  const cancelKick = () => setKickConfirmId(null);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">

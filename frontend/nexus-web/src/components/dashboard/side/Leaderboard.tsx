@@ -1,7 +1,7 @@
 import { BarChart as LeaderboardIcon } from "lucide-react";
 
 interface LeaderProps {
-  id: number;
+  uuid: number;
   profileImg: string;
   username: string;
   reputation: number;
@@ -22,14 +22,14 @@ const Leaderboard = ({ leaders }: LeaderboardProps) => {
       <div className="space-y-3">
         {leaders.map((leader, index) => (
           <div
-            key={leader.id}
+            key={leader.uuid}
             className="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
           >
             <span className="font-bold text-gray-500 dark:text-gray-400 w-6">
               {index + 1}.
             </span>
             <img
-              src={leader.profileImg}
+              src={leader.profileImg || "/default-avatar.png"}
               alt={`${leader.username}'s profile image`}
               className="h-8 w-8 rounded-full mr-2"
             />

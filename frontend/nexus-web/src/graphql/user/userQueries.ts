@@ -23,6 +23,29 @@ export const PROFILE_QUERY = gql`
   }
 `;
 
+export const GET_ALL_USERS = gql`
+  query getAllUsers($limit: Int!) {
+    getAllUsers(limit: $limit) {
+      uuid
+      username
+      email
+      profileImg
+      profileMessage
+      status
+      rank
+      reputation
+      createdAt
+      preferences {
+        playstyle
+        region
+        favoritePlatform
+        favoriteGameGenre
+      }
+      age
+    }
+  }
+`;
+
 export const GET_USER_FOLLOWED_GAMES = gql`
   query getUserFollowedGames($userId: UUID!) {
     getUserFollowedGames(userId: $userId) {
