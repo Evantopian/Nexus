@@ -3,9 +3,10 @@ import { ChevronRightIcon } from "lucide-react";
 
 interface PlayerProps {
   id: number;
-  avatar: string;
+  email: string;
   username: string;
-  level: number;
+  proflieImg: string;
+  // level: number;
 }
 
 interface RecommendedPlayersProps {
@@ -31,7 +32,7 @@ const RecommendedPlayers = ({ players }: RecommendedPlayersProps) => {
             className="flex-shrink-0 w-40 bg-gray-50 dark:bg-gray-700 rounded-lg p-4 flex flex-col items-center hover:shadow-md transition-shadow"
           >
             <img
-              src={player.avatar}
+              src={player.proflieImg}
               alt={`${player.username}'s avatar`}
               className="h-16 w-16 rounded-full mb-2"
             />
@@ -39,7 +40,7 @@ const RecommendedPlayers = ({ players }: RecommendedPlayersProps) => {
               {player.username}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-              Level {player.level}
+              {player.email}
             </p>
             <button className="mt-3 bg-indigo-600 dark:bg-indigo-700 text-white text-xs px-4 py-1 rounded-full hover:bg-indigo-700 dark:hover:bg-indigo-600 w-full">
               Follow

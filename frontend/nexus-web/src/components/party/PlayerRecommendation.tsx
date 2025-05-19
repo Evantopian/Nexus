@@ -4,6 +4,8 @@ import { Player } from "./Party";
 
 interface PlayerRecommendationProps {
   recommendedPlayers: Player[];
+  handleInvite: (userId: string) => void;
+  loading: boolean;
 }
 
 // Define ratios or percentages for responsiveness
@@ -13,6 +15,8 @@ const CARD_ASPECT_RATIO = 300 / 260; // Original width/height ratio (adjust if y
 
 const PlayerRecommendation = ({
   recommendedPlayers,
+  handleInvite,
+  loading,
 }: PlayerRecommendationProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [offsetMultiplier, setOffsetMultiplier] = useState(0); // Start at 0, calculate in effect
@@ -48,11 +52,15 @@ const PlayerRecommendation = ({
 
   const containerMaxWidth = offsetMultiplier; // No extra padding in max-width for this positioning
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="flex flex-col items-center w-full md:w-[60%] gap-6">
       {/* Title */}
       <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-        Recommended
+        Recommended Players
       </h2>
 
       {recommendedPlayers.length > 0 ? (
@@ -98,6 +106,11 @@ const PlayerRecommendation = ({
                   {p.username}
                 </span>
 
+                {/* Email */}
+                <span className="text-sm font-semibold text-gray-900 dark:text-white text-center mb-2">
+                  {p.email}
+                </span>
+
                 {/* Profile Image */}
                 <div className="flex items-center justify-center flex-grow min-h-[100px]">
                   <img
@@ -108,7 +121,10 @@ const PlayerRecommendation = ({
                 </div>
 
                 {/* Invite Button */}
-                <button className="text-sm px-5 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
+                <button
+                  className="text-sm px-5 py-2 bg-indigo-600  text-white rounded-full hover:bg-indigo-700 transition"
+                  onClick={() => handleInvite(p.id)}
+                >
                   Invite
                 </button>
               </div>

@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -41,7 +40,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		c.Set("uuid", userUUID)
 
 		// Debug log to ensure the UUID is set
-		fmt.Println("UUID set in context:", userUUID)
+		// fmt.Println("UUID set in context:", userUUID)
 
 		// Proceed to the next middleware/handler
 		c.Next()

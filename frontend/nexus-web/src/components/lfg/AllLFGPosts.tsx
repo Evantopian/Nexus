@@ -11,7 +11,6 @@ interface LFGPostProps {
 
 interface AllLFGPostsProps {
   posts: LFGPostProps[];
-  refetch: () => void;
 }
 
 const AllLFGPosts = ({ posts }: AllLFGPostsProps) => {

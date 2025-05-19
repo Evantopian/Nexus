@@ -43,6 +43,7 @@ const UserLFGPosts: React.FC<UserLFGPostsProps> = ({
     setEditData(null);
     setShowForm(false);
     refetch();
+    refetchAll();
   };
 
   return (
