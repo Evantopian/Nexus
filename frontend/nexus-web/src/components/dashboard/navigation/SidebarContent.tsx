@@ -1,7 +1,7 @@
 // src/components/SidebarContent.tsx
 import { useLocation } from "react-router-dom";
 import {
-  followedGamesTest,
+  followedGames,
   chatItems as rawChatItems,
   serverItems,
 } from "./NavItemsModel";
@@ -48,7 +48,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
       <div className="mb-6 w-full">
         <SectionHeader title="GAMES" expanded={expanded} />
         <div className="space-y-1">
-          {followedGamesTest.map((item, i) => (
+          {followedGames.map((item, i) => (
             <NavItem
               key={`game-${i}`}
               {...item}
