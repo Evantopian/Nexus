@@ -144,38 +144,7 @@ export default function ServerList() {
         </button>
       </div>
 
-      {/* Bottom actions */}
-      <div className="mt-auto pt-4 flex flex-col items-center gap-3">
-        <button
-          className="w-10 h-10 rounded-full bg-gray-200 dark:bg-[#2a2d3e] flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-[#3f4259] transition-all duration-200"
-          onMouseEnter={() => setHoveredServer("download")}
-          onMouseLeave={() => setHoveredServer(null)}
-        >
-          <Download size={18} />
-
-          {/* Tooltip */}
-          {hoveredServer === "download" && (
-            <div className="absolute left-14 bg-black text-white text-sm py-1 px-2 rounded z-50 whitespace-nowrap">
-              Download App
-            </div>
-          )}
-        </button>
-
-        <button
-          className="w-10 h-10 rounded-full bg-gray-200 dark:bg-[#2a2d3e] flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-[#3f4259] transition-all duration-200"
-          onMouseEnter={() => setHoveredServer("settings")}
-          onMouseLeave={() => setHoveredServer(null)}
-        >
-          <Settings size={18} />
-
-          {/* Tooltip */}
-          {hoveredServer === "settings" && (
-            <div className="absolute left-14 bg-black text-white text-sm py-1 px-2 rounded z-50 whitespace-nowrap">
-              Settings
-            </div>
-          )}
-        </button>
-      </div>
+       
 
       {/* Add Server Modal */}
       {showAddModal && (

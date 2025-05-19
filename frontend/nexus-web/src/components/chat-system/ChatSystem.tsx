@@ -13,10 +13,8 @@ import { useAuth } from "../../contexts/AuthContext"
 import DirectMessageView from "./views/DirectMessageView"
 import GroupView from "./views/GroupView"
 import ServerView from "./views/ServerView"
-import GroupConversationSidebar from "./components/GroupConversationSidebar"
-import ServerList from "./components/ServerList"
-import ServerSidebar from "./components/ServerSidebar"
-
+import ServerLayout from "./layouts/ServerLayout"
+import { Outlet } from "react-router-dom"
 
 import ChatLayout from "./layouts/ChatLayout"
 
@@ -37,7 +35,7 @@ export interface ChatSystemProps {
   children?: React.ReactNode
 }
 
-export function ChatSystem({ user, apiBaseUrl, socketUrl, onError, className }: ChatSystemProps) {
+export function ChatSystem({ user, apiBaseUrl, socketUrl, onError }: ChatSystemProps) {
   return (
     <div className="h-full w-full flex bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-hidden">
       <SocketProvider socketUrl={socketUrl} user={user} onError={onError}>
@@ -76,45 +74,40 @@ export function ChatSystem({ user, apiBaseUrl, socketUrl, onError, className }: 
 
 
                 {/* Servers */}
-                <Route
-                  path="servers/*"
-                  element={
-                    <div className="flex h-screen w-full overflow-hidden">
-                      <ServerList />
-                      <Routes>
-                        <Route
-                          index
-                          element={
-                            <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 italic">
-                              Select a server from the sidebar.
-                            </div>
-                          }
-                        />
-                        <Route
-                          path=":serverId/*"
-                          element={
-                            <div className="flex flex-1">
-                              <ServerSidebar />
-                              <main className="flex-1 flex flex-col overflow-hidden">
-                                <Routes>
-                                  <Route
-                                    index
-                                    element={
-                                      <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 italic">
-                                        Select a channel to start chatting.
-                                      </div>
-                                    }
-                                  />
-                                  <Route path=":channelId/*" element={<ServerView />} />
-                                </Routes>
-                              </main>
-                            </div>
-                          }
-                        />
-                      </Routes>
-                    </div>
-                  }
-                />
+                <Route path="servers" element={<ServerLayout />}>
+                  {/* When no server is selected */}
+                  <Route
+                    index
+                    element={
+                      <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 italic">
+                        Select a server from the sidebar.
+                      </div>
+                    }
+                  />
+
+                  {/* Server selected, but no channel */}
+                  <Route
+                    path=":serverId"
+                    element={
+                      <div className="flex flex-1">
+                        <main className="flex-1 flex flex-col overflow-hidden">
+                          <Outlet />
+                        </main>
+                      </div>
+                    }
+                  >
+                    <Route
+                      index
+                      element={
+                        <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-500 italic">
+                          Select a channel to start chatting.
+                        </div>
+                      }
+                    />
+                    <Route path="channels/:channelId" element={<ServerView />} />
+                  </Route>
+                </Route>
+
               </Routes>
 
             </PresenceProvider>
