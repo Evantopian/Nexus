@@ -45,10 +45,10 @@ type DirectConversation struct {
 }
 
 type FriendRequest struct {
-	Sender      uuid.UUID `json:"sender"`
-	Receiver    uuid.UUID `json:"receiver"`
-	Status      string    `json:"status"`
-	RequestedAt string    `json:"requestedAt"`
+	Sender      *User  `json:"sender"`
+	Receiver    *User  `json:"receiver"`
+	Status      string `json:"status"`
+	RequestedAt string `json:"requestedAt"`
 }
 
 type FriendRequestsList struct {

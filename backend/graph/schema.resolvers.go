@@ -58,6 +58,11 @@ func (r *queryResolver) GetUser(ctx context.Context, userID uuid.UUID) (*model.U
 	return resolver.GetUser(ctx, userID)
 }
 
+// GetAllUsers is the resolver for the getAllUsers field.
+func (r *queryResolver) GetAllUsers(ctx context.Context, limit int32) ([]*model.User, error) {
+	return resolver.GetAllUsers(ctx, int(limit))
+}
+
 // GetRandomUsers is the resolver for the getRandomUsers field.
 func (r *queryResolver) GetRandomUsers(ctx context.Context) ([]*model.User, error) {
 	return resolver.GetRandomUsers(ctx)

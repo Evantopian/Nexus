@@ -286,8 +286,18 @@ func GetFriendRequests(ctx context.Context) (*model.FriendRequestsList, error) {
 			continue
 		}
 
-		request.Receiver = receiverUUID
-		request.Sender = userUUID
+		receiver, err := GetUser(ctx, receiverUUID)
+		if err != nil {
+			log.Printf("warning: could not fetch receiver: %v", err)
+			continue
+		}
+		sender, err := GetUser(ctx, userUUID)
+		if err != nil {
+			log.Printf("warning: could not fetch sender: %v", err)
+			continue
+		}
+		request.Receiver = receiver
+		request.Sender = sender
 		request.RequestedAt = sentRequestTime.Format(time.RFC3339)
 		sentRequests = append(sentRequests, &request)
 	}
@@ -317,8 +327,18 @@ func GetFriendRequests(ctx context.Context) (*model.FriendRequestsList, error) {
 			continue
 		}
 
-		request.Sender = senderUUID
-		request.Receiver = userUUID
+		sender, err := GetUser(ctx, senderUUID)
+		if err != nil {
+			log.Printf("warning: could not fetch sender: %v", err)
+			continue
+		}
+		receiver, err := GetUser(ctx, userUUID)
+		if err != nil {
+			log.Printf("warning: could not fetch receiver: %v", err)
+			continue
+		}
+		request.Sender = sender
+		request.Receiver = receiver
 		request.RequestedAt = receivedRequestTime.Format(time.RFC3339)
 		receivedRequests = append(receivedRequests, &request)
 	}
