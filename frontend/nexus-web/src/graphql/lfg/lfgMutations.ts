@@ -60,6 +60,15 @@ export const UPDATE_LFG_POST = gql`
   }
 `;
 
+export const UPDATE_LFG_CONVERSATION = gql`
+  mutation UpdateLFGConversationId($postId: UUID!, $conversationId: UUID!) {
+    updateLFGConversationId(postId: $postId, conversationId: $conversationId) {
+      id
+      conversationId
+    }
+  }
+`;
+
 export const DELETE_LFG_POST = gql`
   mutation deleteLFGPost($postId: UUID!) {
     deleteLFGPost(postId: $postId)

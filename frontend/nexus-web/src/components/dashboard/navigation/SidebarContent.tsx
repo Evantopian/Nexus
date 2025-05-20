@@ -1,5 +1,6 @@
 // src/components/SidebarContent.tsx
 import { useLocation } from "react-router-dom";
+import { chatItems as rawChatItems, serverItems } from "./NavItemsModel";
 import NavItem from "./NavItem";
 import { NavItemData } from "./NavItemsModel";
 import SectionHeader from "./SectionHeader";
@@ -48,9 +49,8 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
       <div className="mb-6 w-full">
         <SectionHeader title="GAMES" expanded={expanded} />
         <div className="space-y-1">
- 
           {reformattedFollowedGames.map((item, i) => (
-             <NavItem
+            <NavItem
               key={`game-${i}`}
               {...item}
               active={location.pathname === item.href}
