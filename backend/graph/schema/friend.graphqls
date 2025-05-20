@@ -20,5 +20,6 @@ extend type Mutation {
   sendFriendRequest(receiverId: UUID!): FriendRequest!
   acceptFriendRequest(senderId: UUID!): Boolean!
   rejectFriendRequest(senderId: UUID!): Boolean!
+  cancelFriendRequest(receiverId: UUID!): Boolean!
   removeFriend(friendId: UUID!): Boolean!
 }

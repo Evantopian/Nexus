@@ -182,6 +182,58 @@ func RejectFriendRequest(ctx context.Context, senderID uuid.UUID) (bool, error) 
 	return true, nil
 }
 
+// CancelFriendRequest deletes a pending friend request sent by the user to the given receiverId
+func CancelFriendRequest(ctx context.Context, receiverId uuid.UUID) (bool, error) {
+	// Get current user ID from context
+	senderUUID, exists := ctx.Value(contextkey.UserUUIDKey).(string)
+	if !exists || senderUUID == "" {
+		return false, fmt.Errorf("authorization token missing or invalid from resolver")
+	}
+
+	// Check if receiver exists
+	var receiverExists bool
+	checkQuery := "SELECT EXISTS (SELECT 1 FROM users WHERE uuid=$1)"
+	err := postgres.DB.QueryRow(ctx, checkQuery, receiverId).Scan(&receiverExists)
+	if err != nil {
+		return false, fmt.Errorf("error checking receiver existence: %v", err)
+	}
+	if !receiverExists {
+		return false, fmt.Errorf("receiver not found")
+	}
+
+	// Check if a pending friend request exists (sender -> receiver)
+	var requestExists bool
+	checkRequestQuery := `
+		SELECT EXISTS (
+			SELECT 1 FROM friend_requests 
+			WHERE sender_id=$1 AND receiver_id=$2 AND status='pending'
+		)
+	`
+	err = postgres.DB.QueryRow(ctx, checkRequestQuery, senderUUID, receiverId).Scan(&requestExists)
+	if err != nil {
+		return false, fmt.Errorf("error checking existing friend request: %v", err)
+	}
+	if !requestExists {
+		return false, fmt.Errorf("no pending friend request found to cancel")
+	}
+
+	// Delete the friend request
+	deleteQuery := `
+		DELETE FROM friend_requests 
+		WHERE sender_id = $1 AND receiver_id = $2 AND status = 'pending'
+	`
+	res, err := postgres.DB.Exec(ctx, deleteQuery, senderUUID, receiverId)
+	if err != nil {
+		return false, fmt.Errorf("error canceling friend request: %v", err)
+	}
+
+	if res.RowsAffected() == 0 {
+		return false, fmt.Errorf("friend request was not canceled")
+	}
+
+	return true, nil
+}
+
 // RemoveFriend deletes the friendship between the user and friend
 func RemoveFriend(ctx context.Context, friendId uuid.UUID) (bool, error) {
 	uuid, exists := ctx.Value(contextkey.UserUUIDKey).(string)
