@@ -18,7 +18,7 @@ import { useGroupConversations } from "@/hooks/chat/useGroupConversations"
 export default function GroupConversationSidebar() {
   const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
-  const { groups = [], loading } = useGroupConversations()
+  const { groups = [], loading, refetch } = useGroupConversations()
 
   const [searchTerm, setSearchTerm] = useState("")
   const [hoveredGroup, setHoveredGroup] = useState<string | null>(null)
@@ -63,7 +63,13 @@ export default function GroupConversationSidebar() {
           + New Group
         </button>
 
-        {showCreateModal && <FindGroupsOverlay onClose={() => setShowCreateModal(false)} />}
+        {showCreateModal && (
+          <FindGroupsOverlay
+            onClose={() => setShowCreateModal(false)}
+            onCreate={refetch} 
+          />
+        )}
+
       </div>
 
       {/* Header */}

@@ -1,24 +1,27 @@
 "use client"
 
 import { useParams } from "react-router-dom"
-import { useMemo} from "react"
-import { getGroupConversationById } from "../mock/groups-data"
-import { ChatPanel } from "../components/ChatPanel"
+import { useMemo } from "react"
 import { useChatMessages } from "../hooks/useChatMessages"
+import { ChatPanel } from "../components/ChatPanel"
 import { useAuth } from "@/contexts/AuthContext"
-import {
-  Users,
- 
-} from "lucide-react"
+import { useGroupConversations } from "@/hooks/chat/useGroupConversations"
+import { Users } from "lucide-react"
 
 export default function GroupView() {
   const { groupId } = useParams<{ groupId: string }>()
   const { user } = useAuth()
- 
+  const { groups } = useGroupConversations()
+
+  type Group = {
+    id: string
+    name: string
+    participants: any[] // Replace 'any' with the actual participant type if available
+  }
+
   const group = useMemo(() => {
-    if (groupId) return getGroupConversationById(groupId)
-    return null
-  }, [groupId])
+    return groups.find((g: Group) => g.id === groupId)
+  }, [groups, groupId])
 
   const { messages, sendMessage, isConnected } = useChatMessages(groupId)
 
@@ -38,7 +41,6 @@ export default function GroupView() {
 
   return (
     <div className="flex flex-col h-full w-full overflow-hidden">
- 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Middle chat panel */}
@@ -57,4 +59,3 @@ export default function GroupView() {
     </div>
   )
 }
- 

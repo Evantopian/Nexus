@@ -1,26 +1,24 @@
-// Improved FindGroupsOverlay with correct multi-user selection
-
 "use client"
 
 import { useLazyQuery, useMutation } from "@apollo/client"
 import { useState } from "react"
 import { Search, X, UserPlus, Users, Trash } from "lucide-react"
 import { SEARCH_USER, START_CONVERSATION } from "@/graphql/chat/dm.graphql"
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"
 
 interface FindGroupsOverlayProps {
   onClose: () => void
+  onCreate: () => void
 }
 
-export function FindGroupsOverlay({ onClose }: FindGroupsOverlayProps) {
+export function FindGroupsOverlay({ onClose, onCreate }: FindGroupsOverlayProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedUsers, setSelectedUsers] = useState<Record<string, any>>({})
   const [runSearch, { data: searchData }] = useLazyQuery(SEARCH_USER, {
     fetchPolicy: "no-cache"
   })
-  const navigate = useNavigate();
-
-  const [startConversation] = useMutation(START_CONVERSATION)
+  const [startConversation, { loading }] = useMutation(START_CONVERSATION)
+  const navigate = useNavigate()
 
   const handleToggleUser = (user: any) => {
     setSelectedUsers((prev) => {
@@ -37,14 +35,20 @@ export function FindGroupsOverlay({ onClose }: FindGroupsOverlayProps) {
   const handleCreateGroup = async () => {
     try {
       const ids = Object.keys(selectedUsers)
-      if (ids.length < 1) return
+      if (ids.length < 2) {
+        alert("Please select at least 2 users to start a group.")
+        return
+      }
+
       const { data } = await startConversation({
         variables: { participantIds: ids }
       })
+
       const newConvId = data?.startConversation?.id
       if (newConvId) {
-        navigate(`/chat/groups/${newConvId}`);
-        console.log("Group created successfully:", newConvId)
+        onCreate()  
+        onClose()   
+        navigate(`/chat/groups/${newConvId}`)
       }
     } catch (err) {
       console.error("Failed to create group:", err)
@@ -131,10 +135,10 @@ export function FindGroupsOverlay({ onClose }: FindGroupsOverlayProps) {
         <div className="p-4 border-t border-gray-200 dark:border-[#2a2d3e] text-center">
           <button
             onClick={handleCreateGroup}
-            disabled={selectedList.length === 0}
+            disabled={selectedList.length === 0 || loading}
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-[#6c5ce7] dark:hover:bg-[#5b4dd1] text-white text-sm rounded-md font-medium disabled:opacity-50"
           >
-            Create Group
+            {loading ? "Creating..." : "Create Group"}
           </button>
         </div>
       </div>

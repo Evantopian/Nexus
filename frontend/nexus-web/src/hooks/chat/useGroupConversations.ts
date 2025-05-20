@@ -2,10 +2,12 @@ import { useQuery } from "@apollo/client"
 import { GET_GROUP_CONVERSATIONS } from "@/graphql/chat/dm.graphql"
 
 export function useGroupConversations(limit = 20) {
-  const { data, loading, error } = useQuery(GET_GROUP_CONVERSATIONS, {
+  const { data, loading, error, refetch } = useQuery(GET_GROUP_CONVERSATIONS, {
     variables: { limit },
     fetchPolicy: "cache-and-network"
   })
+
+  
 
   const groups = (data?.getGroupConversations ?? []).map((group: any) => ({
     id: group.id,
@@ -18,5 +20,5 @@ export function useGroupConversations(limit = 20) {
     lastActive: group.lastActive || new Date().toISOString()
   }))
 
-  return { groups, loading, error }
+  return { groups, loading, error, refetch  }
 }
