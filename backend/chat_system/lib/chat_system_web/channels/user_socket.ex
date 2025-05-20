@@ -1,13 +1,18 @@
 defmodule ChatSystemWeb.UserSocket do
   use Phoenix.Socket
 
-  # channels
-  channel "room:*", ChatSystemWeb.RoomChannel
+  ## Channels
+  channel "dm:*", ChatSystemWeb.ChatChannel
+  # future:
+  # channel "group:*", ChatSystemWeb.ChatChannel
+  # channel "server:*", ChatSystemWeb.ChatChannel
 
-  # tmp, adding in tokens later in the future
-  def connect(%{"username" => username}, socket, _connect_info) do
-    {:ok, assign(socket, :username, username)}
+  @impl true
+  def connect(%{"token" => token}, socket, _connect_info) do
+    # TODO: verify token or load user info if needed
+    {:ok, assign(socket, :user_token, token)}
   end
-  
+
+  @impl true
   def id(_socket), do: nil
 end

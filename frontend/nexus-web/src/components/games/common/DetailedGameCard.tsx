@@ -66,7 +66,9 @@ const DetailedGameCard = ({
                 {tags.map((tag, i) => (
                   <span
                     key={i}
-                    className={`inline-block text-[10px] px-2 py-0.5 rounded-full ${getTagColor(tag)}`}
+                    className={`inline-block text-[10px] px-2 py-0.5 rounded-full ${getTagColor(
+                      tag
+                    )}`}
                   >
                     {tag}
                   </span>

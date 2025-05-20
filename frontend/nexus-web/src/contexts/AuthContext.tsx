@@ -1,9 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import client from "@/lib/apollo-client";
-import { PROFILE_QUERY } from "@/graphql/userQueries";
+import { PROFILE_QUERY } from "@/graphql/user/userQueries";
 
-type User = {
+export type User = {
   uuid: string;
   username: string;
   email: string;
@@ -12,14 +12,16 @@ type User = {
   status: string;
   reputation: number;
   rank: string | null;
+  age: number;
   createdAt: string;
   preferences: Preferences;
 };
 
 interface Preferences {
-  gameType: string;
-  playStyle: string;
+  playstyle: string;
   region: string;
+  favoritePlatform: string;
+  favoriteGameGenre: string;
 }
 
 export interface AuthContextType {
@@ -28,6 +30,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (username: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -44,7 +47,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(res.data.profile);
         // console.log("Fetched User:", res.data.profile);
       })
-      .catch((err) => console.error("Profile fetch failed", err))
+      .catch((err) => {
+        console.error("Profile fetch failed", err);
+        setUser(null); // Clear user on error
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -55,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         fetchPolicy: "no-cache", // Ensures fresh data
       });
       setUser(res.data.profile); // Update user state
-      console.log("User info:", res.data.profile); // Log the updated user data
+      console.log("User info:", res.data.profile);
     } catch (err) {
       console.error("Refresh failed", err);
     }
@@ -85,10 +91,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    const token = localStorage.getItem("authToken"); // Get the token from localStorage
+    const token = localStorage.getItem("authToken");
 
     try {
-      // Include the token in the Authorization header
       await axios.post(
         "/logout",
         {},
@@ -101,14 +106,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       );
       console.log("logged out");
       setUser(null); // Clear user state on logout
-      localStorage.removeItem("authToken"); // Optionally clear token from localStorage
+      localStorage.removeItem("authToken"); // Clear token from localStorage
     } catch (error) {
       console.error("Logout failed", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, signup, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

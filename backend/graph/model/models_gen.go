@@ -6,9 +6,43 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 )
+
+type Channel struct {
+	ID              uuid.UUID   `json:"id"`
+	Name            string      `json:"name"`
+	Type            ChannelType `json:"type"`
+	ServerID        uuid.UUID   `json:"serverId"`
+	Participants    []*ChatUser `json:"participants"`
+	Messages        []*Message  `json:"messages"`
+	LastMessage     *Message    `json:"lastMessage,omitempty"`
+	Topic           *string     `json:"topic,omitempty"`
+	SlowModeSeconds *int32      `json:"slowModeSeconds,omitempty"`
+	CategoryID      *uuid.UUID  `json:"categoryId,omitempty"`
+}
+
+type ChatUser struct {
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+}
+
+type Conversation struct {
+	ID           uuid.UUID   `json:"id"`
+	Participants []*ChatUser `json:"participants"`
+	Messages     []*Message  `json:"messages"`
+	LastMessage  *Message    `json:"lastMessage,omitempty"`
+	IsGroup      bool        `json:"isGroup"`
+}
+
+type DirectConversation struct {
+	ID          uuid.UUID `json:"id"`
+	User        *ChatUser `json:"user"`
+	LastMessage string    `json:"lastMessage"`
+	LastActive  time.Time `json:"lastActive"`
+}
 
 type FriendRequest struct {
 	Sender      uuid.UUID `json:"sender"`
@@ -40,6 +74,14 @@ type Game struct {
 	Rating           *float64  `json:"rating,omitempty"`
 }
 
+type GroupConversation struct {
+	ID           uuid.UUID `json:"id"`
+	Name         string    `json:"name"`
+	Participants []*User   `json:"participants"`
+	LastMessage  string    `json:"lastMessage"`
+	LastActive   time.Time `json:"lastActive"`
+}
+
 type LFGPost struct {
 	ID           uuid.UUID `json:"id"`
 	GameID       uuid.UUID `json:"gameId"`
@@ -53,24 +95,76 @@ type LFGPost struct {
 	ExpiresAt    string    `json:"expiresAt"`
 }
 
+type Message struct {
+	ID        uuid.UUID `json:"id"`
+	Sender    *ChatUser `json:"sender"`
+	Body      string    `json:"body"`
+	Timestamp string    `json:"timestamp"`
+	Pinned    bool      `json:"pinned"`
+	ReplyTo   *Message  `json:"replyTo,omitempty"`
+}
+
 type Mutation struct {
 }
 
+type Party struct {
+	ID         uuid.UUID `json:"id"`
+	Name       string    `json:"name"`
+	LeaderID   uuid.UUID `json:"leaderId"`
+	Leader     *User     `json:"leader"`
+	Members    []*User   `json:"members"`
+	MaxMembers int32     `json:"maxMembers"`
+	CreatedAt  string    `json:"createdAt"`
+}
+
+type PartyInvitation struct {
+	ID        uuid.UUID        `json:"id"`
+	PartyID   uuid.UUID        `json:"partyId"`
+	Party     *Party           `json:"party"`
+	InviterID uuid.UUID        `json:"inviterId"`
+	Inviter   *User            `json:"inviter"`
+	InviteeID uuid.UUID        `json:"inviteeId"`
+	Invitee   *User            `json:"invitee"`
+	Status    InvitationStatus `json:"status"`
+	CreatedAt string           `json:"createdAt"`
+}
+
 type Preferences struct {
-	Region    string    `json:"region"`
-	Playstyle Playstyle `json:"playstyle"`
+	Region            *string    `json:"region,omitempty"`
+	Playstyle         *Playstyle `json:"playstyle,omitempty"`
+	FavoritePlatform  *Platform  `json:"favoritePlatform,omitempty"`
+	FavoriteGameGenre *GameGenre `json:"favoriteGameGenre,omitempty"`
 }
 
 type Query struct {
 }
 
-type Server struct {
+type Role struct {
 	ID          uuid.UUID `json:"id"`
 	Name        string    `json:"name"`
-	Members     []*User   `json:"members"`
-	Image       *string   `json:"image,omitempty"`
-	Description *string   `json:"description,omitempty"`
-	CreatedAt   string    `json:"createdAt"`
+	Permissions []string  `json:"permissions"`
+}
+
+type Server struct {
+	ID         uuid.UUID         `json:"id"`
+	Name       string            `json:"name"`
+	OwnerID    uuid.UUID         `json:"ownerId"`
+	IconURL    *string           `json:"iconUrl,omitempty"`
+	Members    []*ServerMember   `json:"members"`
+	Roles      []*Role           `json:"roles"`
+	Channels   []*Channel        `json:"channels"`
+	Categories []*ServerCategory `json:"categories"`
+}
+
+type ServerCategory struct {
+	ID         uuid.UUID   `json:"id"`
+	Name       string      `json:"name"`
+	ChannelIds []uuid.UUID `json:"channelIds"`
+}
+
+type ServerMember struct {
+	User    *ChatUser   `json:"user"`
+	RoleIds []uuid.UUID `json:"roleIds"`
 }
 
 type User struct {
@@ -84,8 +178,203 @@ type User struct {
 	Reputation     int32        `json:"reputation"`
 	Rank           *string      `json:"rank,omitempty"`
 	CreatedAt      *string      `json:"createdAt,omitempty"`
+	Age            *int32       `json:"age,omitempty"`
 	Preferences    *Preferences `json:"preferences,omitempty"`
 	FollowingGames []*Game      `json:"followingGames"`
+}
+
+type UserRecommendation struct {
+	UUID       uuid.UUID `json:"uuid"`
+	Email      *string   `json:"email,omitempty"`
+	Username   *string   `json:"username,omitempty"`
+	ProfileImg *string   `json:"profileImg,omitempty"`
+	Region     *string   `json:"region,omitempty"`
+	Genre      *string   `json:"genre,omitempty"`
+	Platform   *string   `json:"platform,omitempty"`
+	Playstyle  *string   `json:"playstyle,omitempty"`
+	Rank       *string   `json:"rank,omitempty"`
+	Reputation *int32    `json:"reputation,omitempty"`
+	Age        *int32    `json:"age,omitempty"`
+}
+
+type ChannelType string
+
+const (
+	ChannelTypeText         ChannelType = "TEXT"
+	ChannelTypeVoice        ChannelType = "VOICE"
+	ChannelTypeAnnouncement ChannelType = "ANNOUNCEMENT"
+)
+
+var AllChannelType = []ChannelType{
+	ChannelTypeText,
+	ChannelTypeVoice,
+	ChannelTypeAnnouncement,
+}
+
+func (e ChannelType) IsValid() bool {
+	switch e {
+	case ChannelTypeText, ChannelTypeVoice, ChannelTypeAnnouncement:
+		return true
+	}
+	return false
+}
+
+func (e ChannelType) String() string {
+	return string(e)
+}
+
+func (e *ChannelType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ChannelType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ChannelType", str)
+	}
+	return nil
+}
+
+func (e ChannelType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type GameGenre string
+
+const (
+	GameGenreRpg        GameGenre = "RPG"
+	GameGenreFps        GameGenre = "FPS"
+	GameGenreMoba       GameGenre = "MOBA"
+	GameGenreStrategy   GameGenre = "STRATEGY"
+	GameGenreAction     GameGenre = "ACTION"
+	GameGenreAdventure  GameGenre = "ADVENTURE"
+	GameGenreSimulation GameGenre = "SIMULATION"
+)
+
+var AllGameGenre = []GameGenre{
+	GameGenreRpg,
+	GameGenreFps,
+	GameGenreMoba,
+	GameGenreStrategy,
+	GameGenreAction,
+	GameGenreAdventure,
+	GameGenreSimulation,
+}
+
+func (e GameGenre) IsValid() bool {
+	switch e {
+	case GameGenreRpg, GameGenreFps, GameGenreMoba, GameGenreStrategy, GameGenreAction, GameGenreAdventure, GameGenreSimulation:
+		return true
+	}
+	return false
+}
+
+func (e GameGenre) String() string {
+	return string(e)
+}
+
+func (e *GameGenre) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GameGenre(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GameGenre", str)
+	}
+	return nil
+}
+
+func (e GameGenre) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type InvitationStatus string
+
+const (
+	InvitationStatusPending  InvitationStatus = "PENDING"
+	InvitationStatusAccepted InvitationStatus = "ACCEPTED"
+	InvitationStatusDeclined InvitationStatus = "DECLINED"
+)
+
+var AllInvitationStatus = []InvitationStatus{
+	InvitationStatusPending,
+	InvitationStatusAccepted,
+	InvitationStatusDeclined,
+}
+
+func (e InvitationStatus) IsValid() bool {
+	switch e {
+	case InvitationStatusPending, InvitationStatusAccepted, InvitationStatusDeclined:
+		return true
+	}
+	return false
+}
+
+func (e InvitationStatus) String() string {
+	return string(e)
+}
+
+func (e *InvitationStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = InvitationStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid InvitationStatus", str)
+	}
+	return nil
+}
+
+func (e InvitationStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type Platform string
+
+const (
+	PlatformPc      Platform = "PC"
+	PlatformConsole Platform = "CONSOLE"
+	PlatformMobile  Platform = "MOBILE"
+)
+
+var AllPlatform = []Platform{
+	PlatformPc,
+	PlatformConsole,
+	PlatformMobile,
+}
+
+func (e Platform) IsValid() bool {
+	switch e {
+	case PlatformPc, PlatformConsole, PlatformMobile:
+		return true
+	}
+	return false
+}
+
+func (e Platform) String() string {
+	return string(e)
+}
+
+func (e *Platform) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Platform(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Platform", str)
+	}
+	return nil
+}
+
+func (e Platform) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type Playstyle string

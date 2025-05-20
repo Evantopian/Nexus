@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Users, Heart, MessageSquare } from "lucide-react";
 import { useMutation } from "@apollo/client";
-import { FOLLOW_GAME, UNFOLLOW_GAME } from "@/graphql/gameQueries";
+import { FOLLOW_GAME, UNFOLLOW_GAME } from "@/graphql/game/gameMutations";
 import { Game, getTagColor } from "@/data/DummyGameData";
 
 interface GameBannerProps {
@@ -12,6 +12,8 @@ interface GameBannerProps {
   isFollowed: boolean;
 }
 
+// Need to better synch/fix how follow/unfollow
+
 const GameBanner = ({
   game,
   activeTab,
@@ -19,7 +21,8 @@ const GameBanner = ({
   tabs,
   isFollowed,
 }: GameBannerProps) => {
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(isFollowed);
+  const [showUnfollowConfirm, setShowUnfollowConfirm] = useState(false);
 
   useEffect(() => {
     setIsFollowing(isFollowed);
@@ -57,7 +60,7 @@ const GameBanner = ({
   // Handle the toggle between follow/unfollow
   const handleFollowToggle = () => {
     if (isFollowing) {
-      unfollowGame();
+      setShowUnfollowConfirm(true);
     } else {
       followGame();
     }
@@ -168,6 +171,38 @@ const GameBanner = ({
           </div>
         </div>
       </div>
+
+      {/* Confirm/Cancel unfollow */}
+      {showUnfollowConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Confirm Unfollow
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Are you sure you want to unfollow{" "}
+              <span className="font-semibold">{game.title}</span>?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowUnfollowConfirm(false)}
+                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  unfollowGame();
+                  setShowUnfollowConfirm(false);
+                }}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+              >
+                Unfollow
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

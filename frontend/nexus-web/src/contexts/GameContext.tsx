@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_ALL_GAMES } from "@/graphql/gameQueries";
+import { GET_ALL_GAMES } from "@/graphql/game/gameQueries";
 import { useAuth } from "./AuthContext";
 
 export type Game = {

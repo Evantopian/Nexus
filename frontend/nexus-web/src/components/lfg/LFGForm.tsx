@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
-import { CREATE_LFG_POST, UPDATE_LFG_POST } from "@/graphql/lfgQueries";
+import { CREATE_LFG_POST, UPDATE_LFG_POST } from "@/graphql/lfg/lfgMutations";
 import { useGames } from "@/contexts/GameContext"; // Import GameContext
 import { useNavigate } from "react-router-dom";
-import { LFGPostFormData } from "./UserLFGPosts";
+import { LFGPostFormData } from "./LFG";
 
 type LfgFormProps = {
   initialData?: LFGPostFormData & { id: string };
@@ -72,7 +72,7 @@ const LfgForm: React.FC<LfgFormProps> = ({ initialData, onClose }) => {
     e.preventDefault();
     setError("");
 
-    // console.log(formData.gameId);
+    // console.log(formData);
 
     // Check for required fields validation (all except expirationHour)
     if (!formData.gameId || !formData.title || !formData.description) {

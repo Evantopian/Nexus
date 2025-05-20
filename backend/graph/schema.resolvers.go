@@ -13,8 +13,14 @@ import (
 )
 
 // UpdateUser is the resolver for the updateUser field.
-func (r *mutationResolver) UpdateUser(ctx context.Context, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string) (*model.User, error) {
-	return resolver.UpdateUser(ctx, username, email, password, profileImg, profileMessage, status, rank)
+func (r *mutationResolver) UpdateUser(ctx context.Context, username *string, email *string, password *string, profileImg *string, profileMessage *string, status *string, rank *string, age *int32) (*model.User, error) {
+	var ageInt32 *int32
+	if age != nil {
+		convertedAge := int32(*age) // Convert int to int32
+		ageInt32 = &convertedAge
+	}
+
+	return resolver.UpdateUser(ctx, username, email, password, profileImg, profileMessage, status, rank, ageInt32)
 }
 
 // DeleteUser is the resolver for the deleteUser field.
@@ -23,13 +29,13 @@ func (r *mutationResolver) DeleteUser(ctx context.Context) (bool, error) {
 }
 
 // AdjustRep is the resolver for the adjustRep field.
-func (r *mutationResolver) AdjustRep(ctx context.Context, amount int32) (bool, error) {
-	return resolver.AdjustRep(ctx, int(amount))
+func (r *mutationResolver) AdjustRep(ctx context.Context, userID uuid.UUID, amount int32) (bool, error) {
+	return resolver.AdjustRep(ctx, userID, int(amount))
 }
 
 // UpdatePreference is the resolver for the updatePreference field.
-func (r *mutationResolver) UpdatePreference(ctx context.Context, region *string, playstyle *model.Playstyle) (*model.Preferences, error) {
-	return resolver.UpdatePreference(ctx, region, playstyle)
+func (r *mutationResolver) UpdatePreference(ctx context.Context, region *string, playstyle *model.Playstyle, favoritePlatform *model.Platform, favoriteGameGenre *model.GameGenre) (*model.User, error) {
+	return resolver.UpdatePreference(ctx, region, playstyle, favoritePlatform, favoriteGameGenre)
 }
 
 // FollowGame is the resolver for the followGame field.
@@ -47,6 +53,26 @@ func (r *queryResolver) Profile(ctx context.Context) (*model.User, error) {
 	return resolver.Profile(ctx)
 }
 
+// GetUser is the resolver for the getUser field.
+func (r *queryResolver) GetUser(ctx context.Context, userID uuid.UUID) (*model.User, error) {
+	return resolver.GetUser(ctx, userID)
+}
+
+// GetRandomUsers is the resolver for the getRandomUsers field.
+func (r *queryResolver) GetRandomUsers(ctx context.Context) ([]*model.User, error) {
+	return resolver.GetRandomUsers(ctx)
+}
+
+// GetRecommendations is the resolver for the getRecommendations field.
+func (r *queryResolver) GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendations int32) ([]*model.UserRecommendation, error) {
+	return resolver.GetRecommendations(ctx, userID, int(numRecommendations))
+}
+
+// SearchUser is the resolver for the searchUser field.
+func (r *queryResolver) SearchUser(ctx context.Context, search string) ([]*model.User, error) {
+	return resolver.SearchUser(ctx, search)
+}
+
 // GetUserFollowedGames is the resolver for the getUserFollowedGames field.
 func (r *queryResolver) GetUserFollowedGames(ctx context.Context, userID uuid.UUID) ([]*model.Game, error) {
 	return resolver.GetUserFollowedGames(ctx, userID)
@@ -56,12 +82,3 @@ func (r *queryResolver) GetUserFollowedGames(ctx context.Context, userID uuid.UU
 func (r *queryResolver) IsUserFollowingGame(ctx context.Context, userID uuid.UUID, gameID uuid.UUID) (bool, error) {
 	return resolver.IsUserFollowingGame(ctx, userID, gameID)
 }
-
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }

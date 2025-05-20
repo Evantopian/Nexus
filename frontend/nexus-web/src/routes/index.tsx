@@ -11,9 +11,9 @@ import AuthLayout from "@/layouts/AuthLayout";
 import DashboardLayout from "@/layouts/DashboardLayout";
 import AuthRedirect from "@/components/auth/AuthRedirect";
 import Profile from "@/components/profile/Profile";
-import ChatLayout from "@/layouts/ChatLayout";
-import ChatArea from "@/components/chats/ChatArea";
 import Lfg from "@/components/lfg/LFG";
+import Party from "@/components/party/Party";
+import ChatSystemWrapper from "@/components/chat-system/ChatSystem";
 
 const routes: RouteObject[] = [
   {
@@ -51,13 +51,8 @@ const routes: RouteObject[] = [
         ),
       },
       {
-        path: "events",
-        element: (
-          <WorkInProgress
-            title="Events Calendar"
-            message="The Events Calendar is coming soon. Stay tuned for tournaments, livestreams, and gaming events!"
-          />
-        ),
+        path: "party",
+        element: <Party />,
       },
       {
         path: "profile",
@@ -65,19 +60,8 @@ const routes: RouteObject[] = [
       },
       { path: "games/:gameName", element: <GameDetail /> },
       {
-        path: "chat",
-        element: <ChatLayout />,
-        children: [
-          { path: ":roomId/:channelId", element: <ChatArea /> },
-          {
-            index: true,
-            element: (
-              <div className="p-4 text-gray-400">
-                Select a room and a channel to start messaging.
-              </div>
-            ),
-          },
-        ],
+        path: "chat/*", 
+        element: <ChatSystemWrapper/>
       },
       {
         path: "*",
@@ -91,5 +75,6 @@ const routes: RouteObject[] = [
     ],
   },
 ];
+
 
 export default routes;

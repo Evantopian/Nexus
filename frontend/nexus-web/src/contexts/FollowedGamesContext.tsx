@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from "react";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "./AuthContext";
-import { GET_USER_FOLLOWED_GAMES } from "@/graphql/userQueries";
+import { GET_USER_FOLLOWED_GAMES } from "@/graphql/user/userQueries";
 
 type FollowedGamesContextType = {
   followedGames: any[];
@@ -21,10 +21,12 @@ export const FollowedGamesProvider = ({
   const { user } = useAuth();
   const { data, loading, error } = useQuery(GET_USER_FOLLOWED_GAMES, {
     variables: { userId: user?.uuid },
-    skip: !user?.uuid,
+    skip: !user?.uuid, // prevents early execution, runs when user is defined
   });
 
   const followedGames = data?.getUserFollowedGames ?? [];
+
+  // console.log("fetched followed games", followedGames);
 
   return (
     <FollowedGamesContext.Provider value={{ followedGames, loading, error }}>

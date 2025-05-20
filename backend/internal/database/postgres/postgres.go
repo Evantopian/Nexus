@@ -45,3 +45,11 @@ func ConnectPostgres() {
 	DB = pool
 	log.Println("Connected to PostgreSQL!")
 }
+
+// ClosePostgres gracefully closes the database connection pool
+func ClosePostgres() {
+	if DB != nil {
+		DB.Close()
+		log.Println("PostgreSQL connection pool closed.")
+	}
+}

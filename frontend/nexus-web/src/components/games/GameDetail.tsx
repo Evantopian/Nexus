@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 
-import { GET_GAME_QUERY } from "@/graphql/gameQueries";
+import { GET_GAME_QUERY } from "@/graphql/game/gameQueries";
 import { useFollowedGames } from "@/contexts/FollowedGamesContext";
 
 import GameBanner from "./common/GameBanner";
