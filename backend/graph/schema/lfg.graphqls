@@ -8,12 +8,14 @@ type LFGPost {
   author: User!
   requirements: [String!]!
   tags: [String!]!
+  conversationId: UUID
   createdAt: String!
   expiresAt: String!
 }
 
 extend type Query {
   getLFGPosts(slug: String!): [LFGPost]!
+  getLFG(postId: UUID!): LFGPost!
   getAllLFGPosts(limit: Int, offset: Int): [LFGPost]!
   getUserLFGPosts(limit: Int, offset: Int): [LFGPost]!
 }
@@ -36,6 +38,8 @@ extend type Mutation {
     tags: [String!]!
     expirationHour: Int
   ): LFGPost!
+
+  updateLFGConversationId(postId: UUID!, conversationId: UUID!): LFGPost!
 
   deleteLFGPost(postId: UUID!): Boolean!
 }

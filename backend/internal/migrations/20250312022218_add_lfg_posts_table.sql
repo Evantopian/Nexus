@@ -8,6 +8,7 @@ CREATE TABLE lfg_posts (
     author_id UUID NOT NULL REFERENCES users(uuid) ON DELETE CASCADE,
     requirements TEXT[], -- Array of custom requirements
     tags TEXT[], -- Array of custom tags
+    conversation_id UUID REFERENCES conversations(id) ON DELETE SET NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP
 );

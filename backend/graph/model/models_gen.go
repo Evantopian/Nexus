@@ -83,16 +83,17 @@ type GroupConversation struct {
 }
 
 type LFGPost struct {
-	ID           uuid.UUID `json:"id"`
-	GameID       uuid.UUID `json:"gameId"`
-	Title        string    `json:"title"`
-	Description  string    `json:"description"`
-	AuthorID     uuid.UUID `json:"authorId"`
-	Author       *User     `json:"author"`
-	Requirements []string  `json:"requirements"`
-	Tags         []string  `json:"tags"`
-	CreatedAt    string    `json:"createdAt"`
-	ExpiresAt    string    `json:"expiresAt"`
+	ID             uuid.UUID  `json:"id"`
+	GameID         uuid.UUID  `json:"gameId"`
+	Title          string     `json:"title"`
+	Description    string     `json:"description"`
+	AuthorID       uuid.UUID  `json:"authorId"`
+	Author         *User      `json:"author"`
+	Requirements   []string   `json:"requirements"`
+	Tags           []string   `json:"tags"`
+	ConversationID *uuid.UUID `json:"conversationId,omitempty"`
+	CreatedAt      string     `json:"createdAt"`
+	ExpiresAt      string     `json:"expiresAt"`
 }
 
 type Message struct {

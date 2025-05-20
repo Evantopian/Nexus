@@ -84,7 +84,6 @@ type Channel {
   categoryId: UUID
 }
 
-
 type DirectConversation {
   id: UUID!
   user: ChatUser!
@@ -115,14 +114,23 @@ extend type Query {
 # Mutations for chat interactions, server/channel management, role handling
 extend type Mutation {
   sendMessage(conversationId: UUID!, body: String!, replyToId: UUID): Message!
-  startConversation(participantIds: [UUID!]!): Conversation!
+  startConversation(participantIds: [UUID!]!, isGroup: Boolean): Conversation!
+  addParticipantToGroupConversation(
+    conversationId: UUID!
+    participantId: UUID!
+  ): GroupConversation!
 
   createServer(name: String!): Server!
   joinServer(serverId: UUID!): Boolean!
   leaveServer(serverId: UUID!): Boolean!
   deleteServer(serverId: UUID!): Boolean!
 
-  createChannel(serverId: UUID!, name: String!, type: ChannelType!, categoryId: UUID): Channel!
+  createChannel(
+    serverId: UUID!
+    name: String!
+    type: ChannelType!
+    categoryId: UUID
+  ): Channel!
   deleteChannel(channelId: UUID!): Boolean!
   leaveChannel(channelId: UUID!): Boolean!
 

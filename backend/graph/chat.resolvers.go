@@ -19,8 +19,13 @@ func (r *mutationResolver) SendMessage(ctx context.Context, conversationID uuid.
 }
 
 // StartConversation is the resolver for the startConversation field.
-func (r *mutationResolver) StartConversation(ctx context.Context, participantIds []uuid.UUID) (*model.Conversation, error) {
-	return chat.StartConversation(ctx, participantIds)
+func (r *mutationResolver) StartConversation(ctx context.Context, participantIds []uuid.UUID, isGroup *bool) (*model.Conversation, error) {
+	return chat.StartConversation(ctx, participantIds, isGroup)
+}
+
+// AddParticipantToGroupConversation is the resolver for the addParticipantToGroupConversation field.
+func (r *mutationResolver) AddParticipantToGroupConversation(ctx context.Context, conversationID uuid.UUID, participantID uuid.UUID) (*model.GroupConversation, error) {
+	return chat.AddParticipantToGroupConversation(ctx, conversationID, participantID)
 }
 
 // CreateServer is the resolver for the createServer field.
@@ -141,8 +146,6 @@ func (r *queryResolver) GetDirectConversations(ctx context.Context, limit *int32
 func (r *queryResolver) GetGroupConversations(ctx context.Context, limit *int32, after *time.Time) ([]*model.GroupConversation, error) {
 	return chat.GetGroupConversations(ctx, limit, after)
 }
-
-
 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }

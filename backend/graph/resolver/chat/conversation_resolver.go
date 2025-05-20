@@ -9,9 +9,10 @@ import (
 	"github.com/Evantopian/Nexus/internal/database/postgres"
 	contextkey "github.com/Evantopian/Nexus/internal/services"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
-func StartConversation(ctx context.Context, participantIDs []uuid.UUID) (*model.Conversation, error) {
+func StartConversation(ctx context.Context, participantIDs []uuid.UUID, isGroup *bool) (*model.Conversation, error) {
 	userUUIDStr, ok := ctx.Value(contextkey.UserUUIDKey).(string)
 	if !ok || userUUIDStr == "" {
 		return nil, fmt.Errorf("unauthorized: user ID missing")
@@ -35,14 +36,22 @@ func StartConversation(ctx context.Context, participantIDs []uuid.UUID) (*model.
 	}
 
 	conversationID := uuid.New()
-	isGroup := len(participantIDs) > 2
+
+	// Default isGroup: true if more than 2 participants
+	isGroupFlag := len(participantIDs) > 2
+
+	// Override if isGroup param is provided
+	if isGroup != nil {
+		isGroupFlag = *isGroup
+	}
+
 	tx, err := postgres.DB.Begin(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start transaction: %v", err)
 	}
 	defer tx.Rollback(ctx)
 
-	_, err = tx.Exec(ctx, `INSERT INTO conversations (id, is_group, created_at) VALUES ($1, $2, $3)`, conversationID, isGroup, time.Now().UTC())
+	_, err = tx.Exec(ctx, `INSERT INTO conversations (id, is_group, created_at) VALUES ($1, $2, $3)`, conversationID, isGroupFlag, time.Now().UTC())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create conversation: %v", err)
 	}
@@ -65,8 +74,100 @@ func StartConversation(ctx context.Context, participantIDs []uuid.UUID) (*model.
 
 	return &model.Conversation{
 		ID:           conversationID,
-		IsGroup:      isGroup,
+		IsGroup:      isGroupFlag,
 		Participants: participants,
+	}, nil
+}
+
+func AddParticipantToGroupConversation(ctx context.Context, groupID uuid.UUID, participantID uuid.UUID) (*model.GroupConversation, error) {
+	// Auth: get the user making the request
+	userUUIDStr, ok := ctx.Value(contextkey.UserUUIDKey).(string)
+	if !ok || userUUIDStr == "" {
+		return nil, fmt.Errorf("unauthorized: user ID missing")
+	}
+
+	// Ensure group conversation exists and is a group
+	var isGroup bool
+	err := postgres.DB.QueryRow(ctx, `SELECT is_group FROM conversations WHERE id = $1`, groupID).Scan(&isGroup)
+	if err != nil {
+		return nil, fmt.Errorf("conversation not found: %w", err)
+	}
+	if !isGroup {
+		return nil, fmt.Errorf("not a group conversation")
+	}
+
+	// Check if the user is already in the conversation
+	var exists bool
+	err = postgres.DB.QueryRow(ctx, `
+		SELECT EXISTS (
+			SELECT 1 FROM conversation_participants WHERE conversation_id = $1 AND user_id = $2
+		)
+	`, groupID, participantID).Scan(&exists)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check participant: %w", err)
+	}
+	if exists {
+		return nil, fmt.Errorf("user is already a participant")
+	}
+
+	// Add participant
+	_, err = postgres.DB.Exec(ctx, `
+		INSERT INTO conversation_participants (conversation_id, user_id)
+		VALUES ($1, $2)
+	`, groupID, participantID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to add participant: %w", err)
+	}
+
+	// Fetch updated participants
+	pRows, err := postgres.DB.Query(ctx, `
+		SELECT u.uuid, u.username
+		FROM users u
+		JOIN conversation_participants cp ON cp.user_id = u.uuid
+		WHERE cp.conversation_id = $1
+	`, groupID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch participants: %w", err)
+	}
+	defer pRows.Close()
+
+	var participants []*model.User
+	for pRows.Next() {
+		var u model.User
+		if err := pRows.Scan(&u.UUID, &u.Username); err != nil {
+			return nil, fmt.Errorf("scan error: %w", err)
+		}
+		participants = append(participants, &u)
+	}
+
+	// Set empty name since no 'name' column exists
+	name := ""
+
+	// Fetch last message info
+	var lastMessage string
+	var lastActive time.Time
+	err = postgres.DB.QueryRow(ctx, `
+		SELECT body, created_at
+		FROM messages
+		WHERE conversation_id = $1
+		ORDER BY created_at DESC
+		LIMIT 1
+	`, groupID).Scan(&lastMessage, &lastActive)
+
+	if err == pgx.ErrNoRows {
+		// No messages yet; set default empty values
+		lastMessage = ""
+		lastActive = time.Time{}
+	} else if err != nil {
+		return nil, fmt.Errorf("failed to fetch last message: %w", err)
+	}
+
+	return &model.GroupConversation{
+		ID:           groupID,
+		Name:         name,
+		Participants: participants,
+		LastMessage:  lastMessage,
+		LastActive:   lastActive,
 	}, nil
 }
 
@@ -102,7 +203,6 @@ func GetConversations(ctx context.Context) ([]*model.Conversation, error) {
 
 	return conversations, nil
 }
-
 
 func GetGroupConversations(ctx context.Context, limit *int32, after *time.Time) ([]*model.GroupConversation, error) {
 	userStr, ok := ctx.Value(contextkey.UserUUIDKey).(string)
