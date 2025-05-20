@@ -68,11 +68,13 @@ type UserRecommendation {
 extend type Query {
   profile: User! # Get the user's profile
   getUser(userId: UUID!): User!
+  getAllUsers(limit: Int!): [User!]!
   getRandomUsers: [User!]!
   getRecommendations(
     userId: UUID!
     numRecommendations: Int!
   ): [UserRecommendation!]!
+  getLeaderboard(limit: Int!): [User!]!
 
   searchUser(search: String!): [User!]!
 

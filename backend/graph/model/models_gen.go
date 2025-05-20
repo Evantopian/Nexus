@@ -45,10 +45,10 @@ type DirectConversation struct {
 }
 
 type FriendRequest struct {
-	Sender      uuid.UUID `json:"sender"`
-	Receiver    uuid.UUID `json:"receiver"`
-	Status      string    `json:"status"`
-	RequestedAt string    `json:"requestedAt"`
+	Sender      *User  `json:"sender"`
+	Receiver    *User  `json:"receiver"`
+	Status      string `json:"status"`
+	RequestedAt string `json:"requestedAt"`
 }
 
 type FriendRequestsList struct {
@@ -83,16 +83,17 @@ type GroupConversation struct {
 }
 
 type LFGPost struct {
-	ID           uuid.UUID `json:"id"`
-	GameID       uuid.UUID `json:"gameId"`
-	Title        string    `json:"title"`
-	Description  string    `json:"description"`
-	AuthorID     uuid.UUID `json:"authorId"`
-	Author       *User     `json:"author"`
-	Requirements []string  `json:"requirements"`
-	Tags         []string  `json:"tags"`
-	CreatedAt    string    `json:"createdAt"`
-	ExpiresAt    string    `json:"expiresAt"`
+	ID             uuid.UUID  `json:"id"`
+	GameID         uuid.UUID  `json:"gameId"`
+	Title          string     `json:"title"`
+	Description    string     `json:"description"`
+	AuthorID       uuid.UUID  `json:"authorId"`
+	Author         *User      `json:"author"`
+	Requirements   []string   `json:"requirements"`
+	Tags           []string   `json:"tags"`
+	ConversationID *uuid.UUID `json:"conversationId,omitempty"`
+	CreatedAt      string     `json:"createdAt"`
+	ExpiresAt      string     `json:"expiresAt"`
 }
 
 type Message struct {

@@ -2,10 +2,9 @@
 
 // components/ChatPanel.tsx
 import { useRef, useEffect, useState } from "react"
-import { ArrowDown, Search, Users, Settings, Bell, BellOff, Star } from "lucide-react"
+import { Search, Users, Settings, Bell, BellOff, Star, Hash, Volume2, Megaphone, Info } from "lucide-react"
 import { MessageList } from "./MessageList"
 import { MessageInput } from "./MessageInput"
-import { useChatContext } from "../contexts/chat-context"
 import { useParams } from "react-router-dom"
 import { MembersList } from "./MembersList"
 
@@ -18,30 +17,54 @@ interface ReplyingTo {
   }
 }
 
+interface ChatPanelProps {
+  messages: any[]
+  onSend: (text: string) => void
+  isConnected: boolean
+  currentUserId: string
+  channelName?: string
+  channelTopic?: string
+  isServerChannel?: boolean
+  isGroupChat?: boolean
+  participants?: any[]
+  conversation?: any
+  getConversationById?: (id: string) => any
+  setConversations?: (fn: (prev: any[]) => any[]) => void
+}
+
 export function ChatPanel({
   messages,
   onSend,
   isConnected,
   currentUserId,
-}: {
-  messages: any[]
-  onSend: (text: string) => void
-  isConnected: boolean
-  currentUserId: string
-}) {
+  channelName,
+  channelTopic,
+  isServerChannel = false,
+  isGroupChat = false,
+  participants,
+  conversation: propConversation,
+  getConversationById,
+  setConversations,
+}: ChatPanelProps) {
   const endRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [showScroll, setShowScroll] = useState(false)
-  const { conversationId } = useParams<{ conversationId: string }>()
-  const { getConversationById, setConversations } = useChatContext()
   const [showMembers, setShowMembers] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
+  const { conversationId } = useParams<{ conversationId: string }>()
 
-  // Get the conversation to display the other user's name in the header
-  const conversation = getConversationById(conversationId || "")
-  const otherUserName = conversation?.user?.username || "Chat"
-  const otherUserId = conversation?.user?.id || ""
+  // Use the conversation from props if provided, otherwise try to get it from the context
+  const conversation =
+    propConversation || (getConversationById && conversationId ? getConversationById(conversationId) : null)
+
+  const otherUserName = isServerChannel
+    ? channelName
+    : isGroupChat
+      ? channelName
+      : conversation?.user?.username || "Chat"
+
+  const otherUserId = isServerChannel || isGroupChat ? "" : conversation?.user?.id || ""
 
   // Check if conversation is muted or favorited
   useEffect(() => {
@@ -107,7 +130,7 @@ export function ChatPanel({
     }
 
     // Move this conversation to the top of the list
-    if (conversationId) {
+    if (conversationId && !isServerChannel && !isGroupChat && setConversations) {
       setConversations((prev: any[]) => {
         const activeIndex = prev.findIndex((conv: { id: string }) => conv.id === conversationId)
         if (activeIndex > 0) {
@@ -138,6 +161,29 @@ export function ChatPanel({
     return () => el.removeEventListener("scroll", onScroll)
   }, [])
 
+  // Get the appropriate icon for channel type
+  const getChannelIcon = () => {
+    if (!isServerChannel) return null
+
+    // This would come from the channel type in a real implementation
+    const channelType = channelName?.includes("voice")
+      ? "VOICE"
+      : channelName?.includes("announcement")
+        ? "ANNOUNCEMENT"
+        : "TEXT"
+
+    switch (channelType) {
+      case "TEXT":
+        return <Hash size={16} className="mr-2" />
+      case "VOICE":
+        return <Volume2 size={16} className="mr-2" />
+      case "ANNOUNCEMENT":
+        return <Megaphone size={16} className="mr-2" />
+      default:
+        return <Hash size={16} className="mr-2" />
+    }
+  }
+
   return (
     <div className="flex h-full">
       <style>{`
@@ -156,37 +202,50 @@ export function ChatPanel({
         <div className="border-b border-gray-200 dark:border-[#2a2d3e] bg-white dark:bg-[#1e2030] py-3 px-4 flex items-center justify-between">
           <div className="flex items-center">
             <h2 className="font-bold text-gray-800 dark:text-gray-200 flex items-center">
+              {getChannelIcon()}
               {otherUserName}
               {isMuted && <BellOff size={14} className="ml-2 text-gray-400" />}
               {isFavorite && <Star size={14} className="ml-2 text-yellow-500" fill="currentColor" />}
             </h2>
+            {channelTopic && (
+              <div className="ml-4 text-sm text-gray-500 dark:text-gray-400 hidden md:block">{channelTopic}</div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <button className="w-8 h-8 rounded-md bg-gray-100 dark:bg-[#2a2d3e] flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#3f4259] transition-colors duration-200">
               <Search size={16} />
             </button>
-            <button
-              className={`w-8 h-8 rounded-md ${
-                isFavorite
-                  ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
-                  : "bg-gray-100 dark:bg-[#2a2d3e] text-gray-500 dark:text-gray-400"
-              } flex items-center justify-center hover:bg-gray-200 dark:hover:bg-[#3f4259] transition-colors duration-200`}
-              onClick={toggleFavorite}
-              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-            >
-              <Star size={16} className={isFavorite ? "fill-current" : ""} />
-            </button>
-            <button
-              className={`w-8 h-8 rounded-md ${
-                isMuted
-                  ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
-                  : "bg-gray-100 dark:bg-[#2a2d3e] text-gray-500 dark:text-gray-400"
-              } flex items-center justify-center hover:bg-gray-200 dark:hover:bg-[#3f4259] transition-colors duration-200`}
-              onClick={toggleMuted}
-              aria-label={isMuted ? "Unmute conversation" : "Mute conversation"}
-            >
-              {isMuted ? <BellOff size={16} /> : <Bell size={16} />}
-            </button>
+            {!isServerChannel && !isGroupChat && (
+              <>
+                <button
+                  className={`w-8 h-8 rounded-md ${
+                    isFavorite
+                      ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
+                      : "bg-gray-100 dark:bg-[#2a2d3e] text-gray-500 dark:text-gray-400"
+                  } flex items-center justify-center hover:bg-gray-200 dark:hover:bg-[#3f4259] transition-colors duration-200`}
+                  onClick={toggleFavorite}
+                  aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                >
+                  <Star size={16} className={isFavorite ? "fill-current" : ""} />
+                </button>
+                <button
+                  className={`w-8 h-8 rounded-md ${
+                    isMuted
+                      ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+                      : "bg-gray-100 dark:bg-[#2a2d3e] text-gray-500 dark:text-gray-400"
+                  } flex items-center justify-center hover:bg-gray-200 dark:hover:bg-[#3f4259] transition-colors duration-200`}
+                  onClick={toggleMuted}
+                  aria-label={isMuted ? "Unmute conversation" : "Mute conversation"}
+                >
+                  {isMuted ? <BellOff size={16} /> : <Bell size={16} />}
+                </button>
+              </>
+            )}
+            {isServerChannel && (
+              <button className="w-8 h-8 rounded-md bg-gray-100 dark:bg-[#2a2d3e] flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-[#3f4259] transition-colors duration-200">
+                <Info size={16} />
+              </button>
+            )}
             <button
               className={`w-8 h-8 rounded-md ${
                 showMembers
@@ -232,13 +291,19 @@ export function ChatPanel({
           )}
         </div>
 
-
         {/* Input */}
         <MessageInput onSend={handleSendMessage} disabled={!isConnected} />
       </div>
 
       {/* Members list - right side */}
-      {showMembers && <MembersList conversation={conversation} />}
+      {showMembers && (
+        <MembersList
+          conversation={conversation}
+          isServerChannel={isServerChannel}
+          isGroupChat={isGroupChat}
+          participants={participants}
+        />
+      )}
     </div>
   )
 }

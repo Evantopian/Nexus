@@ -41,6 +41,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Fetch user profile on mount using Apollo Client
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setUser(null); // No token, so no user
+      setLoading(false);
+      return; // Stop here, don't try query
+    }
+
     client
       .query<{ profile: User }>({ query: PROFILE_QUERY })
       .then((res) => {

@@ -36,6 +36,11 @@ func (r *mutationResolver) UpdateLFGPost(ctx context.Context, postID uuid.UUID, 
 	return resolver.UpdateLFGPost(ctx, postID, title, description, requirements, tags, expire)
 }
 
+// UpdateLFGConversationID is the resolver for the updateLFGConversationId field.
+func (r *mutationResolver) UpdateLFGConversationID(ctx context.Context, postID uuid.UUID, conversationID uuid.UUID) (*model.LFGPost, error) {
+	return resolver.UpdateLFGConversationId(ctx, postID, conversationID)
+}
+
 // DeleteLFGPost is the resolver for the deleteLFGPost field.
 func (r *mutationResolver) DeleteLFGPost(ctx context.Context, postID uuid.UUID) (bool, error) {
 	return resolver.DeleteLFGPost(ctx, postID)
@@ -44,6 +49,11 @@ func (r *mutationResolver) DeleteLFGPost(ctx context.Context, postID uuid.UUID) 
 // GetLFGPosts is the resolver for the getLFGPosts field.
 func (r *queryResolver) GetLFGPosts(ctx context.Context, slug string) ([]*model.LFGPost, error) {
 	return resolver.GetLFGPosts(ctx, slug)
+}
+
+// GetLfg is the resolver for the getLFG field.
+func (r *queryResolver) GetLfg(ctx context.Context, postID uuid.UUID) (*model.LFGPost, error) {
+	return resolver.GetLFG(ctx, postID)
 }
 
 // GetAllLFGPosts is the resolver for the getAllLFGPosts field.

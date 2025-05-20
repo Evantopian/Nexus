@@ -57,7 +57,7 @@ const PlayerRecommendation = ({
   }
 
   return (
-    <div className="flex flex-col items-center w-full md:w-[60%] gap-6">
+    <div className="flex flex-col items-center w-full md:w-3/4 mx-auto gap-6">
       {/* Title */}
       <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
         Recommended Players

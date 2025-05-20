@@ -1,8 +1,20 @@
+import { useNavigate } from "react-router-dom";
+import { useLazyQuery, useMutation } from "@apollo/client";
+import {
+  ADD_PARTICIPANT_TO_GROUP_CONVERSATION,
+  START_CONVERSATION_LFG,
+} from "@/graphql/chat/dm.graphql";
+import { useAuth } from "@/contexts/AuthContext";
+import { UPDATE_LFG_CONVERSATION } from "@/graphql/lfg/lfgMutations";
+import { GET_LFG } from "@/graphql/lfg/lfgQueries";
+
 interface LFGPostProps {
   id: string;
   title: string;
   description: string;
   tags: string[];
+  authorId: string;
+  conversationId?: string | null;
   author: {
     username: string;
     profileImg: string;
@@ -14,6 +26,77 @@ interface AllLFGPostsProps {
 }
 
 const AllLFGPosts = ({ posts }: AllLFGPostsProps) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [startConversation] = useMutation(START_CONVERSATION_LFG);
+  const [addParticipant] = useMutation(ADD_PARTICIPANT_TO_GROUP_CONVERSATION);
+  const [updateLFGConversation] = useMutation(UPDATE_LFG_CONVERSATION);
+  const [getLFGPost] = useLazyQuery(GET_LFG);
+
+  const handleJoinChat = async (post: LFGPostProps) => {
+    if (!user?.uuid) return;
+
+    try {
+      // Fetch latest post including conversationId
+      const { data: postData } = await getLFGPost({
+        variables: { postId: post.id },
+      });
+
+      if (!postData?.getLFG) {
+        throw new Error("Post not found");
+      }
+
+      const conversationId = postData.getLFG.conversationId;
+
+      if (!conversationId) {
+        // No conversation exists — create one
+        const { data: startData } = await startConversation({
+          variables: {
+            participantIds: [user.uuid, post.authorId],
+            isGroup: true,
+          },
+        });
+
+        const newId = startData?.startConversation?.id;
+        if (!newId) throw new Error("Failed to start conversation");
+
+        await updateLFGConversation({
+          variables: {
+            postId: post.id,
+            conversationId: newId,
+          },
+        });
+
+        return navigate(`/chat/groups/${newId}`);
+      }
+
+      // Conversation exists — try to add participant
+      try {
+        await addParticipant({
+          variables: {
+            conversationId,
+            participantId: user.uuid,
+          },
+        });
+      } catch (err: any) {
+        if (
+          err.message.includes("user is already a participant") ||
+          err.message.includes("already a participant")
+        ) {
+          // ignore these errors
+        } else if (err.message.includes("the requested element is null")) {
+          // ignore this schema null error temporarily
+        } else {
+          throw err; // rethrow unexpected errors
+        }
+      }
+
+      navigate(`/chat/groups/${conversationId}`);
+    } catch (error) {
+      console.error("Error joining chat:", error);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -54,6 +137,12 @@ const AllLFGPosts = ({ posts }: AllLFGPostsProps) => {
                   {post.author.username}
                 </span>
               </div>
+              <button
+                onClick={() => handleJoinChat(post)}
+                className="mt-4 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Join Group Chat
+              </button>
             </div>
           ))
         ) : (

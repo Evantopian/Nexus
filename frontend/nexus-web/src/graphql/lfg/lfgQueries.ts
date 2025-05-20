@@ -1,5 +1,21 @@
 import { gql } from "@apollo/client";
 
+export const GET_LFG = gql`
+  query GetLFG($postId: UUID!) {
+    getLFG(postId: $postId) {
+      id
+      title
+      description
+      authorId
+      requirements
+      tags
+      conversationId
+      createdAt
+      expiresAt
+    }
+  }
+`;
+
 export const GET_LFG_POSTS_BY_SLUG = gql`
   query getLFGPosts($slug: String!) {
     getLFGPosts(slug: $slug) {
@@ -36,6 +52,7 @@ export const GET_ALL_LFG_POSTS = gql`
       }
       requirements
       tags
+      conversationId
       createdAt
       expiresAt
     }

@@ -5,6 +5,7 @@ import Sidebar from "./SideBar";
 import { GET_ALL_LFG_POSTS } from "@/graphql/lfg/lfgQueries";
 import { useRecommendedPlayers } from "@/hooks/useRecommendedPlayers";
 import { useAuth } from "@/contexts/AuthContext";
+import { GET_LEADERBOARD } from "@/graphql/user/userQueries";
 
 // temporary data, waiting for backend APIs to be built, then we will fetch.
 const Dashboard = () => {
@@ -62,30 +63,13 @@ const Dashboard = () => {
     },
   ];
 
-  // Leaderboard data
-  const leaderboardData = [
-    {
-      id: 1,
-      rank: 1,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=top1",
-      username: "TopPlayer1",
-      points: 1000,
-    },
-    {
-      id: 2,
-      rank: 2,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=top2",
-      username: "TopPlayer2",
-      points: 2000,
-    },
-    {
-      id: 3,
-      rank: 3,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=top3",
-      username: "TopPlayer3",
-      points: 3000,
-    },
-  ];
+  const { data: leaderboardData } = useQuery(GET_LEADERBOARD, {
+    variables: { limit: 5 },
+  });
+
+  // console.log("Leaderboard data", leaderboardData?.getLeaderboard);
+
+  const leaderboardUsers = leaderboardData?.getLeaderboard;
 
   // Tournament data
   const tournamentData = [
@@ -129,7 +113,7 @@ const Dashboard = () => {
 
           {/* Sidebar */}
           <Sidebar
-            leaderboardData={leaderboardData}
+            leaderboardData={leaderboardUsers}
             tournamentData={tournamentData}
             lfgPostData={lfgPostData}
           />

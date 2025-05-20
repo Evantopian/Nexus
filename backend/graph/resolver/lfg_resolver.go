@@ -114,6 +114,38 @@ func UpdateLFGPost(
 	return &updatedPost, nil
 }
 
+// UpdateLFGConversationId updates a post's conversation/group id
+func UpdateLFGConversationId(ctx context.Context, postID uuid.UUID, conversationID uuid.UUID) (*model.LFGPost, error) {
+	// Only check that the post exists — not who is making the request
+	var existingID uuid.UUID
+	err := postgres.DB.QueryRow(ctx, `SELECT conversation_id FROM lfg_posts WHERE id=$1`, postID).Scan(&existingID)
+	if err != nil {
+		return nil, fmt.Errorf("post not found")
+	}
+	if existingID != uuid.Nil {
+		return nil, fmt.Errorf("conversation already exists for this post")
+	}
+
+	_, err = postgres.DB.Exec(ctx, `UPDATE lfg_posts SET conversation_id=$1 WHERE id=$2`, conversationID, postID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update conversation_id: %v", err)
+	}
+
+	var updated model.LFGPost
+	err = postgres.DB.QueryRow(ctx, `
+		SELECT id, game_id, title, description, author_id, requirements, tags, created_at::TEXT, expires_at::TEXT, conversation_id
+		FROM lfg_posts WHERE id=$1
+	`, postID).Scan(
+		&updated.ID, &updated.GameID, &updated.Title, &updated.Description, &updated.AuthorID,
+		&updated.Requirements, &updated.Tags, &updated.CreatedAt, &updated.ExpiresAt, &updated.ConversationID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to return updated post: %v", err)
+	}
+
+	return &updated, nil
+}
+
 // DeleteLFGPost deletes a LFGPost based on uuid
 func DeleteLFGPost(ctx context.Context, postID uuid.UUID) (bool, error) {
 	uuid, exists := ctx.Value(contextkey.UserUUIDKey).(string)
@@ -139,6 +171,35 @@ func DeleteLFGPost(ctx context.Context, postID uuid.UUID) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// GetLFG fetches a single LFG post by ID
+func GetLFG(ctx context.Context, postID uuid.UUID) (*model.LFGPost, error) {
+	var post model.LFGPost
+
+	query := `
+		SELECT id, game_id, title, description, author_id, requirements, tags, conversation_id, created_at::TEXT, expires_at::TEXT
+		FROM lfg_posts
+		WHERE id=$1
+	`
+
+	err := postgres.DB.QueryRow(ctx, query, postID).Scan(
+		&post.ID,
+		&post.GameID,
+		&post.Title,
+		&post.Description,
+		&post.AuthorID,
+		&post.Requirements,
+		&post.Tags,
+		&post.ConversationID,
+		&post.CreatedAt,
+		&post.ExpiresAt,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving LFG post: %v", err)
+	}
+
+	return &post, nil
 }
 
 // GetLFGPosts gets all LFGPosts for a game based on the slug, including author information

@@ -7,6 +7,7 @@ export const UPDATE_USER = gql`
     $profileMessage: String
     $rank: String
     $age: Int
+    $status: String
   ) {
     updateUser(
       username: $username
@@ -14,6 +15,7 @@ export const UPDATE_USER = gql`
       profileMessage: $profileMessage
       rank: $rank
       age: $age
+      status: $status
     ) {
       uuid
       email
@@ -21,6 +23,7 @@ export const UPDATE_USER = gql`
       profileMessage
       rank
       age
+      status
     }
   }
 `;

@@ -5,13 +5,17 @@ type Invite = {
   inviter?: { uuid: string; username: string; profileImg?: string };
 };
 
-type Props = {
+type PartyInvitesProps = {
   sentInvites: Invite[];
   receivedInvites: Invite[];
   onRespond: (inviteId: string, accept: boolean) => void;
 };
 
-const PartyInvites = ({ sentInvites, receivedInvites, onRespond }: Props) => {
+const PartyInvites = ({
+  sentInvites,
+  receivedInvites,
+  onRespond,
+}: PartyInvitesProps) => {
   return (
     <div className="w-full mb-4">
       {/* Received Invites */}

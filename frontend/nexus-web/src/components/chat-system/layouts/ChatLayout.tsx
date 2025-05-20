@@ -1,14 +1,19 @@
 "use client"
 
-import { Outlet } from "react-router-dom"
-import DirectMessageSidebar from "@/components/chat-system/components/DirectMessageSidebar"
+import { Outlet, useLocation } from "react-router-dom"
 import { useState, useEffect } from "react"
+import DirectMessageSidebar from "@/components/chat-system/components/DirectMessageSidebar"
+import GroupConversationSidebar from "@/components/chat-system/components/GroupConversationSidebar"
 import { MobileMenuButton } from "../ui/mobile-menu-button"
 import { ChatProvider } from "../contexts/chat-context"
 
 export default function ChatLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const location = useLocation()
+
+  // Determine which sidebar to show
+  const isGroupView = location.pathname.startsWith("/chat/groups")
 
   useEffect(() => {
     const checkMobile = () => {
@@ -44,7 +49,7 @@ export default function ChatLayout() {
           <div className="fixed inset-0 bg-black/30 dark:bg-black/50 z-20 md:hidden" aria-hidden="true" />
         )}
 
-        {/* Sidebar - responsive */}
+        {/* Sidebar */}
         <aside
           id="sidebar"
           className={`${
@@ -54,12 +59,12 @@ export default function ChatLayout() {
           } h-full flex-shrink-0 border-r border-gray-200 dark:border-[#2a2d3e] bg-white dark:bg-[#1e2030]`}
           aria-label="Sidebar navigation"
         >
-          <DirectMessageSidebar />
+          {isGroupView ? <GroupConversationSidebar /> : <DirectMessageSidebar />}
         </aside>
 
-        {/* Main content area */}
+        {/* Main content */}
         <main className="flex-1 flex flex-col overflow-hidden relative">
-          {/* Mobile menu button */}
+          {/* Mobile menu toggle */}
           <div className="absolute top-3 left-3 z-10 md:hidden">
             <MobileMenuButton onClick={() => setSidebarOpen(!sidebarOpen)} isOpen={sidebarOpen} />
           </div>

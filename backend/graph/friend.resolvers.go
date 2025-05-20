@@ -27,6 +27,11 @@ func (r *mutationResolver) RejectFriendRequest(ctx context.Context, senderID uui
 	return resolver.RejectFriendRequest(ctx, senderID)
 }
 
+// CancelFriendRequest is the resolver for the cancelFriendRequest field.
+func (r *mutationResolver) CancelFriendRequest(ctx context.Context, receiverID uuid.UUID) (bool, error) {
+	return resolver.CancelFriendRequest(ctx, receiverID)
+}
+
 // RemoveFriend is the resolver for the removeFriend field.
 func (r *mutationResolver) RemoveFriend(ctx context.Context, friendID uuid.UUID) (bool, error) {
 	return resolver.RemoveFriend(ctx, friendID)
