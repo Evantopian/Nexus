@@ -66,11 +66,6 @@ func (r *queryResolver) GetRandomUsers(ctx context.Context) ([]*model.User, erro
 
 // GetRecommendations is the resolver for the getRecommendations field.
 func (r *queryResolver) GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendations int32) ([]*model.UserRecommendation, error) {
-	panic(fmt.Errorf("not implemented: GetRecommendations - getRecommendations"))
-}
-
-// GetRecommendations is the resolver for the getRecommendations field.
-func (r *queryResolver) GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendations int32) ([]*model.UserRecommendation, error) {
 	return resolver.GetRecommendations(ctx, userID, int(numRecommendations))
 }
 

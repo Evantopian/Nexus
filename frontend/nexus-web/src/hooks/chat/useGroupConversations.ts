@@ -1,43 +1,22 @@
-import { useQuery } from '@apollo/client';
+import { useQuery } from "@apollo/client"
 import { GET_GROUP_CONVERSATIONS } from "@/graphql/chat/dm.graphql"
 
-type ChatUser = {
-  id: string;
-  username: string;
-};
+export function useGroupConversations(limit = 20) {
+  const { data, loading, error } = useQuery(GET_GROUP_CONVERSATIONS, {
+    variables: { limit },
+    fetchPolicy: "cache-and-network"
+  })
 
-type Message = {
-  id: string;
-  body: string;
-  timestamp: string;
-  sender: ChatUser;
-};
+  const groups = (data?.getGroupConversations ?? []).map((group: any) => ({
+    id: group.id,
+    name: group.name || group.participants.map((p: any) => p.username).join(", "),
+    participants: group.participants.map((p: any) => ({
+      id: p.uuid,
+      username: p.username
+    })),
+    lastMessage: group.lastMessage || "",
+    lastActive: group.lastActive || new Date().toISOString()
+  }))
 
-type GroupConversation = {
-  id: string;
-  name: string;
-  participants: ChatUser[];
-  lastMessage: string;
-  lastActive: string;
-};
-
-export function useGroupConversations() {
-  const { data, loading, error } = useQuery(GET_GROUP_CONVERSATIONS);
-
-  const groups: GroupConversation[] = (data?.conversations ?? [])
-    .filter((conv: any) => conv.isGroup)
-    .map((group: any) => {
-      const lastMessage: Message | undefined =
-        group.messages?.[group.messages.length - 1];
-
-      return {
-        id: group.id,
-        name: group.participants.map((p: ChatUser) => p.username).join(', '),
-        participants: group.participants,
-        lastMessage: lastMessage?.body ?? '',
-        lastActive: lastMessage?.timestamp ?? '',
-      };
-    });
-
-  return { groups, loading, error };
+  return { groups, loading, error }
 }

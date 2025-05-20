@@ -1,7 +1,6 @@
 "use client"
 
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import {
   Search,
@@ -14,17 +13,14 @@ import {
 } from "lucide-react"
 
 import { FindGroupsOverlay } from "../components/FindGroups"
-
-import { mockGroupConversations, type GroupConversation } from "../mock/groups-data"
-
-
+import { useGroupConversations } from "@/hooks/chat/useGroupConversations"
 
 export default function GroupConversationSidebar() {
   const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
+  const { groups = [], loading } = useGroupConversations()
 
   const [searchTerm, setSearchTerm] = useState("")
-  const [groups, setGroups] = useState<GroupConversation[]>([])
   const [hoveredGroup, setHoveredGroup] = useState<string | null>(null)
   const [contextMenu, setContextMenu] = useState({
     visible: false,
@@ -35,31 +31,16 @@ export default function GroupConversationSidebar() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    setGroups(mockGroupConversations)
-  }, [])
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setContextMenu({ ...contextMenu, visible: false })
-      }
-    }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [contextMenu])
+  const filteredGroups = searchTerm
+    ? groups.filter((g: { name: string }) =>
+        g.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : groups
 
   const handleContextMenu = (e: React.MouseEvent, id: string) => {
     e.preventDefault()
     setContextMenu({ visible: true, x: e.clientX, y: e.clientY, groupId: id })
   }
-
-  const filteredGroups = searchTerm
-    ? groups.filter((g) => g.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    : groups
-
-  const pinnedGroups = filteredGroups.filter((g) => g)
-  const otherGroups = filteredGroups.filter((g) =>  g)
 
   return (
     <div className="w-full h-full flex flex-col bg-white dark:bg-[#1e2030] text-gray-800 dark:text-gray-200">
@@ -79,12 +60,10 @@ export default function GroupConversationSidebar() {
           onClick={() => setShowCreateModal(true)}
           className="mt-2 w-full text-left text-sm text-indigo-600 dark:text-indigo-400 hover:underline px-4 py-1"
         >
-          + New Groups
+          + New Group
         </button>
 
         {showCreateModal && <FindGroupsOverlay onClose={() => setShowCreateModal(false)} />}
-
-
       </div>
 
       {/* Header */}
@@ -102,27 +81,29 @@ export default function GroupConversationSidebar() {
 
       {/* Groups List */}
       <div className="flex-1 overflow-y-auto px-2 space-y-4">
-        {[{ label: "Pinned", list: pinnedGroups }, { label: "Groups", list: otherGroups }]
-          .filter((section) => section.list.length)
-          .map((section) => (
-            <div key={section.label}>
-              <h3 className="px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400">{section.label}</h3>
-              <div className="space-y-1">
-                {section.list.map((group) => (
-                  <GroupItem
-                    key={group.id}
-                    group={group}
-                    isActive={groupId === group.id}
-                    onClick={() => navigate(`/chat/groups/${group.id}`)}
-                    onContextMenu={handleContextMenu}
-                    onMouseEnter={() => setHoveredGroup(group.id)}
-                    onMouseLeave={() => setHoveredGroup(null)}
-                    showActions={hoveredGroup === group.id}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
+        <div>
+          <h3 className="px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400">Groups</h3>
+          <div className="space-y-1">
+            {filteredGroups.map((group: { id: any; name?: string; lastMessage?: string; lastActive?: string; participants?: { id: string; username: string }[] }) => (
+              <GroupItem
+                key={group.id}
+                group={{
+                  id: String(group.id),
+                  name: group.name ?? "Unnamed Group",
+                  lastMessage: group.lastMessage ?? "",
+                  lastActive: group.lastActive ?? new Date().toISOString(),
+                  participants: group.participants ?? [],
+                }}
+                isActive={groupId === group.id}
+                onClick={() => navigate(`/chat/groups/${group.id}`)}
+                onContextMenu={handleContextMenu}
+                onMouseEnter={() => setHoveredGroup(group.id)}
+                onMouseLeave={() => setHoveredGroup(null)}
+                showActions={hoveredGroup === group.id}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Context menu */}
@@ -167,7 +148,13 @@ function GroupItem({
   onMouseLeave,
   showActions,
 }: {
-  group: GroupConversation
+  group: {
+    id: string
+    name: string
+    lastMessage: string
+    lastActive: string
+    participants: { id: string; username: string }[]
+  }
   isActive: boolean
   onClick: () => void
   onContextMenu: (e: React.MouseEvent, id: string) => void
@@ -175,8 +162,8 @@ function GroupItem({
   onMouseLeave: () => void
   showActions: boolean
 }) {
-  const formatTime = (date: Date) => {
-    const diff = Date.now() - new Date(date).getTime()
+  const formatTime = (timestamp: string) => {
+    const diff = Date.now() - new Date(timestamp).getTime()
     if (diff < 60000) return "Now"
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m`
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`

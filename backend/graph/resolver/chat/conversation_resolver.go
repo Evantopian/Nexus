@@ -102,3 +102,95 @@ func GetConversations(ctx context.Context) ([]*model.Conversation, error) {
 
 	return conversations, nil
 }
+
+
+func GetGroupConversations(ctx context.Context, limit *int32, after *time.Time) ([]*model.GroupConversation, error) {
+	userStr, ok := ctx.Value(contextkey.UserUUIDKey).(string)
+	if !ok || userStr == "" {
+		return nil, fmt.Errorf("unauthorized: user ID missing")
+	}
+	userID, err := uuid.Parse(userStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user UUID: %v", err)
+	}
+
+	query := `
+		SELECT
+			c.id,
+			COALESCE(m.body, '') AS last_message,
+			COALESCE(m.created_at, c.created_at) AS last_active
+		FROM conversations c
+		JOIN conversation_participants cp ON cp.conversation_id = c.id
+		LEFT JOIN LATERAL (
+			SELECT body, created_at
+			FROM messages
+			WHERE conversation_id = c.id
+			ORDER BY created_at DESC
+			LIMIT 1
+		) m ON true
+		WHERE c.is_group = true AND cp.user_id = $1
+	`
+	args := []interface{}{userID}
+	argIndex := 2
+
+	if after != nil {
+		query += fmt.Sprintf(" AND COALESCE(m.created_at, c.created_at) < $%d", argIndex)
+		args = append(args, *after)
+		argIndex++
+	}
+
+	query += " ORDER BY last_active DESC"
+	if limit != nil {
+		query += fmt.Sprintf(" LIMIT %d", *limit)
+	}
+
+	rows, err := postgres.DB.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch group conversations: %w", err)
+	}
+	defer rows.Close()
+
+	var groups []*model.GroupConversation
+
+	for rows.Next() {
+		var convID uuid.UUID
+		var lastMsg string
+		var lastActive time.Time
+
+		if err := rows.Scan(&convID, &lastMsg, &lastActive); err != nil {
+			return nil, err
+		}
+
+		// Fetch participants
+		pRows, err := postgres.DB.Query(ctx, `
+			SELECT u.uuid, u.username
+			FROM users u
+			JOIN conversation_participants cp ON cp.user_id = u.uuid
+			WHERE cp.conversation_id = $1
+		`, convID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch participants: %w", err)
+		}
+
+		var participants []*model.User
+		for pRows.Next() {
+			var u model.User
+			if err := pRows.Scan(&u.UUID, &u.Username); err != nil {
+				pRows.Close()
+				return nil, err
+			}
+			participants = append(participants, &u)
+		}
+		pRows.Close()
+
+		groups = append(groups, &model.GroupConversation{
+			ID:           convID,
+			Name:         "", // You can enhance this later
+			Participants: participants,
+			LastMessage:  lastMsg,
+			LastActive:   lastActive,
+		})
+	}
+
+	return groups, nil
+}
