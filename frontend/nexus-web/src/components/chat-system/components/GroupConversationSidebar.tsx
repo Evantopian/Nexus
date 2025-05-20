@@ -11,8 +11,6 @@ import {
   UserPlus,
   Hash,
   Bell,
-  Crown,
-  Shield,
 } from "lucide-react"
 
 import { FindGroupsOverlay } from "../components/FindGroups"
@@ -160,7 +158,6 @@ export default function GroupConversationSidebar() {
   )
 }
 
-// 🔹 GroupItem component
 function GroupItem({
   group,
   isActive,

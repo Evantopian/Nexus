@@ -71,3 +71,25 @@ export const START_CONVERSATION = gql`
     }
   }
 `
+
+export const GET_GROUP_CONVERSATIONS = gql`
+  query GetGroupConversations {
+    conversations {
+      id
+      isGroup
+      participants {
+        id
+        username
+      }
+      messages {
+        id
+        body
+        timestamp
+        sender {
+          id
+          username
+        }
+      }
+    }
+  }
+`;

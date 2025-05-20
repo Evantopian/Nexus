@@ -1,7 +1,12 @@
+// Improved FindGroupsOverlay with correct multi-user selection
+
 "use client"
 
+import { useLazyQuery, useMutation } from "@apollo/client"
 import { useState } from "react"
-import { Search, X, UserPlus, Users } from "lucide-react"
+import { Search, X, UserPlus, Users, Trash } from "lucide-react"
+import { SEARCH_USER, START_CONVERSATION } from "@/graphql/chat/dm.graphql"
+import { useNavigate } from "react-router-dom";
 
 interface FindGroupsOverlayProps {
   onClose: () => void
@@ -9,16 +14,44 @@ interface FindGroupsOverlayProps {
 
 export function FindGroupsOverlay({ onClose }: FindGroupsOverlayProps) {
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedUsers, setSelectedUsers] = useState<Record<string, any>>({})
+  const [runSearch, { data: searchData }] = useLazyQuery(SEARCH_USER, {
+    fetchPolicy: "no-cache"
+  })
+  const navigate = useNavigate();
 
-  const mockGroups = [
-    { id: "g1", name: "Gaming Legends", members: 12 },
-    { id: "g2", name: "Study Warriors", members: 5 },
-    { id: "g3", name: "React Masters", members: 18 },
-  ]
+  const [startConversation] = useMutation(START_CONVERSATION)
 
-  const filteredGroups = searchTerm.length < 2
-    ? []
-    : mockGroups.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const handleToggleUser = (user: any) => {
+    setSelectedUsers((prev) => {
+      const newUsers = { ...prev }
+      if (newUsers[user.uuid]) {
+        delete newUsers[user.uuid]
+      } else {
+        newUsers[user.uuid] = user
+      }
+      return newUsers
+    })
+  }
+
+  const handleCreateGroup = async () => {
+    try {
+      const ids = Object.keys(selectedUsers)
+      if (ids.length < 1) return
+      const { data } = await startConversation({
+        variables: { participantIds: ids }
+      })
+      const newConvId = data?.startConversation?.id
+      if (newConvId) {
+        navigate(`/chat/groups/${newConvId}`);
+        console.log("Group created successfully:", newConvId)
+      }
+    } catch (err) {
+      console.error("Failed to create group:", err)
+    }
+  }
+
+  const selectedList = Object.values(selectedUsers)
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-black/30 dark:bg-black/50">
@@ -30,62 +63,79 @@ export function FindGroupsOverlay({ onClose }: FindGroupsOverlayProps) {
             autoFocus
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search public groups..."
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              if (e.target.value.length >= 2) {
+                runSearch({ variables: { search: e.target.value } })
+              }
+            }}
+            placeholder="Search users to add..."
             className="w-full px-3 py-2 rounded-md focus:outline-none bg-white/20 text-white placeholder-white/70 focus:bg-white/30"
-            aria-label="Search groups"
+            aria-label="Search users"
           />
           <button
             onClick={onClose}
             className="ml-2 p-1.5 rounded-md text-white/80 hover:text-white hover:bg-white/20 focus:outline-none"
-            aria-label="Close group search"
+            aria-label="Close"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="max-h-[60vh] overflow-y-auto">
-          {searchTerm.length < 2 ? (
-            <div className="p-6 text-center">
-              <p className="text-gray-700 dark:text-gray-300 mb-2 font-bold">Type at least 2 characters to search</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Search for public or open groups to join</p>
-            </div>
-          ) : filteredGroups.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 px-4">
-              <div className="w-16 h-16 rounded-md bg-gray-200 dark:bg-[#2a2d3e] flex items-center justify-center mb-4">
-                <Users size={24} className="text-gray-500 dark:text-gray-400" />
+        <div className="max-h-[60vh] overflow-y-auto divide-y divide-gray-200 dark:divide-[#2a2d3e]">
+          {/* Selected Users */}
+          {selectedList.length > 0 && (
+            <div className="p-4 bg-gray-50 dark:bg-[#2a2d3e]">
+              <div className="flex flex-wrap gap-2">
+                {selectedList.map((u) => (
+                  <div key={u.uuid} className="flex items-center bg-indigo-100 text-indigo-800 dark:bg-[#5b4dd1]/20 dark:text-white px-3 py-1 rounded-md text-sm">
+                    {u.username}
+                    <button
+                      onClick={() => handleToggleUser(u)}
+                      className="ml-2 text-indigo-500 dark:text-indigo-300 hover:text-red-600"
+                    >
+                      <Trash size={14} />
+                    </button>
+                  </div>
+                ))}
               </div>
-              <p className="text-center text-gray-700 dark:text-gray-300 mb-1 font-bold">No groups found</p>
-              <p className="text-sm text-center text-gray-500 dark:text-gray-400">Try a different keyword</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-200 dark:divide-[#2a2d3e]">
-              {filteredGroups.map(group => (
-                <button
-                  key={group.id}
-                  className="w-full px-4 py-3 flex items-center hover:bg-gray-100 dark:hover:bg-[#2a2d3e] transition-colors"
-                >
-                  <div className="w-10 h-10 rounded-md bg-indigo-500 dark:bg-[#6c5ce7] text-white flex items-center justify-center mr-4">
-                    {group.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="font-bold text-gray-800 dark:text-gray-200">{group.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{group.members} members</div>
-                  </div>
-                  <UserPlus size={18} className="text-gray-400 dark:text-gray-500" />
-                </button>
-              ))}
             </div>
           )}
 
-          {/* Action Row */}
-          <div className="p-4 border-t border-gray-200 dark:border-[#2a2d3e] text-center">
-            <button
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-[#6c5ce7] dark:hover:bg-[#5b4dd1] text-white text-sm rounded-md font-medium"
-            >
-              Find a User Instead
-            </button>
-          </div>
+          {/* Search Results */}
+          {searchData?.searchUser?.length > 0 ? (
+            searchData.searchUser.map((user: any) => (
+              <button
+                key={user.uuid}
+                className={`w-full px-4 py-3 flex items-center hover:bg-gray-100 dark:hover:bg-[#2a2d3e] transition-colors ${selectedUsers[user.uuid] ? "bg-gray-100 dark:bg-[#2a2d3e]" : ""}`}
+                onClick={() => handleToggleUser(user)}
+              >
+                <div className="w-10 h-10 rounded-md bg-indigo-500 dark:bg-[#6c5ce7] text-white flex items-center justify-center mr-4">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="font-bold text-gray-800 dark:text-gray-200">{user.username}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{user.email}</div>
+                </div>
+                <UserPlus size={18} className="text-gray-400 dark:text-gray-500" />
+              </button>
+            ))
+          ) : searchTerm.length >= 2 ? (
+            <div className="p-6 text-center text-gray-600 dark:text-gray-300">No users found.</div>
+          ) : (
+            <div className="p-6 text-center text-gray-600 dark:text-gray-300">Type to search users</div>
+          )}
+        </div>
+
+        {/* Create Group Button */}
+        <div className="p-4 border-t border-gray-200 dark:border-[#2a2d3e] text-center">
+          <button
+            onClick={handleCreateGroup}
+            disabled={selectedList.length === 0}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-[#6c5ce7] dark:hover:bg-[#5b4dd1] text-white text-sm rounded-md font-medium disabled:opacity-50"
+          >
+            Create Group
+          </button>
         </div>
       </div>
     </div>
