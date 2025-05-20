@@ -58,7 +58,7 @@ export const chatItems: NavItem[] = [
 export const serverItems: NavItem[] = [
   {
     icon: <GroupsIcon sx={{ fontSize: 20 }} />,
-    href: "/servers/gaming",
+    href: "chat/servers/",
     tooltip: "Gaming Server",
     label: "Gaming Server",
   },

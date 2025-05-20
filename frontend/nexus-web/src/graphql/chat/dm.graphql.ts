@@ -71,3 +71,18 @@ export const START_CONVERSATION = gql`
     }
   }
 `
+
+export const GET_GROUP_CONVERSATIONS = gql`
+  query GetGroupConversations($limit: Int, $after: Time) {
+    getGroupConversations(limit: $limit, after: $after) {
+      id
+      name
+      lastMessage
+      lastActive
+      participants {
+        uuid
+        username
+      }
+    }
+  }
+`
