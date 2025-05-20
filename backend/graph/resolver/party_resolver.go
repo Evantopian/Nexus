@@ -234,8 +234,8 @@ func GetPartyInvitations(ctx context.Context, userID uuid.UUID) ([]*model.PartyI
 	query := `
 		SELECT 
 			pi.id, pi.party_id, pi.inviter_id, pi.invitee_id, pi.status, pi.created_at::TEXT,
-			inviter.uuid, inviter.username,
-			invitee.uuid, invitee.username,
+			inviter.uuid, inviter.username, inviter.profile_img,
+			invitee.uuid, invitee.username, invitee.profile_img,
 			p.id, p.name
 		FROM party_invitations pi
 		JOIN users inviter ON pi.inviter_id = inviter.uuid
@@ -262,8 +262,8 @@ func GetPartyInvitations(ctx context.Context, userID uuid.UUID) ([]*model.PartyI
 		err := rows.Scan(
 			&inv.ID, &inv.PartyID, &inv.InviterID, &inv.InviteeID,
 			&inv.Status, &inv.CreatedAt,
-			&inviter.UUID, &inviter.Username,
-			&invitee.UUID, &invitee.Username,
+			&inviter.UUID, &inviter.Username, &inviter.ProfileImg,
+			&invitee.UUID, &invitee.Username, &invitee.ProfileImg,
 			&party.ID, &party.Name,
 		)
 		if err != nil {
@@ -273,7 +273,6 @@ func GetPartyInvitations(ctx context.Context, userID uuid.UUID) ([]*model.PartyI
 		inv.Inviter = &inviter
 		inv.Invitee = &invitee
 		inv.Party = &party
-
 		invitations = append(invitations, &inv)
 	}
 
@@ -289,16 +288,13 @@ func GetSentPartyInvitations(ctx context.Context, userID uuid.UUID) ([]*model.Pa
 	query := `
 		SELECT 
 			pi.id, pi.party_id, pi.inviter_id, pi.invitee_id, pi.status, pi.created_at::TEXT,
-
-			inviter.uuid, inviter.username,
-			invitee.uuid, invitee.username,
+			inviter.uuid, inviter.username, inviter.profile_img,
+			invitee.uuid, invitee.username, invitee.profile_img,
 			p.id, p.name
-
 		FROM party_invitations pi
 		JOIN users inviter ON pi.inviter_id = inviter.uuid
 		JOIN users invitee ON pi.invitee_id = invitee.uuid
 		JOIN parties p ON pi.party_id = p.id
-
 		WHERE pi.inviter_id = $1
 		ORDER BY pi.created_at DESC
 	`
@@ -320,8 +316,8 @@ func GetSentPartyInvitations(ctx context.Context, userID uuid.UUID) ([]*model.Pa
 		err := rows.Scan(
 			&inv.ID, &inv.PartyID, &inv.InviterID, &inv.InviteeID,
 			&inv.Status, &inv.CreatedAt,
-			&inviter.UUID, &inviter.Username,
-			&invitee.UUID, &invitee.Username,
+			&inviter.UUID, &inviter.Username, &inviter.ProfileImg,
+			&invitee.UUID, &invitee.Username, &invitee.ProfileImg,
 			&party.ID, &party.Name,
 		)
 		if err != nil {

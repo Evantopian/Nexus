@@ -23,50 +23,25 @@ export const PROFILE_QUERY = gql`
   }
 `;
 
-export const UPDATE_USER = gql`
-  mutation updateUser(
-    $username: String
-    $profileImg: String
-    $profileMessage: String
-    $rank: String
-    $age: Int
-  ) {
-    updateUser(
-      username: $username
-      profileImg: $profileImg
-      profileMessage: $profileMessage
-      rank: $rank
-      age: $age
-    ) {
+export const GET_ALL_USERS = gql`
+  query getAllUsers($limit: Int!) {
+    getAllUsers(limit: $limit) {
       uuid
-      email
       username
+      email
+      profileImg
       profileMessage
+      status
       rank
-      age
-    }
-  }
-`;
-
-export const UPDATE_PREFERENCE = gql`
-  mutation updatePreference(
-    $region: String
-    $playstyle: Playstyle
-    $favoritePlatform: Platform
-    $favoriteGameGenre: GameGenre
-  ) {
-    updatePreference(
-      region: $region
-      playstyle: $playstyle
-      favoritePlatform: $favoritePlatform
-      favoriteGameGenre: $favoriteGameGenre
-    ) {
+      reputation
+      createdAt
       preferences {
-        region
         playstyle
+        region
         favoritePlatform
         favoriteGameGenre
       }
+      age
     }
   }
 `;
@@ -114,8 +89,14 @@ export const GET_RECOMMENDATIONS = gql`
   }
 `;
 
-export const ADJUST_REP = gql`
-  mutation adjustRep($userId: UUID!, $amount: Int!) {
-    adjustRep(userId: $userId, amount: $amount)
+export const GET_LEADERBOARD = gql`
+  query getLeaderboard($limit: Int!) {
+    getLeaderboard(limit: $limit) {
+      uuid
+      username
+      email
+      profileImg
+      reputation
+    }
   }
 `;

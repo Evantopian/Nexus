@@ -76,7 +76,7 @@ const GameCard = ({
                 <div className="flex items-center mt-2">
                   <Users className="h-4 w-4 mr-1 text-gray-600 dark:text-gray-400" />
                   <span className="text-xs text-gray-600 dark:text-gray-400">
-                    {players}k
+                    {players}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-1 mt-4">

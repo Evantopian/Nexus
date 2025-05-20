@@ -1,7 +1,7 @@
 # FriendRequest type
 type FriendRequest {
-  sender: UUID! # The user who sent the friend request
-  receiver: UUID! # The user who received the friend request
+  sender: User! # The user who sent the friend request
+  receiver: User! # The user who received the friend request
   status: String! # 'pending', 'accepted', or 'rejected'
   requestedAt: String! # The time the request was made
 }
@@ -20,5 +20,6 @@ extend type Mutation {
   sendFriendRequest(receiverId: UUID!): FriendRequest!
   acceptFriendRequest(senderId: UUID!): Boolean!
   rejectFriendRequest(senderId: UUID!): Boolean!
+  cancelFriendRequest(receiverId: UUID!): Boolean!
   removeFriend(friendId: UUID!): Boolean!
 }

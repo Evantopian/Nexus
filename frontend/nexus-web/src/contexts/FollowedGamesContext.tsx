@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from "react";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "./AuthContext";
-import { GET_USER_FOLLOWED_GAMES } from "@/graphql/userQueries";
+import { GET_USER_FOLLOWED_GAMES } from "@/graphql/user/userQueries";
 
 type FollowedGamesContextType = {
   followedGames: any[];

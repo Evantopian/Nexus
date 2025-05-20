@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Users, Heart, MessageSquare } from "lucide-react";
 import { useMutation } from "@apollo/client";
-import { FOLLOW_GAME, UNFOLLOW_GAME } from "@/graphql/gameQueries";
+import { FOLLOW_GAME, UNFOLLOW_GAME } from "@/graphql/game/gameMutations";
 import { Game, getTagColor } from "@/data/DummyGameData";
 
 interface GameBannerProps {

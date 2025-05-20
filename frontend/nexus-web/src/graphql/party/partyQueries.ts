@@ -16,10 +16,12 @@ export const GET_PARTY_INVITATIONS = gql`
       inviter {
         uuid
         username
+        profileImg
       }
       invitee {
         uuid
         username
+        profileImg
       }
     }
   }
@@ -41,10 +43,12 @@ export const GET_SENT_PARTY_INVITATIONS = gql`
       inviter {
         uuid
         username
+        profileImg
       }
       invitee {
         uuid
         username
+        profileImg
       }
     }
   }

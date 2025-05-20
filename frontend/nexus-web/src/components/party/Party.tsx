@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import PartyList from "./PartyList";
 import PlayerRecommendation from "./PlayerRecommendation";
 import { useAuth } from "@/contexts/AuthContext";
-import { ADJUST_REP } from "@/graphql/userQueries";
+import { ADJUST_REP } from "@/graphql/user/userMutations";
 import {
   GET_PARTY_BY_USER,
   GET_PARTY_INVITATIONS,
@@ -40,6 +40,13 @@ export type Player = {
   profileImg: string | null;
 };
 
+type PartyMember = {
+  uuid: string;
+  username: string;
+  email: string;
+  profileImg: string | null;
+};
+
 const Party = () => {
   const { user } = useAuth();
   const { recommendedPlayers, recLoading } = useRecommendedPlayers(user?.uuid);
@@ -61,6 +68,20 @@ const Party = () => {
   });
 
   // console.log("Party data", partyData);
+
+  const partyMemberIds =
+    partyData?.getPartyByUser?.members?.map(
+      (member: PartyMember) => member.uuid
+    ) || [];
+
+  // console.log("Party member IDs:", partyMemberIds);
+
+  // Filter out party members from recommendations
+  const filteredRecommendations = recommendedPlayers?.filter(
+    (player: Player) => !partyMemberIds.includes(player.id)
+  );
+
+  // console.log(filteredRecommendations);
 
   const { data: receivedInvitesData, refetch: refetchReceivedInvites } =
     useQuery(GET_PARTY_INVITATIONS, {
@@ -147,6 +168,20 @@ const Party = () => {
     }
   };
 
+  const handleRefreshAll = async () => {
+    if (!user?.uuid) return;
+    try {
+      await Promise.all([
+        refetchParty(),
+        refetchReceivedInvites(),
+        refetchSentInvites(),
+      ]);
+      console.log("Refreshed all data.");
+    } catch (err) {
+      console.error("Failed to refresh all:", err);
+    }
+  };
+
   const [adjustRep] = useMutation(ADJUST_REP);
 
   const handleHonor = async (userId: string) => {
@@ -220,7 +255,7 @@ const Party = () => {
           </div>
           {activeTab === "recommendations" ? (
             <PlayerRecommendation
-              recommendedPlayers={recommendedPlayers}
+              recommendedPlayers={filteredRecommendations}
               handleInvite={handleInvite}
               loading={recLoading || !user?.uuid}
             />

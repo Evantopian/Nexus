@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Evantopian/Nexus/graph/model"
 	"github.com/Evantopian/Nexus/graph/resolver"
@@ -56,17 +55,28 @@ func (r *queryResolver) Profile(ctx context.Context) (*model.User, error) {
 
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, userID uuid.UUID) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: GetUser - getUser"))
+	return resolver.GetUser(ctx, userID)
+}
+
+// GetAllUsers is the resolver for the getAllUsers field.
+func (r *queryResolver) GetAllUsers(ctx context.Context, limit int32) ([]*model.User, error) {
+	return resolver.GetAllUsers(ctx, int(limit))
 }
 
 // GetRandomUsers is the resolver for the getRandomUsers field.
 func (r *queryResolver) GetRandomUsers(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented: GetRandomUsers - getRandomUsers"))
+	return resolver.GetRandomUsers(ctx)
 }
 
 // GetRecommendations is the resolver for the getRecommendations field.
 func (r *queryResolver) GetRecommendations(ctx context.Context, userID uuid.UUID, numRecommendations int32) ([]*model.UserRecommendation, error) {
 	return resolver.GetRecommendations(ctx, userID, int(numRecommendations))
+
+}
+
+// GetLeaderboard is the resolver for the getLeaderboard field.
+func (r *queryResolver) GetLeaderboard(ctx context.Context, limit int32) ([]*model.User, error) {
+	return resolver.GetLeaderboard(ctx, int(limit))
 }
 
 // SearchUser is the resolver for the searchUser field.

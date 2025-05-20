@@ -2,51 +2,14 @@ import { useQuery } from "@apollo/client";
 import FeaturedGames from "./FeaturedGames";
 import MainContent from "./MainContent";
 import Sidebar from "./SideBar";
-import { GET_ALL_LFG_POSTS } from "@/graphql/lfgQueries";
+import { GET_ALL_LFG_POSTS } from "@/graphql/lfg/lfgQueries";
 import { useRecommendedPlayers } from "@/hooks/useRecommendedPlayers";
 import { useAuth } from "@/contexts/AuthContext";
+import { GET_LEADERBOARD } from "@/graphql/user/userQueries";
 
 // temporary data, waiting for backend APIs to be built, then we will fetch.
 const Dashboard = () => {
   const { user } = useAuth();
-  // Featured games data
-  // const games = [
-  //   {
-  //     image:
-  //       "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  //     title: "Marvel Rivals",
-  //     players: "1.7",
-  //     tags: ["bg-blue-500", "bg-purple-500", "bg-green-500"],
-  //   },
-  //   {
-  //     image:
-  //       "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  //     title: "Fortnite",
-  //     players: "3.2",
-  //     tags: ["bg-blue-500", "bg-yellow-500"],
-  //   },
-  //   {
-  //     image:
-  //       "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  //     title: "Minecraft",
-  //     players: "2.5",
-  //     tags: ["bg-green-500", "bg-orange-500"],
-  //   },
-  //   {
-  //     image:
-  //       "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  //     title: "Call of Duty",
-  //     players: "1.9",
-  //     tags: ["bg-red-500", "bg-gray-500"],
-  //   },
-  //   {
-  //     image:
-  //       "https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-  //     title: "League of Legends",
-  //     players: "2.1",
-  //     tags: ["bg-purple-500", "bg-blue-300"],
-  //   },
-  // ];
 
   // Recently played games data
   const recentGames = [
@@ -100,30 +63,13 @@ const Dashboard = () => {
     },
   ];
 
-  // Leaderboard data
-  const leaderboardData = [
-    {
-      id: 1,
-      rank: 1,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=top1",
-      username: "TopPlayer1",
-      points: 1000,
-    },
-    {
-      id: 2,
-      rank: 2,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=top2",
-      username: "TopPlayer2",
-      points: 2000,
-    },
-    {
-      id: 3,
-      rank: 3,
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=top3",
-      username: "TopPlayer3",
-      points: 3000,
-    },
-  ];
+  const { data: leaderboardData } = useQuery(GET_LEADERBOARD, {
+    variables: { limit: 5 },
+  });
+
+  // console.log("Leaderboard data", leaderboardData?.getLeaderboard);
+
+  const leaderboardUsers = leaderboardData?.getLeaderboard;
 
   // Tournament data
   const tournamentData = [
@@ -167,7 +113,7 @@ const Dashboard = () => {
 
           {/* Sidebar */}
           <Sidebar
-            leaderboardData={leaderboardData}
+            leaderboardData={leaderboardUsers}
             tournamentData={tournamentData}
             lfgPostData={lfgPostData}
           />

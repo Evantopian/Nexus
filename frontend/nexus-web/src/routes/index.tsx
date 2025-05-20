@@ -13,6 +13,7 @@ import AuthRedirect from "@/components/auth/AuthRedirect";
 import Profile from "@/components/profile/Profile";
 import Lfg from "@/components/lfg/LFG";
 import Party from "@/components/party/Party";
+import Players from "@/components/players/Players";
 import ChatSystemWrapper from "@/components/chat-system/ChatSystem";
 
 const routes: RouteObject[] = [
@@ -43,12 +44,7 @@ const routes: RouteObject[] = [
       { path: "lfg", element: <Lfg /> },
       {
         path: "players",
-        element: (
-          <WorkInProgress
-            title="Players Directory"
-            message="The Players Directory is being built. Soon you'll be able to discover and connect with gamers worldwide."
-          />
-        ),
+        element: <Players />,
       },
       {
         path: "party",
@@ -60,8 +56,8 @@ const routes: RouteObject[] = [
       },
       { path: "games/:gameName", element: <GameDetail /> },
       {
-        path: "chat/*", 
-        element: <ChatSystemWrapper/>
+        path: "chat/*",
+        element: <ChatSystemWrapper />,
       },
       {
         path: "*",
@@ -75,6 +71,5 @@ const routes: RouteObject[] = [
     ],
   },
 ];
-
 
 export default routes;

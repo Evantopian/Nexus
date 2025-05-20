@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { UPDATE_USER, UPDATE_PREFERENCE } from "@/graphql/userQueries";
+import { UPDATE_USER, UPDATE_PREFERENCE } from "@/graphql/user/userMutations";
 import { useMutation } from "@apollo/client";
 import Dropdown from "./Dropdown";
 

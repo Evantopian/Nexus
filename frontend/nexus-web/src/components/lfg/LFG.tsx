@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_ALL_LFG_POSTS, GET_USER_LFG_POSTS } from "@/graphql/lfgQueries";
+import {
+  GET_ALL_LFG_POSTS,
+  GET_USER_LFG_POSTS,
+} from "@/graphql/lfg/lfgQueries";
 import UserLFGPosts from "./UserLFGPosts";
 import AllLFGPosts from "./AllLFGPosts";
 

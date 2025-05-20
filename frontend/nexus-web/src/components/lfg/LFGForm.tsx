@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@apollo/client";
-import { CREATE_LFG_POST, UPDATE_LFG_POST } from "@/graphql/lfgQueries";
+import { CREATE_LFG_POST, UPDATE_LFG_POST } from "@/graphql/lfg/lfgMutations";
 import { useGames } from "@/contexts/GameContext"; // Import GameContext
 import { useNavigate } from "react-router-dom";
 import { LFGPostFormData } from "./LFG";

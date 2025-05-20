@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import client from "@/lib/apollo-client";
-import { PROFILE_QUERY } from "@/graphql/userQueries";
+import { PROFILE_QUERY } from "@/graphql/user/userQueries";
 
 export type User = {
   uuid: string;
@@ -41,6 +41,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Fetch user profile on mount using Apollo Client
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      setUser(null); // No token, so no user
+      setLoading(false);
+      return; // Stop here, don't try query
+    }
+
     client
       .query<{ profile: User }>({ query: PROFILE_QUERY })
       .then((res) => {
@@ -91,7 +98,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    const token = localStorage.getItem("authToken");   
+    const token = localStorage.getItem("authToken");
 
     try {
       await axios.post(

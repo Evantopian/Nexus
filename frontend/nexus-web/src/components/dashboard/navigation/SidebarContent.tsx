@@ -1,15 +1,9 @@
 // src/components/SidebarContent.tsx
 import { useLocation } from "react-router-dom";
-import {
-  followedGames,
-  chatItems as rawChatItems,
-  serverItems,
-} from "./NavItemsModel";
 import NavItem from "./NavItem";
+import { NavItemData } from "./NavItemsModel";
 import SectionHeader from "./SectionHeader";
-// import { useAuth } from "@/contexts/AuthContext";
-// import { useQuery } from "@apollo/client";
-// import { GET_USER_FOLLOWED_GAMES } from "@/graphql/userQueries";
+import { useFollowedGames } from "@/contexts/FollowedGamesContext";
 
 interface SidebarContentProps {
   expanded: boolean;
@@ -17,7 +11,6 @@ interface SidebarContentProps {
 
 const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
   const location = useLocation();
-
 
   // Remap the “Direct Messages” link to /chat (so your index route logic will run)
   const chatItems = rawChatItems.map((item) => {
@@ -32,15 +25,22 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
     return { ...item, href };
   });
 
-  // const { user } = useAuth();
-  // const { data, loading, error } = useQuery(GET_USER_FOLLOWED_GAMES, {
-  //   variables: { userId: user?.uuid },
-  // });
+  const { followedGames } = useFollowedGames();
 
-  // const followedGames = data?.getUserFollowedGames ?? [];
+  const reformattedFollowedGames: NavItemData[] = followedGames.map((game) => ({
+    icon: (
+      <img
+        src={game.logo}
+        alt={`${game.title} Logo`}
+        style={{ width: 34, height: 32, borderRadius: "10px" }}
+      />
+    ),
+    href: `/games/${game.slug}`,
+    tooltip: game.title,
+    label: game.title,
+  }));
 
-  // console.log("Followed Games", followedGames);
-
+  // console.log(reformattedFollowedGames);
 
   return (
     <div className="w-full overflow-hidden">
@@ -48,8 +48,9 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
       <div className="mb-6 w-full">
         <SectionHeader title="GAMES" expanded={expanded} />
         <div className="space-y-1">
-          {followedGames.map((item, i) => (
-            <NavItem
+ 
+          {reformattedFollowedGames.map((item, i) => (
+             <NavItem
               key={`game-${i}`}
               {...item}
               active={location.pathname === item.href}

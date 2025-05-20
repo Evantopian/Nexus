@@ -1,11 +1,10 @@
 import { BarChart as LeaderboardIcon } from "lucide-react";
 
 interface LeaderProps {
-  id: number;
-  rank: number;
-  avatar: string;
+  uuid: number;
+  profileImg: string;
   username: string;
-  points: number;
+  reputation: number;
 }
 
 interface LeaderboardProps {
@@ -13,23 +12,25 @@ interface LeaderboardProps {
 }
 
 const Leaderboard = ({ leaders }: LeaderboardProps) => {
+  if (!leaders) return <p>Loading leaderboard...</p>;
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
       <h3 className="font-bold text-lg mb-4 flex items-center text-gray-900 dark:text-white">
         <LeaderboardIcon className="mr-2" /> Leaderboards
       </h3>
       <div className="space-y-3">
-        {leaders.map((leader) => (
+        {leaders.map((leader, index) => (
           <div
-            key={leader.id}
+            key={leader.uuid}
             className="flex items-center p-2 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
           >
             <span className="font-bold text-gray-500 dark:text-gray-400 w-6">
-              {leader.rank}.
+              {index + 1}.
             </span>
             <img
-              src={leader.avatar}
-              alt={`${leader.username}'s avatar`}
+              src={leader.profileImg || "/default-avatar.png"}
+              alt={`${leader.username}'s profile image`}
               className="h-8 w-8 rounded-full mr-2"
             />
             <div className="flex-1">
@@ -37,11 +38,8 @@ const Leaderboard = ({ leaders }: LeaderboardProps) => {
                 {leader.username}
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                {leader.points} points
+                {leader.reputation} points
               </p>
-            </div>
-            <div className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-              #{leader.rank}
             </div>
           </div>
         ))}

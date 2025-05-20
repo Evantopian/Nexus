@@ -1,4 +1,3 @@
-// src/hooks/useTypingEvents.ts
 import { useEffect, useRef, useState } from "react";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -21,7 +20,9 @@ export function useTypingEvents(channel: any, userId: string | null) {
     if (!channel) return;
 
     const addUser = ({ user_id }: { user_id: string }) => {
-      setTypingUsers((prev) => (prev.includes(user_id) ? prev : [...prev, user_id]));
+      setTypingUsers((prev) =>
+        prev.includes(user_id) ? prev : [...prev, user_id]
+      );
     };
 
     const removeUser = ({ user_id }: { user_id: string }) => {
