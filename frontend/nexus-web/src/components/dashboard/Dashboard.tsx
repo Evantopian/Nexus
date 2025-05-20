@@ -37,7 +37,7 @@ const Dashboard = () => {
   ];
 
   // Recommended players data
-  const { recommendedPlayers, recLoading } = useRecommendedPlayers(user?.uuid);
+  const { recommendedPlayers } = useRecommendedPlayers(user?.uuid);
 
   // Communities data
   const communities = [

@@ -18,7 +18,7 @@ import { useGroupConversations } from "@/hooks/chat/useGroupConversations"
 export default function GroupConversationSidebar() {
   const { groupId } = useParams<{ groupId: string }>()
   const navigate = useNavigate()
-  const { groups = [], loading, refetch } = useGroupConversations()
+  const { groups = [], refetch } = useGroupConversations()
 
   const [searchTerm, setSearchTerm] = useState("")
   const [hoveredGroup, setHoveredGroup] = useState<string | null>(null)

@@ -57,11 +57,6 @@ export function useChatMessages(conversationId: string | undefined) {
       channelRef.current = null
     }
 
-    const resolveSender = (senderId: string) => {
-      if (senderId === user.uuid) return { id: user.uuid, username: user.username }
-      const known = messages.find((m) => m.sender.id === senderId)
-      return known?.sender || { id: senderId, username: "Unknown" }
-    }
 
     const handleIncoming = (payload: any) => {
         const senderId = payload.sender_id

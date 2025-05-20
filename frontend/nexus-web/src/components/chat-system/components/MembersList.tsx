@@ -5,9 +5,6 @@ import {
   Shield,
   Crown,
   MoreVertical,
-  UserPlus,
-  Users,
-  Trash2,
   Star,
   Bell,
   BellOff,
@@ -35,9 +32,9 @@ export function MembersList({
   isGroupChat = false,
   participants = [],
 }: MembersListProps) {
-  const { user: currentUser } = useAuth()
+  useAuth()
   const [searchTerm, setSearchTerm] = useState("")
-  const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, userId: "" })
+  const [, setContextMenu] = useState({ visible: false, x: 0, y: 0, userId: "" })
   const [isFavorite, setIsFavorite] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -228,8 +225,6 @@ export function MembersList({
 function MemberItem({
   member,
   onContextMenu,
-  isServerChannel = false,
-  isGroupChat = false,
   isFavorite = false,
   isMuted = false,
 }: {

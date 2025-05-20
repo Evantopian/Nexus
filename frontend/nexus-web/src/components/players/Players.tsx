@@ -38,13 +38,13 @@ const Players = () => {
   const receivedRequests = requestData?.getFriendRequests?.received || [];
   const sentRequests = requestData?.getFriendRequests?.sent || [];
 
-  const [addFriend, { loading: addLoading }] = useMutation(
+  const [addFriend] = useMutation(
     SEND_FRIEND_REQUEST,
     {
       refetchQueries: [{ query: GET_FRIENDS }, { query: GET_FRIEND_REQUESTS }],
     }
   );
-  const [removeFriend, { loading: removeLoading }] = useMutation(
+  const [removeFriend] = useMutation(
     REMOVE_FRIEND,
     {
       refetchQueries: [{ query: GET_FRIENDS }, { query: GET_FRIEND_REQUESTS }],

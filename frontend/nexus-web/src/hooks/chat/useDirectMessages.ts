@@ -6,7 +6,7 @@ import {
 } from "@/graphql/chat/dm.graphql"
 import { useEffect, useState } from "react"
 
-export const useDirectMessages = (conversationId?: string, p0?: { skipIfRealtimeActive: boolean }) => {
+export const useDirectMessages = (conversationId?: string, _p0?: { skipIfRealtimeActive: boolean }) => {
   // Local state for real-time mutation
   const [conversations, setConversations] = useState<any[]>([])
 

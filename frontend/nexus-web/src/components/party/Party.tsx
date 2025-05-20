@@ -167,20 +167,7 @@ const Party = () => {
       console.error("Failed to delete party:", err);
     }
   };
-
-  const handleRefreshAll = async () => {
-    if (!user?.uuid) return;
-    try {
-      await Promise.all([
-        refetchParty(),
-        refetchReceivedInvites(),
-        refetchSentInvites(),
-      ]);
-      console.log("Refreshed all data.");
-    } catch (err) {
-      console.error("Failed to refresh all:", err);
-    }
-  };
+ 
 
   const [adjustRep] = useMutation(ADJUST_REP);
 

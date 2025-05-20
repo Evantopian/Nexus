@@ -48,7 +48,7 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const endRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const [showScroll, setShowScroll] = useState(false)
+  const [_showScroll, setShowScroll] = useState(false)
   const [showMembers, setShowMembers] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)

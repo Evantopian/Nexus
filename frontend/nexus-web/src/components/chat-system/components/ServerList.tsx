@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Plus, Settings, Home, Compass, Download } from "lucide-react"
+import { Plus, Home, Compass } from "lucide-react"
 import { mockServers } from "../mock/servers-data"
 
 export default function ServerList() {

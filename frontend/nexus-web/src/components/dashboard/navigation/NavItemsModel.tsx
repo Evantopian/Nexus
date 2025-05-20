@@ -3,7 +3,7 @@ import ChatIcon from "@mui/icons-material/Chat";
 import GroupsIcon from "@mui/icons-material/Groups";
 import RivalsIcon from "@/assets/pages/games/MarvelRivals/MarvelRivalsIcon.jpg";
 
-export interface NavItem {
+export interface NavItemData {
   icon: React.ReactNode;
   href: string;
   tooltip: string;
@@ -11,7 +11,7 @@ export interface NavItem {
 }
 
 // Section 1: Followed Games
-export const followedGames: NavItem[] = [
+export const followedGames: NavItemData[] = [
   {
     icon: (
       <img
@@ -39,7 +39,7 @@ export const followedGames: NavItem[] = [
 ];
 
 // Section 2: Chat/DMs
-export const chatItems: NavItem[] = [
+export const chatItems: NavItemData[] = [
   {
     icon: <ChatIcon sx={{ fontSize: 20 }} />,
     href: "/chat/direct", // <-- updated to match "direct/:contact"
@@ -55,7 +55,7 @@ export const chatItems: NavItem[] = [
 ];
 
 // Section 3: Servers/Group Chats
-export const serverItems: NavItem[] = [
+export const serverItems: NavItemData[] = [
   {
     icon: <GroupsIcon sx={{ fontSize: 20 }} />,
     href: "chat/servers/",

@@ -17,7 +17,7 @@ const isMuted = (userId: string) => {
 }
 
 // Toggle favorite status
-const toggleFavorite = (userId: string, conversations: any[]) => {
+const toggleFavorite = (userId: string, _conversations: any[]) => {
   const favorites = JSON.parse(localStorage.getItem("chat-favorites") || "[]")
   if (isFavorite(userId)) {
     const newFavorites = favorites.filter((id: string) => id !== userId)
@@ -29,7 +29,7 @@ const toggleFavorite = (userId: string, conversations: any[]) => {
 }
 
 // Toggle muted status
-const toggleMuted = (userId: string, conversations: any[]) => {
+const toggleMuted = (userId: string, _conversations: any[]) => {
   const muted = JSON.parse(localStorage.getItem("chat-muted") || "[]")
   if (isMuted(userId)) {
     const newMuted = muted.filter((id: string) => id !== userId)

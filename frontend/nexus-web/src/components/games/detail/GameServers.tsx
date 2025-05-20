@@ -44,7 +44,7 @@ interface GameServersProps {
   gameName: string;
 }
 
-const GameServers = ({ gameName }: GameServersProps) => {
+const GameServers = ({ }: GameServersProps) => {
   const serversScrollRef = useRef<HTMLDivElement>(null);
 
   // console.log(gameName);

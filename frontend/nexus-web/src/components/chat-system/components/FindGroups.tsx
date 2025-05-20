@@ -2,7 +2,7 @@
 
 import { useLazyQuery, useMutation } from "@apollo/client"
 import { useState } from "react"
-import { Search, X, UserPlus, Users, Trash } from "lucide-react"
+import { Search, X, UserPlus, Trash } from "lucide-react"
 import { SEARCH_USER, START_CONVERSATION } from "@/graphql/chat/dm.graphql"
 import { useNavigate } from "react-router-dom"
 

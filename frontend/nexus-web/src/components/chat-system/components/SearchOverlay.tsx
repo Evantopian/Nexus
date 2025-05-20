@@ -2,7 +2,6 @@
 
 import type React from "react"
 
-import { useState } from "react"
 import { useLazyQuery, useMutation } from "@apollo/client"
 import { useNavigate } from "react-router-dom"
 import { Search, X, UserPlus, Users } from "lucide-react"
@@ -25,7 +24,6 @@ interface SearchOverlayProps {
 export function SearchOverlay({ term, setTerm, debouncedTerm, onClose }: SearchOverlayProps) {
   const navigate = useNavigate()
   const { conversations, refetchConversations } = useChatContext()
-  const [focusedIndex, setFocusedIndex] = useState(-1)
 
   // Remote search for new users when no local matches
   const [runSearch, { data: searchData, loading: loadingSearch }] = useLazyQuery(SEARCH_USER, {

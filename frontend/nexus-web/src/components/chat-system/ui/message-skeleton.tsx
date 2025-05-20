@@ -1,6 +1,6 @@
 import { Skeleton } from "./skeleton"
 
-export function MessageSkeleton({ isCurrentUser = false }: { isCurrentUser?: boolean }) {
+export function MessageSkeleton({ }: { isCurrentUser?: boolean }) {
   return (
     <div className="group flex items-start gap-3 py-2 px-1">
       <Skeleton className="flex-shrink-0 w-10 h-10 rounded-md" />
