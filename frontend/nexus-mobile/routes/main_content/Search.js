@@ -6,22 +6,37 @@ import GuildCard from "../../components/Cards/GuildCard";
 import PlayerCard from "../../components/Cards/PlayerCard";
 import GroupCard from "../../components/Cards/GroupCard";
 import { useGames } from "../../context/GameContext";
+import { useQuery } from "@apollo/client";
+import { PROFILE_QUERY } from "../../graphql/user/userQueries";
+import { useAuth } from "../../context/AuthContext";
 
 export default function FilterBox({ topPadding }) {
   const [selectedCategory, setSelectedCategory] = useState("Games");
   const [searchQuery, setSearchQuery] = useState("");
   const { games } = useGames();
+  const { user } = useAuth();
+
+  const { data: playerData, loading: playerLoading, error: playerError } = useQuery(PROFILE_QUERY, {
+    variables: { userId: user?.uuid, numRecommendations: 10 },
+    skip: selectedCategory !== "Players" || !user?.uuid,
+  });
+  
+  console.log("Player Data:", playerData);
 
   const getData = () => {
     let data = [];
     if (selectedCategory === "Games") data = games;
     if (selectedCategory === "Guilds") data = games.flatMap((game) => game.servers || []);
-    if (selectedCategory === "Players") data = games.flatMap((game) => game.topPlayers || []);
+    if (selectedCategory === "Players") {
+      if (playerData && playerData.getRecommendations) {
+        data = playerData.getRecommendations.slice(0, 10);
+      }
+    }
     if (selectedCategory === "Groups") data = games.flatMap((game) => game.lfgPosts || []);
 
     if (searchQuery.trim() !== "") {
       return data.filter((item) =>
-        (item.name || item.title || "").toLowerCase().includes(searchQuery.toLowerCase())
+        (item.name || item.title || item.username || "").toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
     return data;
@@ -116,11 +131,17 @@ export default function FilterBox({ topPadding }) {
 
       <FlatList
         data={getData()}
-        keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+        keyExtractor={(item, index) => item.id?.toString() || item.uuid?.toString() || index.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No data available</Text>
+          selectedCategory === "Players"
+            ? playerLoading
+              ? <Text style={styles.emptyText}>Loading player...</Text>
+              : playerError
+                ? <Text style={styles.emptyText}>Error loading player</Text>
+                : <Text style={styles.emptyText}>No player found</Text>
+            : <Text style={styles.emptyText}>No data available</Text>
         }
       />
     </SafeAreaView>

@@ -1,29 +1,28 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { SvgUri } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 
 const PlayerCard = ({ player }) => {
-  const isSvg = player.avatar.endsWith('.svg') || player.avatar.includes('svg');
-  const isVerified = player.role === 'verified'; 
   return (
     <View style={styles.card}>
-      {isSvg ? (
-        <SvgUri uri={ player.avatar } style={styles.image} />
+      {player.profileImg ? (
+        <Image source={{ uri: player.profileImg }} style={styles.image} />
       ) : (
-        <Image source={{ uri: player.avatar }} style={styles.image} />
+        <View style={[styles.image, { backgroundColor: "#ccc", justifyContent: "center", alignItems: "center" }]}>
+          <Ionicons name="person-circle" size={64} color="#888" />
+        </View>
       )}
       <View style={styles.infoContainer}>
         <View style={styles.nameRow}>
-          <Text style={styles.title}>{player.name}</Text>
-          {isVerified && (
-            <Ionicons name="checkmark-circle" size={18} color="#4caf50"/>
-          )}
+          <Text style={styles.title}>{player.username}</Text>
         </View>
-        <Text style={styles.label}>Level:</Text>
-        <Text style={styles.level}>{player.level}</Text>
-        <Text style={styles.label}>Status:</Text>
-        <Text style={styles.status}>{player.status}</Text>
+        <Text style={styles.label}>Email: <Text style={styles.value}>{player.email || "N/A"}</Text></Text>
+        <Text style={styles.label}>Region: <Text style={styles.value}>{player.region || "N/A"}</Text></Text>
+        <Text style={styles.label}>Genre: <Text style={styles.value}>{player.genre || "N/A"}</Text></Text>
+        <Text style={styles.label}>Platform: <Text style={styles.value}>{player.platform || "N/A"}</Text></Text>
+        <Text style={styles.label}>Playstyle: <Text style={styles.value}>{player.playstyle || "N/A"}</Text></Text>
+        <Text style={styles.label}>Rank: <Text style={styles.value}>{player.rank || "N/A"}</Text></Text>
+        <Text style={styles.label}>Age: <Text style={styles.value}>{player.age ?? "N/A"}</Text></Text>
         <TouchableOpacity style={styles.joinButton}>
           <Text style={styles.joinText}>+ Add Friend</Text>
         </TouchableOpacity>
@@ -44,7 +43,8 @@ const styles = StyleSheet.create({
     height: 200,
   },
   image: {
-    width: '35%',
+    width: 110,
+    height: 200,
     resizeMode: 'cover',
     backgroundColor: '#ccc',
   },
@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 4,
   },
   title: {
     color: '#fff',
@@ -66,17 +67,12 @@ const styles = StyleSheet.create({
   label: {
     color: '#ccc',
     fontSize: 12,
-    marginTop: 4,
+    marginTop: 2,
   },
-  level: {
+  value: {
     color: '#90ee90',
     fontSize: 14,
     fontWeight: 'bold',
-  },
-  status: {
-    color: '#00ff00',
-    fontSize: 14,
-    fontStyle: 'italic',
   },
   joinButton: {
     backgroundColor: '#4f46e5',

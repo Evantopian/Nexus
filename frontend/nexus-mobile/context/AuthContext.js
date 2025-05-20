@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import client from "../lib/apollo-client";
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
-import { PROFILE_QUERY } from "../graphql/userQueries";
+import { PROFILE_QUERY } from "../graphql/user/userQueries";
 
 const AuthContext = createContext(null);
 

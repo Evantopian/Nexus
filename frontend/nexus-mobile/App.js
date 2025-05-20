@@ -27,7 +27,7 @@ export default function App() {
       <ApolloProvider client={client}>
         <GameProvider>
           <NavigationContainer>
-            <Stack.Navigator initialRouteName="Main Content" screenOptions={{ headerShown: false }}>
+            <Stack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
               <Stack.Screen name="Landing" component={Landing} />
               <Stack.Screen name="Signup" component={Signup} />
               <Stack.Screen name="Login" component={Login} />

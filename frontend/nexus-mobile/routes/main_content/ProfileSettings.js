@@ -25,7 +25,7 @@ export default function ProfileSettings({ topPadding }) {
 
       <View style={styles.header}>
         <Image
-          source={user.profileImg || defaultAvatar} 
+          source={user.profileImg || defaultAvatar}
           alt={user.username || "User Avatar"}
           style={styles.avatar}
         />
@@ -62,36 +62,27 @@ export default function ProfileSettings({ topPadding }) {
             <Text style={styles.bioDetailValue}>{user.rank || "N/A"}</Text>
           </View>
         </View>
-      </View>
 
-      {/* Recent Activity Section */}
-      <View style={styles.activityContainer}>
-        <View style={styles.activityHeader}>
-          <Text style={styles.activityTitle}>Recent Activity</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Activity")}>
-            <Text style={styles.seeMore}>See more →</Text>
-          </TouchableOpacity>
+        {/* Preferences Section */}
+        <View style={styles.preferencesContainer}>
+          <Text style={styles.preferencesHeader}>Preferences</Text>
+          <Text style={styles.preferenceItem}>
+            <Text style={styles.preferenceLabel}>Playstyle: </Text>
+            <Text style={styles.preferenceValue}>{user.preferences?.playstyle || "N/A"}</Text>
+          </Text>
+          <Text style={styles.preferenceItem}>
+            <Text style={styles.preferenceLabel}>Region: </Text>
+            <Text style={styles.preferenceValue}>{user.preferences?.region || "N/A"}</Text>
+          </Text>
+          <Text style={styles.preferenceItem}>
+            <Text style={styles.preferenceLabel}>Favorite Platform: </Text>
+            <Text style={styles.preferenceValue}>{user.preferences?.favoritePlatform || "N/A"}</Text>
+          </Text>
+          <Text style={styles.preferenceItem}>
+            <Text style={styles.preferenceLabel}>Favorite Game Genre: </Text>
+            <Text style={styles.preferenceValue}>{user.preferences?.favoriteGameGenre || "N/A"}</Text>
+          </Text>
         </View>
-
-        <View style={styles.activityItem}>
-          <Ionicons
-            name="person-outline"
-            size={20}
-            color="#888"
-            style={styles.activityIcon}
-          />
-          <Text style={styles.activityText}>{user.username} liked your post.</Text>
-        </View>
-        <View style={styles.activityItem}>
-          <Ionicons
-            name="person-outline"
-            size={20}
-            color="#888"
-            style={styles.activityIcon}
-          />
-          <Text style={styles.activityText}>{user.username} commented on your photo.</Text>
-        </View>
-
       </View>
     </SafeAreaView>
   );
@@ -120,7 +111,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 50, // Adjusted to make space for the settings icon
+    marginTop: 50,
     marginBottom: 10,
   },
   avatar: {
@@ -219,5 +210,28 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#888",
     fontStyle: "italic",
+  },
+  preferencesContainer: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: "#f8f8f8",
+    borderRadius: 10,
+  },
+  preferencesHeader: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#333",
+  },
+  preferenceItem: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  preferenceLabel: {
+    color: "#888",
+  },
+  preferenceValue: {
+    color: "#4f46e5",
+    fontWeight: "bold",
   },
 });
