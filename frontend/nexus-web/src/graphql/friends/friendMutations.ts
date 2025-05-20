@@ -33,6 +33,12 @@ export const REJECT_FRIEND_REQUEST = gql`
   }
 `;
 
+export const CANCEL_FRIEND_REQUEST = gql`
+  mutation CancelFriendRequest($receiverId: UUID!) {
+    cancelFriendRequest(receiverId: $receiverId)
+  }
+`;
+
 export const REMOVE_FRIEND = gql`
   mutation RemoveFriend($friendId: UUID!) {
     removeFriend(friendId: $friendId)

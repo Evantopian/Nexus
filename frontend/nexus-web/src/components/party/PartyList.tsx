@@ -119,8 +119,11 @@ const PartyList = ({
   return (
     <div className="flex justify-center items-center w-full h-full">
       <div className="w-full max-w-md">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-center">
+        <h2 className="flex justify-center items-center gap-2 text-3xl font-bold text-gray-900 dark:text-white mb-2 text-center">
           {partyName || "Current Party"}
+          <span className="text-lg font-medium text-gray-500 dark:text-gray-400">
+            ({partyMembers.length}/{partyData.maxMembers})
+          </span>
         </h2>
 
         <div className="space-y-3">

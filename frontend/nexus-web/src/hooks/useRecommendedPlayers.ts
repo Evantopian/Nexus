@@ -20,7 +20,7 @@ export const useRecommendedPlayers = (
       id: player.uuid,
       username: player.username,
       email: player.email || "placeholder@email.com",
-      profileImg: player.profileImg || "https://thispersondoesnotexist.com/",
+      profileImg: player.profileImg || "/default-avatar.png",
     })) || [];
 
   return { recommendedPlayers, recLoading, recError };

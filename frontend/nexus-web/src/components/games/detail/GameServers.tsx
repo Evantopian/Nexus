@@ -41,13 +41,13 @@ interface ServerCategory {
 }
 
 interface GameServersProps {
-  gameName: string; // Assuming the slug is passed down to this component
+  gameName: string;
 }
 
 const GameServers = ({ gameName }: GameServersProps) => {
   const serversScrollRef = useRef<HTMLDivElement>(null);
 
-  console.log(gameName);
+  // console.log(gameName);
 
   const serversInfo = serversDummy;
 
