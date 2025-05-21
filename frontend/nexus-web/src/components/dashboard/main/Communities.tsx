@@ -17,6 +17,25 @@ interface CommunitiesProps {
 const Communities = ({ communities }: CommunitiesProps) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <style>{`
+        .transparent-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: transparent transparent;
+        }
+
+        .transparent-scrollbar::-webkit-scrollbar {
+          height: 6px;
+        }
+
+        .transparent-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .transparent-scrollbar::-webkit-scrollbar-thumb {
+          background-color: transparent;
+        }
+      `}</style>
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold flex items-center text-gray-900 dark:text-white">
           <GroupsIcon className="mr-2" /> Discover Communities
@@ -26,7 +45,7 @@ const Communities = ({ communities }: CommunitiesProps) => {
         </button>
       </div>
 
-      <div className="flex overflow-x-auto space-x-4 pb-4 -mx-2 px-2 hide-scrollbar">
+      <div className="flex overflow-x-auto space-x-4 pb-4 -mx-2 px-2 transparent-scrollbar">
         {communities.map((community) => (
           <div
             key={community.id}
@@ -43,7 +62,7 @@ const Communities = ({ communities }: CommunitiesProps) => {
               </div>
             </div>
             <div className="p-4">
-              <h3 className="font-semibold truncate-text">{community.name}</h3>
+              <h3 className="font-semibold truncate">{community.name}</h3>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                 {community.memberCount} members • {community.onlineCount} online
               </p>

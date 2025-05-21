@@ -41,7 +41,7 @@ const TopNavigation = ({ isMobile = false }: TopNavigationProps) => {
               to="/dashboard"
               className="text-gray-800 dark:text-gray-200 font-semibold hover:text-indigo-600 dark:hover:text-indigo-400 whitespace-nowrap transition-colors duration-200 hover:scale-105 transform"
             >
-              Following
+              Dashboard
             </Link>
             <Link
               to="/browse"

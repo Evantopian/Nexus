@@ -6,7 +6,6 @@ interface PlayerProps {
   email: string;
   username: string;
   proflieImg: string;
-  // level: number;
 }
 
 interface RecommendedPlayersProps {
@@ -16,6 +15,25 @@ interface RecommendedPlayersProps {
 const RecommendedPlayers = ({ players }: RecommendedPlayersProps) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <style>{`
+        .transparent-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: transparent transparent;
+        }
+
+        .transparent-scrollbar::-webkit-scrollbar {
+          height: 6px;
+        }
+
+        .transparent-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .transparent-scrollbar::-webkit-scrollbar-thumb {
+          background-color: transparent;
+        }
+      `}</style>
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold flex items-center text-gray-900 dark:text-white">
           <PeopleIcon className="mr-2" /> Recommended Players
@@ -25,7 +43,7 @@ const RecommendedPlayers = ({ players }: RecommendedPlayersProps) => {
         </button>
       </div>
 
-      <div className="flex overflow-x-auto space-x-4 pb-4 -mx-2 px-2 hide-scrollbar">
+      <div className="flex overflow-x-auto space-x-4 pb-4 -mx-2 px-2 transparent-scrollbar">
         {players.map((player) => (
           <div
             key={player.id}
@@ -36,7 +54,7 @@ const RecommendedPlayers = ({ players }: RecommendedPlayersProps) => {
               alt={`${player.username}'s avatar`}
               className="h-16 w-16 rounded-full mb-2"
             />
-            <h3 className="font-medium text-sm text-center truncate-text w-full">
+            <h3 className="font-medium text-sm text-center truncate w-full">
               {player.username}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 text-center">

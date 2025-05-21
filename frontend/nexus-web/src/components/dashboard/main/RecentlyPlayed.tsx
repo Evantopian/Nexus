@@ -15,6 +15,25 @@ interface RecentlyPlayedProps {
 const RecentlyPlayed = ({ games }: RecentlyPlayedProps) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <style>{`
+        .transparent-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: transparent transparent;
+        }
+
+        .transparent-scrollbar::-webkit-scrollbar {
+          height: 6px;
+        }
+
+        .transparent-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .transparent-scrollbar::-webkit-scrollbar-thumb {
+          background-color: transparent;
+        }
+      `}</style>
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold flex items-center text-gray-900 dark:text-white">
           <ChatIcon className="mr-2" /> Recently Played
@@ -24,7 +43,7 @@ const RecentlyPlayed = ({ games }: RecentlyPlayedProps) => {
         </button>
       </div>
 
-      <div className="flex overflow-x-auto space-x-4 pb-4 -mx-2 px-2 hide-scrollbar">
+      <div className="flex overflow-x-auto space-x-4 pb-4 -mx-2 px-2 transparent-scrollbar">
         {games.map((game) => (
           <div
             key={game.id}
@@ -38,7 +57,7 @@ const RecentlyPlayed = ({ games }: RecentlyPlayedProps) => {
               />
             </div>
             <div className="p-3">
-              <h3 className="font-medium text-sm truncate-text">
+              <h3 className="font-medium text-sm truncate">
                 {game.title}
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
