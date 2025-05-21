@@ -69,7 +69,7 @@ const PartyList = ({
     return (
       <>
         <div className="flex flex-col items-center justify-center h-32 text-center">
-          <h3 className="text-base font-semibold mb-2">Make Party</h3>
+          <h3 className="text-base font-semibold mb-2">partyData</h3>
           <button
             onClick={() => setShowCreateModal(true)}
             className="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-medium transition-colors shadow-sm flex items-center gap-1"
@@ -84,7 +84,7 @@ const PartyList = ({
     )
   }
 
-  const { id: partyId, name: _partyName, leaderId, members: partyMembers } = partyData
+  const { id: partyId, name: partyName, leaderId, members: partyMembers } = partyData
 
   const confirmKick = (userId: string) => {
     setKickConfirmId(userId)
@@ -102,7 +102,7 @@ const PartyList = ({
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-base font-semibold">Make Party</h3>
+        <h3 className="text-base font-semibold">partyName</h3>
         {leaderId === user?.uuid && (
           <button
             onClick={() => setDeleteConfirm("delete")}
