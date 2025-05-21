@@ -1,89 +1,116 @@
-"use client"
+"use client";
 
-import { useMutation, useQuery } from "@apollo/client"
-import { useState} from "react"
-import { GET_FRIENDS, GET_FRIEND_REQUESTS } from "@/graphql/friends/friendQueries"
-import { REMOVE_FRIEND, SEND_FRIEND_REQUEST } from "@/graphql/friends/friendMutations"
-import { GET_ALL_USERS } from "@/graphql/user/userQueries"
-import PlayerList from "./PlayerList"
-import FriendRequests from "./FriendRequests"
-import { useAuth } from "@/contexts/AuthContext"
-import { Users, UserPlus, Clock } from "lucide-react"
+import { useMutation, useQuery } from "@apollo/client";
+import { useState } from "react";
+import {
+  GET_FRIENDS,
+  GET_FRIEND_REQUESTS,
+} from "@/graphql/friends/friendQueries";
+import {
+  REMOVE_FRIEND,
+  SEND_FRIEND_REQUEST,
+} from "@/graphql/friends/friendMutations";
+import { GET_ALL_USERS } from "@/graphql/user/userQueries";
+import PlayerList from "./PlayerList";
+import FriendRequests from "./FriendRequests";
+import { useAuth } from "@/contexts/AuthContext";
+import { Users, UserPlus, Clock } from "lucide-react";
 
 export type Player = {
-  id: string
-  uuid: string
-  username: string
-  email: string
-  profileImg: string | null
-  status: string
-  rank: string
-}
+  id: string;
+  uuid: string;
+  username: string;
+  email: string;
+  profileImg: string | null;
+  status: string;
+  rank: string;
+};
 
 const Players = () => {
-  const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState<"all" | "friends" | "requests">("all")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [displayCount, setDisplayCount] = useState(10)
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<"all" | "friends" | "requests">(
+    "all"
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [displayCount, setDisplayCount] = useState(10);
 
-  const { data: allUsersData, loading: allUsersLoading} = useQuery(GET_ALL_USERS, {
-    variables: { limit: 40, offset: 0 },
-  })
+  const { data: allUsersData, loading: allUsersLoading } = useQuery(
+    GET_ALL_USERS,
+    {
+      variables: { limit: 40, offset: 0 },
+    }
+  );
 
   const { data: friendsData, loading: friendsLoading } = useQuery(GET_FRIENDS, {
     variables: { userId: user?.uuid },
     skip: !user?.uuid,
-  })
+  });
 
-  const { data: requestsData, loading: requestsLoading } = useQuery(GET_FRIEND_REQUESTS, {
-    variables: { userId: user?.uuid },
-    skip: !user?.uuid,
-  })
+  const { data: requestsData, loading: requestsLoading } = useQuery(
+    GET_FRIEND_REQUESTS,
+    {
+      variables: { userId: user?.uuid },
+      skip: !user?.uuid,
+    }
+  );
 
   const [sendFriendRequest] = useMutation(SEND_FRIEND_REQUEST, {
-    refetchQueries: [{ query: GET_FRIEND_REQUESTS, variables: { userId: user?.uuid } }],
-  })
+    refetchQueries: [
+      { query: GET_FRIEND_REQUESTS, variables: { userId: user?.uuid } },
+    ],
+  });
 
   const [removeFriend] = useMutation(REMOVE_FRIEND, {
     refetchQueries: [{ query: GET_FRIENDS, variables: { userId: user?.uuid } }],
-  })
+  });
 
-  const allUsers = allUsersData?.getAllUsers || []
-  const friends = friendsData?.getFriends || []
-  const friendRequests = requestsData?.getFriendRequests || { received: [], sent: [] }
+  const allUsers = allUsersData?.getAllUsers || [];
+  const friends = friendsData?.getFriends || [];
+  const friendRequests = requestsData?.getFriendRequests || {
+    received: [],
+    sent: [],
+  };
 
   const filteredUsers = allUsers
-    .filter((user: Player) => user.username.toLowerCase().includes(searchQuery.toLowerCase()))
-    .slice(0, displayCount)
+    .filter((user: Player) =>
+      user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .slice(0, displayCount);
 
   const isFriend = (uuid: string) => {
-    return friends.some((friend: Player) => friend.uuid === uuid)
-  }
+    return friends.some((friend: Player) => friend.uuid === uuid);
+  };
 
   const hasSentRequest = (uuid: string) => {
-    return friendRequests.sent?.some((request: any) => request.receiver.uuid === uuid)
-  }
+    return friendRequests.sent?.some(
+      (request: any) => request.receiver.uuid === uuid
+    );
+  };
 
   const handleAddFriend = (uuid: string) => {
     if (user?.uuid) {
-      sendFriendRequest({ variables: { senderId: user.uuid, receiverId: uuid } })
+      sendFriendRequest({
+        variables: { senderId: user.uuid, receiverId: uuid },
+      });
     }
-  }
+  };
 
   const handleRemoveFriend = (uuid: string) => {
     if (user?.uuid) {
-      removeFriend({ variables: { userId: user.uuid, friendId: uuid } })
+      removeFriend({ variables: { userId: user.uuid, friendId: uuid } });
     }
-  }
+  };
 
   const handleShowMore = () => {
-    setDisplayCount((prev) => prev + 10)
-  }
+    setDisplayCount((prev) => prev + 10);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Players</h1>
+        <h1 className="text-2xl font-bold mb-6 text-black dark:text-white">
+          Players
+        </h1>
 
         {/* Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -93,7 +120,9 @@ const Players = () => {
                 key={tab}
                 onClick={() => setActiveTab(tab as typeof activeTab)}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  activeTab === tab ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  activeTab === tab
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-black hover:bg-gray-300 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700"
                 }`}
               >
                 <span className="flex items-center">
@@ -113,13 +142,13 @@ const Players = () => {
               placeholder="Search players..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:w-64 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full sm:w-64 px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
           </div>
         </div>
 
         {/* Tab Content */}
-        <div className="bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700">
+        <div className="bg-gray-100 dark:bg-gray-800/50 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700">
           {activeTab === "all" && (
             <>
               <PlayerList
@@ -162,7 +191,7 @@ const Players = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Players
+export default Players;

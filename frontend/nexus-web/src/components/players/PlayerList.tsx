@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { Player } from "./Players"
-import { UserPlus, UserMinus, Shield, Award } from "lucide-react"
+import { useState } from "react";
+import type { Player } from "./Players";
+import { UserPlus, UserMinus, Shield, Award } from "lucide-react";
 
 type PlayerListProps = {
-  players: Player[]
-  onAddFriend?: (uuid: string) => void
-  onRemoveFriend?: (uuid: string) => void
-  isFriend?: (uuid: string) => boolean
-  hasSentRequest?: (uuid: string) => boolean
-  loading?: boolean
-}
+  players: Player[];
+  onAddFriend?: (uuid: string) => void;
+  onRemoveFriend?: (uuid: string) => void;
+  isFriend?: (uuid: string) => boolean;
+  hasSentRequest?: (uuid: string) => boolean;
+  loading?: boolean;
+};
 
 const getRankColor = (rank: string) => {
-  const rankLower = rank.toLowerCase()
-  if (rankLower.includes("bronze")) return "text-amber-600"
-  if (rankLower.includes("silver")) return "text-gray-400"
-  if (rankLower.includes("gold")) return "text-yellow-400"
-  if (rankLower.includes("platinum")) return "text-cyan-300"
-  if (rankLower.includes("diamond")) return "text-blue-400"
-  return "text-gray-400"
-}
+  const rankLower = rank.toLowerCase();
+  if (rankLower.includes("bronze")) return "text-amber-600";
+  if (rankLower.includes("silver")) return "text-gray-400";
+  if (rankLower.includes("gold")) return "text-yellow-400";
+  if (rankLower.includes("platinum")) return "text-cyan-300";
+  if (rankLower.includes("diamond")) return "text-blue-400";
+  return "text-gray-400";
+};
 
 const getRankIcon = (rank: string) => {
-  const rankLower = rank.toLowerCase()
-  if (rankLower.includes("diamond")) return <Award className="w-3 h-3 mr-1" />
-  return null
-}
+  const rankLower = rank.toLowerCase();
+  if (rankLower.includes("diamond")) return <Award className="w-3 h-3 mr-1" />;
+  return null;
+};
 
 const PlayerList = ({
   players,
@@ -37,29 +37,29 @@ const PlayerList = ({
   hasSentRequest,
   loading = false,
 }: PlayerListProps) => {
-  const [confirmUUID, setConfirmUUID] = useState<string | null>(null)
+  const [confirmUUID, setConfirmUUID] = useState<string | null>(null);
 
   const openConfirmModal = (uuid: string) => {
-    setConfirmUUID(uuid)
-  }
+    setConfirmUUID(uuid);
+  };
 
   const closeConfirmModal = () => {
-    setConfirmUUID(null)
-  }
+    setConfirmUUID(null);
+  };
 
   const confirmRemove = () => {
     if (confirmUUID && onRemoveFriend) {
-      onRemoveFriend(confirmUUID)
+      onRemoveFriend(confirmUUID);
     }
-    closeConfirmModal()
-  }
+    closeConfirmModal();
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
       </div>
-    )
+    );
   }
 
   if (players.length === 0) {
@@ -68,7 +68,7 @@ const PlayerList = ({
         <Shield className="w-12 h-12 mx-auto mb-4 text-gray-600" />
         <p className="text-gray-400">No players found.</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -91,15 +91,21 @@ const PlayerList = ({
                     player.status === "online"
                       ? "bg-green-500"
                       : player.status === "away"
-                        ? "bg-yellow-500"
-                        : "bg-gray-500"
+                      ? "bg-yellow-500"
+                      : "bg-gray-500"
                   }`}
                   title={player.status}
                 ></div>
               </div>
               <div>
-                <p className="font-medium text-white">{player.username}</p>
-                <p className={`text-sm flex items-center ${getRankColor(player.rank)}`}>
+                <p className="font-medium text-black dark:text-white">
+                  {player.username}
+                </p>
+                <p
+                  className={`text-sm flex items-center ${getRankColor(
+                    player.rank
+                  )}`}
+                >
                   {getRankIcon(player.rank)}
                   {player.rank}
                 </p>
@@ -114,7 +120,9 @@ const PlayerList = ({
                   <UserMinus className="w-4 h-4 mr-1.5" />
                   Remove Friend
                 </button>
-              ) : onAddFriend && hasSentRequest && hasSentRequest(player.uuid) ? (
+              ) : onAddFriend &&
+                hasSentRequest &&
+                hasSentRequest(player.uuid) ? (
                 <span className="px-3 py-1.5 bg-gray-700 text-gray-300 rounded-lg text-sm font-medium flex items-center">
                   Request Sent
                 </span>
@@ -138,8 +146,12 @@ const PlayerList = ({
       {confirmUUID && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-gray-800 p-6 rounded-xl shadow-xl max-w-sm w-full border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-white">Confirm Remove Friend</h2>
-            <p className="mb-6 text-gray-300">Are you sure you want to remove this friend?</p>
+            <h2 className="text-xl font-semibold mb-4 text-white">
+              Confirm Remove Friend
+            </h2>
+            <p className="mb-6 text-gray-300">
+              Are you sure you want to remove this friend?
+            </p>
             <div className="flex justify-end space-x-4">
               <button
                 onClick={closeConfirmModal}
@@ -158,7 +170,7 @@ const PlayerList = ({
         </div>
       )}
     </>
-  )
-}
+  );
+};
 
-export default PlayerList
+export default PlayerList;
