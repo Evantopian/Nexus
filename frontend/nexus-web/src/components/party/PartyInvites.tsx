@@ -1,93 +1,105 @@
+"use client"
+
 // components/PartyInvites.tsx
 type Invite = {
-  id: string;
-  invitee?: { uuid: string; username: string; profileImg?: string };
-  inviter?: { uuid: string; username: string; profileImg?: string };
-};
+  id: string
+  invitee?: { uuid: string; username: string; profileImg?: string }
+  inviter?: { uuid: string; username: string; profileImg?: string }
+}
 
 type PartyInvitesProps = {
-  sentInvites: Invite[];
-  receivedInvites: Invite[];
-  onRespond: (inviteId: string, accept: boolean) => void;
-};
+  sentInvites: Invite[]
+  receivedInvites: Invite[]
+  onRespond: (inviteId: string, accept: boolean) => void
+}
 
-const PartyInvites = ({
-  sentInvites,
-  receivedInvites,
-  onRespond,
-}: PartyInvitesProps) => {
+const PartyInvites = ({ sentInvites, receivedInvites, onRespond }: PartyInvitesProps) => {
   return (
-    <div className="w-full mb-4">
+    <div className="space-y-4">
       {/* Received Invites */}
-      <div className="mb-4">
-        <h2 className="text-lg font-bold mb-2">Invitations Received</h2>
+      <div>
+        <h3 className="text-sm font-semibold mb-2 flex items-center">
+          <span className="bg-teal-600 w-2 h-2 rounded-full mr-2"></span>
+          Invitations Received
+        </h3>
         {receivedInvites.length === 0 ? (
-          <p className="text-sm text-gray-500">No incoming invites.</p>
+          <div className="bg-gray-700/30 rounded-lg p-4 text-center">
+            <p className="text-gray-400 text-sm">No incoming invites.</p>
+          </div>
         ) : (
-          receivedInvites.map((invite) => (
-            <div
-              key={invite.id}
-              className="flex items-center justify-between border p-3 rounded mb-2"
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  src={
-                    invite.inviter?.profileImg ||
-                    "https://thispersondoesnotexist.com/"
-                  }
-                  className="w-10 h-10 rounded-full"
-                  alt="inviter"
-                />
-                <span>{invite.inviter?.username}</span>
+          <div className="space-y-2">
+            {receivedInvites.map((invite) => (
+              <div
+                key={invite.id}
+                className="flex items-center justify-between bg-gray-700/50 p-2 rounded-lg border border-gray-700"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <img
+                      src={invite.inviter?.profileImg || "/default-avatar.png"}
+                      className="w-8 h-8 rounded-full object-cover border-2 border-teal-500"
+                      alt="inviter"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-green-500 rounded-full border-2 border-gray-700"></div>
+                  </div>
+                  <span className="font-medium text-sm">{invite.inviter?.username}</span>
+                </div>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => onRespond(invite.id, true)}
+                    className="bg-teal-600 hover:bg-teal-700 text-white px-2 py-1 rounded-lg text-xs font-medium transition-colors"
+                  >
+                    Accept
+                  </button>
+                  <button
+                    onClick={() => onRespond(invite.id, false)}
+                    className="bg-gray-600 hover:bg-gray-500 text-white px-2 py-1 rounded-lg text-xs font-medium transition-colors"
+                  >
+                    Decline
+                  </button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onRespond(invite.id, true)}
-                  className="bg-green-500 text-white px-3 py-1 rounded"
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={() => onRespond(invite.id, false)}
-                  className="bg-red-500 text-white px-3 py-1 rounded"
-                >
-                  Decline
-                </button>
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 
       {/* Sent Invites */}
       <div>
-        <h2 className="text-lg font-bold mb-2">Invitations Sent</h2>
+        <h3 className="text-sm font-semibold mb-2 flex items-center">
+          <span className="bg-amber-500 w-2 h-2 rounded-full mr-2"></span>
+          Invitations Sent
+        </h3>
         {sentInvites.length === 0 ? (
-          <p className="text-sm text-gray-500">No outgoing invites.</p>
+          <div className="bg-gray-700/30 rounded-lg p-4 text-center">
+            <p className="text-gray-400 text-sm">No outgoing invites.</p>
+          </div>
         ) : (
-          sentInvites.map((invite) => (
-            <div
-              key={invite.id}
-              className="flex items-center justify-start border p-3 rounded mb-2"
-            >
-              <img
-                src={
-                  invite.invitee?.profileImg ||
-                  "https://thispersondoesnotexist.com/"
-                }
-                className="w-10 h-10 rounded-full mr-3"
-                alt="invitee"
-              />
-              <span>{invite.invitee?.username}</span>
-              <span className="ml-auto text-sm italic text-gray-400">
-                Pending...
-              </span>
-            </div>
-          ))
+          <div className="space-y-2">
+            {sentInvites.map((invite) => (
+              <div
+                key={invite.id}
+                className="flex items-center justify-between bg-gray-700/50 p-2 rounded-lg border border-gray-700"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <img
+                      src={invite.invitee?.profileImg || "/default-avatar.png"}
+                      className="w-8 h-8 rounded-full object-cover border-2 border-gray-600"
+                      alt="invitee"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full border-2 border-gray-700"></div>
+                  </div>
+                  <span className="font-medium text-sm">{invite.invitee?.username}</span>
+                </div>
+                <span className="text-xs bg-gray-600 px-2 py-0.5 rounded-full text-gray-300">Pending</span>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PartyInvites;
+export default PartyInvites
