@@ -22,7 +22,7 @@ const DeletePartyModal = ({
         <div className="flex justify-center gap-4">
           <button
             onClick={onConfirm}
-            className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-colors shadow-sm"
+            className="px-5 py-2.5 bg-indigo-600 hover:bg-red-700 text-white rounded-lg font-medium text-sm transition-colors shadow-sm"
           >
             Yes, Delete
           </button>

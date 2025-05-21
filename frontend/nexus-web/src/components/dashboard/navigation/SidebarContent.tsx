@@ -16,7 +16,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
   // Remap the “Direct Messages” link to /chat (so your index route logic will run)
   const chatItems = rawChatItems.map((item) => {
     let href = item.href;
-    if (item.href.includes("/chat/direct")) {
+    if (item.href.includes("/chat/dms")) {
       href = "/chat";
     }
     // if you ever have a standalone “all groups” link you could map that here too:
@@ -71,7 +71,11 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
               href={item.href}
               tooltip={item.tooltip}
               label={item.label}
-              active={location.pathname.startsWith(item.href)}
+              active={
+                item.href === "/chat"
+                  ? location.pathname === "/chat"
+                  : location.pathname.startsWith(item.href)
+              }
               expanded={expanded}
             />
           ))}
@@ -84,7 +88,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
         <div className="space-y-1">
           {serverItems.map((item, i) => (
             <NavItem
-              key={`server-${i}`}
+              key={`chat/server-${i}`}
               {...item}
               active={location.pathname === item.href}
               expanded={expanded}

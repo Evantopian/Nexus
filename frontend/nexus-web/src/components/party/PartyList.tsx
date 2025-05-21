@@ -60,7 +60,7 @@ const PartyList = ({
     return (
       <div className="flex justify-center items-center h-32">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
-      </div>
+      </div>  
     )
   }
 
@@ -106,7 +106,7 @@ const PartyList = ({
         {leaderId === user?.uuid && (
           <button
             onClick={() => setDeleteConfirm("delete")}
-            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium transition-colors"
+            className="px-3 py-1 bg-indigo-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium transition-colors"
           >
             Disband
           </button>

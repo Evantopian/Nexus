@@ -22,17 +22,11 @@ const PlayerRecommendation = ({
 
   // Generate random stats for each player
   const getPlayerStats = (playerId: string) => {
-    // Use a deterministic seed based on player ID to ensure consistent stats
     const seed = playerId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
 
-    // Generate match percentage (70-99%)
     const matchPercentage = 70 + (seed % 30)
-
-    // Generate rating (3.5-5.0)
     const rating = (3.5 + (seed % 15) / 10).toFixed(1)
-
-    // Generate games count (10-150)
-    const gamesCount = 10 + (seed % 141)
+    const gamesCount = 4 + (seed % 141)
 
     return {
       matchPercentage,
