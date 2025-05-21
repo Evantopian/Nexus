@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQuery } from "@apollo/client"
-import { useState } from "react"
+import { useState} from "react"
 import { GET_FRIENDS, GET_FRIEND_REQUESTS } from "@/graphql/friends/friendQueries"
 import { REMOVE_FRIEND, SEND_FRIEND_REQUEST } from "@/graphql/friends/friendMutations"
 import { GET_ALL_USERS } from "@/graphql/user/userQueries"
@@ -24,25 +24,22 @@ const Players = () => {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<"all" | "friends" | "requests">("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [displayCount, setDisplayCount] = useState(10)
 
-  // Fetch all users
-  const { data: allUsersData, loading: allUsersLoading } = useQuery(GET_ALL_USERS, {
-    variables: { limit: 10 }, // or whatever is expected by your backend schema
+  const { data: allUsersData, loading: allUsersLoading} = useQuery(GET_ALL_USERS, {
+    variables: { limit: 40, offset: 0 },
   })
 
-  // Fetch friends
   const { data: friendsData, loading: friendsLoading } = useQuery(GET_FRIENDS, {
     variables: { userId: user?.uuid },
     skip: !user?.uuid,
   })
 
-  // Fetch friend requests
   const { data: requestsData, loading: requestsLoading } = useQuery(GET_FRIEND_REQUESTS, {
     variables: { userId: user?.uuid },
     skip: !user?.uuid,
   })
 
-  // Mutations
   const [sendFriendRequest] = useMutation(SEND_FRIEND_REQUEST, {
     refetchQueries: [{ query: GET_FRIEND_REQUESTS, variables: { userId: user?.uuid } }],
   })
@@ -55,33 +52,32 @@ const Players = () => {
   const friends = friendsData?.getFriends || []
   const friendRequests = requestsData?.getFriendRequests || { received: [], sent: [] }
 
-  // Filter users based on search query
-  const filteredUsers = allUsers.filter((user: Player) =>
-    user.username.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  const filteredUsers = allUsers
+    .filter((user: Player) => user.username.toLowerCase().includes(searchQuery.toLowerCase()))
+    .slice(0, displayCount)
 
-  // Check if a player is a friend
   const isFriend = (uuid: string) => {
     return friends.some((friend: Player) => friend.uuid === uuid)
   }
 
-  // Check if a friend request has been sent to a player
   const hasSentRequest = (uuid: string) => {
     return friendRequests.sent?.some((request: any) => request.receiver.uuid === uuid)
   }
 
-  // Handle adding a friend
   const handleAddFriend = (uuid: string) => {
     if (user?.uuid) {
       sendFriendRequest({ variables: { senderId: user.uuid, receiverId: uuid } })
     }
   }
 
-  // Handle removing a friend
   const handleRemoveFriend = (uuid: string) => {
     if (user?.uuid) {
       removeFriend({ variables: { userId: user.uuid, friendId: uuid } })
     }
+  }
+
+  const handleShowMore = () => {
+    setDisplayCount((prev) => prev + 10)
   }
 
   return (
@@ -92,39 +88,22 @@ const Players = () => {
         {/* Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex space-x-2">
-            <button
-              onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                activeTab === "all" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-              }`}
-            >
-              <span className="flex items-center">
-                <Users className="w-4 h-4 mr-2" />
-                All
-              </span>
-            </button>
-            <button
-              onClick={() => setActiveTab("friends")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                activeTab === "friends" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-              }`}
-            >
-              <span className="flex items-center">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Friends
-              </span>
-            </button>
-            <button
-              onClick={() => setActiveTab("requests")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                activeTab === "requests" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-              }`}
-            >
-              <span className="flex items-center">
-                <Clock className="w-4 h-4 mr-2" />
-                Requests
-              </span>
-            </button>
+            {["all", "friends", "requests"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab as typeof activeTab)}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                  activeTab === tab ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                }`}
+              >
+                <span className="flex items-center">
+                  {tab === "all" && <Users className="w-4 h-4 mr-2" />}
+                  {tab === "friends" && <UserPlus className="w-4 h-4 mr-2" />}
+                  {tab === "requests" && <Clock className="w-4 h-4 mr-2" />}
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </span>
+              </button>
+            ))}
           </div>
 
           {/* Search */}
@@ -139,16 +118,29 @@ const Players = () => {
           </div>
         </div>
 
-        {/* Content based on active tab */}
+        {/* Tab Content */}
         <div className="bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700">
           {activeTab === "all" && (
-            <PlayerList
-              players={filteredUsers}
-              onAddFriend={handleAddFriend}
-              onRemoveFriend={handleRemoveFriend}
-              isFriend={isFriend}
-              loading={allUsersLoading}
-            />
+            <>
+              <PlayerList
+                players={filteredUsers}
+                onAddFriend={handleAddFriend}
+                onRemoveFriend={handleRemoveFriend}
+                isFriend={isFriend}
+                hasSentRequest={hasSentRequest}
+                loading={allUsersLoading}
+              />
+              {displayCount < allUsers.length && (
+                <div className="flex justify-center p-4">
+                  <button
+                    onClick={handleShowMore}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Show More
+                  </button>
+                </div>
+              )}
+            </>
           )}
 
           {activeTab === "friends" && (
