@@ -1,58 +1,103 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { SvgUri } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useMutation, useQuery } from '@apollo/client';
+import { FOLLOW_GAME, UNFOLLOW_GAME, IS_USER_FOLLOWING_GAME } from '../../graphql/game/gameMutations';
+import { useAuth } from '../../context/AuthContext';
+import { useFollowedGames } from '../../context/FollowedGamesContext';
+import { GET_USER_FOLLOWED_GAMES } from '../../graphql/user/userQueries';
 
 const GameCard = ({ game }) => {
-    const navigation = useNavigation();
-    const isSvg = game.image.endsWith('.svg') || game.image.includes('svg');
-    const [isFollowing, setIsFollowing] = useState(false);
+  const navigation = useNavigation();
+  const isSvg = game.image.endsWith('.svg') || game.image.includes('svg');
+  const { user } = useAuth();
+  const { followedGames, refetch } = useFollowedGames();
 
-    const handlePress = () => {
-        navigation.navigate('Dashboard', { game });
-    };
+  // Local state for isFollowing to force re-render on mutation
+  const [isFollowing, setIsFollowing] = useState(false);
 
-    const toggleFollow = () => {
-        setIsFollowing((prev) => !prev);
-    };
+  const [followGame] = useMutation(FOLLOW_GAME, {
+    refetchQueries: [
+      {
+        query: GET_USER_FOLLOWED_GAMES,
+        variables: { userId: user?.uuid }
+      }
+    ],
+  });
+  const [unfollowGame] = useMutation(UNFOLLOW_GAME, {
+    refetchQueries: [
+      {
+        query: GET_USER_FOLLOWED_GAMES,
+        variables: { userId: user?.uuid }
+      }
+    ],
+  });
 
-    return (
-        <TouchableOpacity onPress={handlePress} style={styles.card}>
-            {isSvg ? (
-                <SvgUri uri={game.image} style={styles.image} />
-            ) : (
-                <Image source={{ uri: game.image }} style={styles.image} />
-            )}
-            <View style={styles.infoContainer}>
-                <View style={styles.headerRow}>
-                    <Text style={styles.title}>{game.title}</Text>
-                    <TouchableOpacity onPress={toggleFollow}>
-                        <Ionicons
-                            name={isFollowing ? 'heart' : 'heart-outline'}
-                            size={24}
-                            color={isFollowing ? 'red' : '#ccc'}
-                            style={styles.followIcon}
-                        />
-                    </TouchableOpacity>
-                </View>
-                <Text style={styles.label}>Description:</Text>
-                <Text style={styles.description}>{game.shortDescription}</Text>
-                <View style={styles.memberRow}>
-                    <Ionicons name="people" size={18} color="#90ee90" />
-                    <Text style={styles.memberCount}>{game.players}</Text>
-                </View>
+  const { data: isFollowingData, refetch: refetchIsFollowing } = useQuery(IS_USER_FOLLOWING_GAME, {
+    variables: { userId: user?.uuid, gameId: game.id },
+    skip: !user?.uuid || !game.id,
+  });
 
-                <View style={styles.tagsContainer}>
-                    {game.tags.map((tag, index) => (
-                        <View key={index} style={styles.tag}>
-                            <Text style={styles.tagText}>{tag}</Text>
-                        </View>
-                    ))}
-                </View>
+  useEffect(() => {
+    if (typeof isFollowingData?.isUserFollowingGame === 'boolean') {
+      setIsFollowing(isFollowingData.isUserFollowingGame);
+    } else {
+      setIsFollowing(followedGames.some(g => g.id === game.id));
+    }
+  }, [isFollowingData, followedGames, game.id]);
+
+  const handlePress = () => {
+    navigation.navigate('Dashboard', { game });
+  };
+
+  const toggleFollow = async () => {
+    if (!user?.uuid) return;
+    if (isFollowing) {
+      await unfollowGame({ variables: { slug: game.slug } });
+    } else {
+      await followGame({ variables: { slug: game.slug } });
+    }
+    await refetch();
+    await refetchIsFollowing();
+  };
+
+  return (
+    <TouchableOpacity onPress={handlePress} style={styles.card}>
+      {isSvg ? (
+        <SvgUri uri={game.image} style={styles.image} />
+      ) : (
+        <Image source={{ uri: game.image }} style={styles.image} />
+      )}
+      <View style={styles.infoContainer}>
+        <View style={styles.headerRow}>
+          <Text style={styles.title}>{game.title}</Text>
+          <TouchableOpacity onPress={toggleFollow}>
+            <Ionicons
+              name={isFollowing ? 'heart' : 'heart-outline'}
+              size={24}
+              color={isFollowing ? 'red' : '#ccc'}
+              style={styles.followIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.label}>Description:</Text>
+        <Text style={styles.description}>{game.shortDescription}</Text>
+        <View style={styles.memberRow}>
+          <Ionicons name="people" size={18} color="#90ee90" />
+          <Text style={styles.memberCount}>{game.players}</Text>
+        </View>
+        <View style={styles.tagsContainer}>
+          {game.tags.map((tag, index) => (
+            <View key={index} style={styles.tag}>
+              <Text style={styles.tagText}>{tag}</Text>
             </View>
-        </TouchableOpacity>
-    );
+          ))}
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 };
 
 const styles = StyleSheet.create({

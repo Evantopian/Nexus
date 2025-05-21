@@ -1,17 +1,13 @@
 import React from 'react';
 import { SafeAreaView, Text, StyleSheet, FlatList } from 'react-native';
-import { getAllGames } from '../../data/DummyGameData';
 import GameItem from '../../components/GameItem';
+import { useFollowedGames } from '../../context/FollowedGamesContext';
 
 export default function Home({ topPadding }) {
-  const gamesList = getAllGames().slice(0, 4);
+  const { followedGames, loading } = useFollowedGames();
 
-  const renderGameItem = ({ item }) => (
-    <GameItem
-      title={item.title}
-      logo={item.logo}
-      shortDescription={item.shortDescription}
-    />
+  const renderGame = ({ item }) => (
+    <GameItem game={item} />
   );
 
   return (
@@ -20,11 +16,16 @@ export default function Home({ topPadding }) {
       <Text style={styles.subHeader}>Followed Games</Text>
 
       <FlatList
-        data={gamesList}
-        renderItem={renderGameItem}
-        keyExtractor={(item) => item.id.toString()}
+        data={followedGames}
+        renderItem={renderGame}
+        keyExtractor={(item) => item.id?.toString?.() || item.slug || String(item)}
         style={styles.gameList}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          loading
+            ? <Text>Loading...</Text>
+            : <Text>No followed games yet.</Text>
+        }
       />
     </SafeAreaView>
   );

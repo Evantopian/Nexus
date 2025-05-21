@@ -1,29 +1,23 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { SvgUri } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 
-const GameItem = ({ title, logo, shortDescription }) => {
+const GameItem = ({ game }) => {
   const navigation = useNavigation();
-  const isSvg = logo.endsWith('.svg') || logo.includes('svg');
 
   const handlePress = () => {
-    navigation.navigate('Dashboard', { gameTitle: title });
+    navigation.navigate('Dashboard', { game });
   };
 
   return (
     <TouchableOpacity onPress={handlePress} style={styles.wrapper}>
       <View style={styles.gameItem}>
-        {isSvg ? (
-          <SvgUri  uri={ logo } style={styles.gameIcon}/>
-        ) : (
-          <Image source={{ uri: logo }} style={styles.gameIcon}/>
-        )}
+        <Image source={{ uri: game.logo }} style={styles.gameIcon} />
 
         <View style={{ flex: 1 }}>
-          <Text style={styles.gameTitle}>{title}</Text>
-          {shortDescription && (
-            <Text style={styles.gameDescription}>{shortDescription}</Text>
+          <Text style={styles.gameTitle}>{game.title}</Text>
+          {game.shortDescription && (
+            <Text style={styles.gameDescription}>{game.shortDescription}</Text>
           )}
         </View>
       </View>

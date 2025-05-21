@@ -145,48 +145,82 @@ export const gameTags = {
       ],
       topPlayers: [
         {
-          id: 1,
-          name: "IronFanatic",
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player1marvel",
-          role: "verified",
-          level: 78,
-          status: "online",
+          uuid: "1-marvel",
+          email: "ironfanatic@marvel.com",
+          username: "IronFanatic",
+          profileImg: "https://api.dicebear.com/7.x/avataaars/svg?seed=player1marvel",
+          region: "NA",
+          genre: "Action",
+          platform: "PC",
+          playstyle: "Aggressive",
+          rank: "Diamond",
+          reputation: 98,
+          age: 22,
         },
         {
-          id: 2,
-          name: "CapShieldPro",
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player2marvel",
-          level: 65,
-          status: "online",
+          uuid: "2-marvel",
+          email: "capshieldpro@marvel.com",
+          username: "CapShieldPro",
+          profileImg: "https://api.dicebear.com/7.x/avataaars/svg?seed=player2marvel",
+          region: "EU",
+          genre: "Action",
+          platform: "PlayStation 5",
+          playstyle: "Defensive",
+          rank: "Platinum",
+          reputation: 95,
+          age: 25,
         },
         {
-          id: 3,
-          name: "ThorHammer",
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player3marvel",
-          level: 92,
-          status: "away",
+          uuid: "3-marvel",
+          email: "thorhammer@marvel.com",
+          username: "ThorHammer",
+          profileImg: "https://api.dicebear.com/7.x/avataaars/svg?seed=player3marvel",
+          region: "NA",
+          genre: "Action",
+          platform: "Xbox Series X/S",
+          playstyle: "Balanced",
+          rank: "Gold",
+          reputation: 90,
+          age: 27,
         },
         {
-          id: 4,
-          name: "SpiderQueen",
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player4marvel",
-          role: "verified",
-          level: 87,
-          status: "online",
+          uuid: "4-marvel",
+          email: "spiderqueen@marvel.com",
+          username: "SpiderQueen",
+          profileImg: "https://api.dicebear.com/7.x/avataaars/svg?seed=player4marvel",
+          region: "ASIA",
+          genre: "Action",
+          platform: "PC",
+          playstyle: "Stealth",
+          rank: "Diamond",
+          reputation: 99,
+          age: 21,
         },
         {
-          id: 5,
-          name: "HulkSmash99",
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player5marvel",
-          level: 54,
-          status: "offline",
+          uuid: "5-marvel",
+          email: "hulksmash99@marvel.com",
+          username: "HulkSmash99",
+          profileImg: "https://api.dicebear.com/7.x/avataaars/svg?seed=player5marvel",
+          region: "NA",
+          genre: "Action",
+          platform: "PC",
+          playstyle: "Aggressive",
+          rank: "Silver",
+          reputation: 80,
+          age: 24,
         },
         {
-          id: 6,
-          name: "BlackWidowSpy",
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=player6marvel",
-          level: 71,
-          status: "online",
+          uuid: "6-marvel",
+          email: "blackwidowspy@marvel.com",
+          username: "BlackWidowSpy",
+          profileImg: "https://api.dicebear.com/7.x/avataaars/svg?seed=player6marvel",
+          region: "EU",
+          genre: "Action",
+          platform: "PC",
+          playstyle: "Tactical",
+          rank: "Platinum",
+          reputation: 92,
+          age: 23,
         },
       ],
       lfgPosts: [
@@ -1179,8 +1213,8 @@ export const gameTags = {
     },
   ];
   
-const getGameByTitle = (title) => {
-    return games.find((game) => game.title === title);
+const getGameBySlug = (slug) => {
+    return games.find((game) => game.slug === slug);
 };
 
 const getAllGames = () => {
@@ -1191,5 +1225,17 @@ const getTagColor = (tagName) => {
     return gameTags[tagName]?.color || "bg-gray-100 text-gray-700";
 };
 
-export { getGameByTitle, getAllGames, getTagColor };
+const getAllGuilds = () => {
+  return games.flatMap((game) =>
+    (game.servers || []).map(server => ({
+      ...server,
+      gameId: String(game.id), 
+      gameTitle: game.title,
+      gameSlug: game.slug,
+      id: `${game.id}-${server.id}`, 
+    }))
+  );
+};
+
+export { getGameBySlug, getAllGames, getTagColor, getAllGuilds };
 export default games;

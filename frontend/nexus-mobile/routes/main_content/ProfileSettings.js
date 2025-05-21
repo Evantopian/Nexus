@@ -15,7 +15,6 @@ export default function ProfileSettings({ topPadding }) {
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
-      {/* Settings Icon */}
       <TouchableOpacity
         style={styles.settingsIcon}
         onPress={() => navigation.navigate("Settings")}
@@ -35,7 +34,6 @@ export default function ProfileSettings({ topPadding }) {
           <Text style={styles.level}>Status: {user.status || "offline"}</Text>
         </View>
 
-        {/* Edit Profile Button */}
         <TouchableOpacity
           style={styles.editProfileButton}
           onPress={() => navigation.navigate("EditProfile")}
@@ -45,7 +43,6 @@ export default function ProfileSettings({ topPadding }) {
         </TouchableOpacity>
       </View>
 
-      {/* Bio Section */}
       <View style={styles.bioContainer}>
         <Text style={styles.bioHeader}>Bio</Text>
         <Text style={styles.bioText}>
@@ -63,7 +60,6 @@ export default function ProfileSettings({ topPadding }) {
           </View>
         </View>
 
-        {/* Preferences Section */}
         <View style={styles.preferencesContainer}>
           <Text style={styles.preferencesHeader}>Preferences</Text>
           <Text style={styles.preferenceItem}>

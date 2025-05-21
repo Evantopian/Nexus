@@ -7,8 +7,10 @@ import PlayerCard from "../../components/Cards/PlayerCard";
 import GroupCard from "../../components/Cards/GroupCard";
 import { useGames } from "../../context/GameContext";
 import { useQuery } from "@apollo/client";
-import { PROFILE_QUERY } from "../../graphql/user/userQueries";
+import { GET_RECOMMENDATIONS } from "../../graphql/user/userQueries";
+import { GET_ALL_LFG_POSTS } from "../../graphql/lfg/lfgQueries";
 import { useAuth } from "../../context/AuthContext";
+import { getAllGuilds } from "../../data/DummyGameData";
 
 export default function FilterBox({ topPadding }) {
   const [selectedCategory, setSelectedCategory] = useState("Games");
@@ -16,30 +18,37 @@ export default function FilterBox({ topPadding }) {
   const { games } = useGames();
   const { user } = useAuth();
 
-  const { data: playerData, loading: playerLoading, error: playerError } = useQuery(PROFILE_QUERY, {
+  const { data: playerData, loading: playerLoading, error: playerError } = useQuery(GET_RECOMMENDATIONS, {
     variables: { userId: user?.uuid, numRecommendations: 10 },
     skip: selectedCategory !== "Players" || !user?.uuid,
   });
-  
-  console.log("Player Data:", playerData);
+
+  const { data: lfgData, loading: lfgLoading, error: lfgError } = useQuery(GET_ALL_LFG_POSTS, {
+    variables: { limit: 50, offset: 0 },
+    skip: selectedCategory !== "Groups",
+  });
 
   const getData = () => {
     let data = [];
     if (selectedCategory === "Games") data = games;
-    if (selectedCategory === "Guilds") data = games.flatMap((game) => game.servers || []);
+    if (selectedCategory === "Guilds") data = getAllGuilds();
     if (selectedCategory === "Players") {
       if (playerData && playerData.getRecommendations) {
-        data = playerData.getRecommendations.slice(0, 10);
+        data = playerData.getRecommendations;
       }
     }
-    if (selectedCategory === "Groups") data = games.flatMap((game) => game.lfgPosts || []);
+    if (selectedCategory === "Groups") {
+      if (lfgData && lfgData.getAllLFGPosts) {
+        data = lfgData.getAllLFGPosts;
+      }
+    }
 
     if (searchQuery.trim() !== "") {
       return data.filter((item) =>
         (item.name || item.title || item.username || "").toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    return data;
+    return data.slice(0, 10);
   };
 
   const renderItem = ({ item }) => {

@@ -3,6 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { AuthProvider } from "./context/AuthContext";
 import { GameProvider } from "./context/GameContext";
+import { FollowedGamesProvider } from "./context/FollowedGamesContext";
 import { ApolloProvider } from "@apollo/client";
 import Constants from 'expo-constants';
 import axios from "axios";
@@ -26,17 +27,19 @@ export default function App() {
     <AuthProvider>
       <ApolloProvider client={client}>
         <GameProvider>
-          <NavigationContainer>
-            <Stack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="Landing" component={Landing} />
-              <Stack.Screen name="Signup" component={Signup} />
-              <Stack.Screen name="Login" component={Login} />
-              <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-              <Stack.Screen name="Main Content" component={BottomNav} />
-              <Stack.Screen name="Dashboard" component={Dashboard} />
-              <Stack.Screen name="Settings" component={Settings} />
-            </Stack.Navigator>
-          </NavigationContainer>
+          <FollowedGamesProvider>
+            <NavigationContainer>
+              <Stack.Navigator initialRouteName="Landing" screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="Landing" component={Landing} />
+                <Stack.Screen name="Signup" component={Signup} />
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+                <Stack.Screen name="Main Content" component={BottomNav} />
+                <Stack.Screen name="Dashboard" component={Dashboard} />
+                <Stack.Screen name="Settings" component={Settings} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </FollowedGamesProvider>
         </GameProvider>
       </ApolloProvider>
     </AuthProvider>

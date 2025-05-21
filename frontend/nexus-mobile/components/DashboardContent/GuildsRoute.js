@@ -1,9 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import GuildCard from '../Cards/GuildCard';
+import { getGameBySlug } from '../../data/DummyGameData';
 
-const GuildsRoute = ({ gameData }) => {
-  const servers = gameData?.servers;
+const GuildsRoute = ({ gameSlug }) => {
+  const game = getGameBySlug(gameSlug);
+  const servers = game?.servers || [];
+
   return (
     <View style={styles.scene}>
       <Text style={styles.contentText}>Guilds / Factions / Servers content</Text>
@@ -11,7 +14,7 @@ const GuildsRoute = ({ gameData }) => {
         <FlatList
           data={servers}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <GuildCard server={item} />} 
+          renderItem={({ item }) => <GuildCard server={item} />}
           contentContainerStyle={styles.listContainer}
         />
       ) : (

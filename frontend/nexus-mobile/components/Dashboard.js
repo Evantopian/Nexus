@@ -26,9 +26,9 @@ export default function Dashboard({ route }) {
   const backgroundImage = game?.banner || game?.image;
 
   const renderScene = SceneMap({
-    guilds: () => <GuildsRoute gameData={game} />,
-    players: () => <PlayersRoute gameData={game} />,
-    lfg: () => <LFGRoute gameData={game} />,
+    guilds: () => <GuildsRoute gameSlug={game.slug} />,
+    players: () => <PlayersRoute gameSlug={game.slug} />,
+    lfg: () => <LFGRoute gameSlug={game.slug} />,
   });
 
   return (

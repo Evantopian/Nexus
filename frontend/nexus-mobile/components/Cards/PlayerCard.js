@@ -14,15 +14,30 @@ const PlayerCard = ({ player }) => {
       )}
       <View style={styles.infoContainer}>
         <View style={styles.nameRow}>
-          <Text style={styles.title}>{player.username}</Text>
+          <Text style={styles.title}>{player.username} </Text>
         </View>
-        <Text style={styles.label}>Email: <Text style={styles.value}>{player.email || "N/A"}</Text></Text>
-        <Text style={styles.label}>Region: <Text style={styles.value}>{player.region || "N/A"}</Text></Text>
-        <Text style={styles.label}>Genre: <Text style={styles.value}>{player.genre || "N/A"}</Text></Text>
-        <Text style={styles.label}>Platform: <Text style={styles.value}>{player.platform || "N/A"}</Text></Text>
-        <Text style={styles.label}>Playstyle: <Text style={styles.value}>{player.playstyle || "N/A"}</Text></Text>
-        <Text style={styles.label}>Rank: <Text style={styles.value}>{player.rank || "N/A"}</Text></Text>
-        <Text style={styles.label}>Age: <Text style={styles.value}>{player.age ?? "N/A"}</Text></Text>
+        <View style={styles.row}>
+          <Text style={styles.label}>
+            Region: <Text style={styles.value}>{player.region || "N/A"}</Text>
+          </Text>
+          <Text style={styles.label}>
+            Age: <Text style={styles.value}>{player.age ?? "N/A"}</Text>
+          </Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>
+            Genre: <Text style={styles.value}>{player.genre || "N/A"}</Text>
+          </Text>
+          <Text style={styles.label}>
+            Platform: <Text style={styles.value}>{player.platform || "N/A"}</Text>
+          </Text>
+        </View>
+        <Text style={styles.label}>
+          Playstyle: <Text style={styles.value}>{player.playstyle || "N/A"}</Text>
+        </Text>
+        <Text style={styles.label}>
+          Rank: <Text style={styles.value}>{player.rank || "N/A"}</Text>
+        </Text>
         <TouchableOpacity style={styles.joinButton}>
           <Text style={styles.joinText}>+ Add Friend</Text>
         </TouchableOpacity>
@@ -71,7 +86,7 @@ const styles = StyleSheet.create({
   },
   value: {
     color: '#90ee90',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   joinButton: {
@@ -86,6 +101,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 2,
   },
 });
 

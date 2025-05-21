@@ -1,17 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import PlayerCard from '../Cards/PlayerCard';
+import { getGameBySlug } from '../../data/DummyGameData';
 
-const PlayersRoute = ({ gameData }) => {
-  const topPlayers = gameData?.topPlayers;
+const PlayersRoute = ({ gameSlug }) => {
+  const game = getGameBySlug(gameSlug);
+  const topPlayers = game?.topPlayers || [];
+
   return (
     <View style={styles.scene}>
       <Text style={styles.contentText}>Top Players</Text>
       {topPlayers && topPlayers.length > 0 ? (
         <FlatList
           data={topPlayers}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <PlayerCard player={item} />} 
+          keyExtractor={(item) => item.uuid}
+          renderItem={({ item }) => <PlayerCard player={item} />}
           contentContainerStyle={styles.listContainer}
         />
       ) : (

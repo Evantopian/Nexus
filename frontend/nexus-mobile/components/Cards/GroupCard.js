@@ -1,10 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { SvgUri } from 'react-native-svg';
 
 const GroupCard = ({ group }) => {
-  const isSvg = group.author.avatar.endsWith('.svg') || group.author.avatar.includes('svg');
-
   return (
     <View style={styles.card}>
       <View style={styles.infoContainer}>
@@ -37,12 +34,12 @@ const GroupCard = ({ group }) => {
         )}
 
         <View style={styles.authorRow}>
-          {isSvg ? (
-            <SvgUri uri={ group.author.avatar } style={styles.avatar} />
+          {group.author?.profileImg ? (
+            <Image source={{ uri: group.author.profileImg }} style={styles.avatar} />
           ) : (
-            <Image source={{ uri: group.author.avatar }} style={styles.avatar} />
+            <View style={[styles.avatar, { backgroundColor: "#ccc" }]} />
           )}
-          <Text style={styles.authorName}>{group.author.name}</Text>
+          <Text style={styles.authorName}>{group.author?.username || "Unknown"}</Text>
         </View>
         <TouchableOpacity style={styles.joinButton}>
           <Text style={styles.joinText}>Join Group</Text>
