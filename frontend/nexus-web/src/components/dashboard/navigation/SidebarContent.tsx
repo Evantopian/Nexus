@@ -13,16 +13,11 @@ interface SidebarContentProps {
 const SidebarContent: React.FC<SidebarContentProps> = ({ expanded }) => {
   const location = useLocation();
 
-  // Remap the “Direct Messages” link to /chat (so your index route logic will run)
   const chatItems = rawChatItems.map((item) => {
     let href = item.href;
-    if (item.href.includes("/chat/dms")) {
-      href = "/chat";
+    if (item.href.includes("/chat/direct")) {
+      href = "/chat/dms";
     }
-    // if you ever have a standalone “all groups” link you could map that here too:
-    // else if (item.href.includes("/chat/groups")) {
-    //   href = "/chat/groups";
-    // }
     return { ...item, href };
   });
 
