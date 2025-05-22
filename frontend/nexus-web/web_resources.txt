@@ -3,3 +3,5 @@ https://colorhunt.co/  (referencing our dynamaic color palette)
 https://ui.shadcn.com/ (component library)
 
 Build auth fix.
+
+# resolving key
