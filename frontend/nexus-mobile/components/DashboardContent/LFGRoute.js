@@ -1,22 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import GroupCard from '../Cards/GroupCard';
 import { useQuery } from '@apollo/client';
 import { GET_LFG_POSTS_BY_SLUG } from '../../graphql/lfg/lfgQueries';
+import CreateGroupModal from '../Modal/CreateGroup';
 
-const LFGRoute = ({ gameSlug, onCreateGroup }) => {
-  const { data, loading, error } = useQuery(GET_LFG_POSTS_BY_SLUG, {
+const LFGRoute = ({ gameSlug, gameId }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const { data, loading, error, refetch } = useQuery(GET_LFG_POSTS_BY_SLUG, {
     variables: { slug: gameSlug },
     skip: !gameSlug,
   });
 
   const groups = data?.getLFGPosts || [];
 
+  const handleGroupCreated = () => {
+    setModalVisible(false);
+    refetch();
+  };
+
   return (
     <View style={styles.scene}>
       <View style={styles.headerRow}>
         <Text style={styles.contentText}>Groups</Text>
-        <TouchableOpacity style={styles.createButton} onPress={onCreateGroup}>
+        <TouchableOpacity style={styles.createButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.createButtonText}>+ Create a Group</Text>
         </TouchableOpacity>
       </View>
@@ -34,6 +42,13 @@ const LFGRoute = ({ gameSlug, onCreateGroup }) => {
       ) : (
         <Text style={styles.noGroupsText}>No Group Created</Text>
       )}
+      <CreateGroupModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSubmit={handleGroupCreated}
+        fixedGameId={data?.getLFGPosts?.[0]?.game?.id || null}
+        gameId={gameId}
+      />
     </View>
   );
 };

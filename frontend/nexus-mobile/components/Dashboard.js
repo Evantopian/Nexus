@@ -28,7 +28,7 @@ export default function Dashboard({ route }) {
   const renderScene = SceneMap({
     guilds: () => <GuildsRoute gameSlug={game.slug} />,
     players: () => <PlayersRoute gameSlug={game.slug} />,
-    lfg: () => <LFGRoute gameSlug={game.slug} />,
+    lfg: () => <LFGRoute gameSlug={game.slug} gameId={game.id} />,
   });
 
   return (

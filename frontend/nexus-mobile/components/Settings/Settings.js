@@ -7,13 +7,13 @@ import { useAuth } from "../../context/AuthContext";
 export default function Settings({ topPadding }) {
   const navigation = useNavigation();
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const { logout } = useAuth();
 
   const toggleDarkMode = () => {
     setIsDarkMode((prevMode) => !prevMode);
   };
 
-  const handleSubmit = async () => {
-    setError("");
+  const handleLogout = async () => {
     try {
       await logout();
       navigation.navigate("Login");
@@ -48,7 +48,7 @@ export default function Settings({ topPadding }) {
           <Text style={styles.menuText}>Help & Support</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.menuItem, styles.logout]} onPress={() => navigation.navigate("Login")}>
+        <TouchableOpacity style={[styles.menuItem, styles.logout]} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color="#E53E3E" />
           <Text style={[styles.menuText, { color: "#E53E3E" }]}>Logout</Text>
         </TouchableOpacity>

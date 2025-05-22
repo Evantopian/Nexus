@@ -6,11 +6,13 @@ import ProfileSettings from "../routes/main_content/ProfileSettings";
 import Chat from "../routes/main_content/Chat";
 import { Ionicons } from "@expo/vector-icons";
 import { Image, Platform, StatusBar } from "react-native";
+import { useAuth } from "../context/AuthContext";
 
 const Tab = createBottomTabNavigator();
 
 const BottomNav = () => {
   const topPadding = Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
+  const { user } = useAuth();
 
   return (
     <Tab.Navigator
@@ -26,9 +28,12 @@ const BottomNav = () => {
           } else if (route.name === "Chat") {
             iconName = focused ? "chatbubble" : "chatbubble-outline";
           } else if (route.name === "ProfileSettings") {
+            const imgSource = user?.profileImg
+              ? { uri: user.profileImg }
+              : require("../assets/cinnamoroll.jpg");
             return (
               <Image
-                source={require("../assets/cinnamoroll.jpg")}
+                source={imgSource}
                 style={{
                   width: size,
                   height: size,

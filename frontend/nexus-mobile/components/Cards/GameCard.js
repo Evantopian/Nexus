@@ -15,7 +15,6 @@ const GameCard = ({ game }) => {
   const { user } = useAuth();
   const { followedGames, refetch } = useFollowedGames();
 
-  // Local state for isFollowing to force re-render on mutation
   const [isFollowing, setIsFollowing] = useState(false);
 
   const [followGame] = useMutation(FOLLOW_GAME, {

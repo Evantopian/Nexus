@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 const GroupCard = ({ group }) => {
+  const [joined, setJoined] = useState(false);
+
+  const handleJoin = () => {
+    setJoined(true);
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.infoContainer}>
@@ -41,8 +47,8 @@ const GroupCard = ({ group }) => {
           )}
           <Text style={styles.authorName}>{group.author?.username || "Unknown"}</Text>
         </View>
-        <TouchableOpacity style={styles.joinButton}>
-          <Text style={styles.joinText}>Join Group</Text>
+        <TouchableOpacity style={styles.joinButton} disabled={joined} onPress={handleJoin}>
+          <Text style={styles.joinText}>{joined ? "Group Joined" : "Join Group"}</Text>
         </TouchableOpacity>
       </View>
     </View>

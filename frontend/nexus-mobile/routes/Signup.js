@@ -15,11 +15,12 @@ export default function Signup({ navigation }) {
         try {
             await signup(username, email, password);
             navigation.navigate("Main Content");
-        }   catch (err) {
-            console.error("Signup error:", err.response);
-        setError("Invalid email or password.");
-    }
-  };
+        }   
+        catch (err) {
+            //console.error("Signup error:", err.response);
+            setError("Invalid email or password.");
+        }
+    };
 
     return (
         <LinearGradient

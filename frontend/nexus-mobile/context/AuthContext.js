@@ -59,29 +59,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    const token = await AsyncStorage.getItem("authToken"); // Use AsyncStorage here
-
+    const token = await AsyncStorage.getItem("authToken");
     try {
-      await axios.post(
-        "/logout",
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log("logged out");
+      await axios.post("/logout", {}, { withCredentials: true, headers: {
+        Authorization: `Bearer ${token}`,
+      },});
       setUser(null);
-      await AsyncStorage.removeItem("authToken"); // Use AsyncStorage here
+      await AsyncStorage.removeItem("authToken");
+      await client.clearStore();
     } catch (error) {
       console.error("Logout failed", error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, setUser, loading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

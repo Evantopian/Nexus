@@ -3,17 +3,15 @@ import { useQuery } from "@apollo/client";
 import { GET_ALL_GAMES } from "../graphql/game/gameQueries";
 import { useAuth } from "./AuthContext";
 
-// Define the GameContext
 const GameContext = createContext(undefined);
 
 export const GameProvider = ({ children }) => {
   const { user } = useAuth();
   const { data, loading, error, refetch } = useQuery(GET_ALL_GAMES, {
-    skip: !user, // Only fetch when the user is logged in
-    fetchPolicy: "network-only", // Always fetch fresh data
+    skip: !user,
+    fetchPolicy: "network-only",
   });
 
-  // Refetch the games when the user logs in or when the token becomes available
   useEffect(() => {
     if (user) {
       refetch();
