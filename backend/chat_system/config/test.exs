@@ -17,9 +17,8 @@ config :chat_system, ChatSystem.Repo,
 # you can enable the server option below.
 config :chat_system, ChatSystemWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "iUSY6h9RU73S5976PAs9JPrZIHhtVbYxZ5kuPiyKu5sgu31ezaWqbsfAD5hejxah",
-  server: false
-
+  secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
+ 
 # In test we don't send emails
 config :chat_system, ChatSystem.Mailer, adapter: Swoosh.Adapters.Test
 
